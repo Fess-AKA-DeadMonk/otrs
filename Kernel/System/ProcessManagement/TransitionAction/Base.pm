@@ -80,13 +80,14 @@ sub _ReplaceTicketAttributes {
         # replace ticket attributes such as <OTRS_Ticket_Dynamic_Field_Name1> or
         # <OTRS_TICKET_Dynamic_Field_Name1>
         # <OTRS_Ticket_*> is deprecated and should be removed in further versions of OTRS
-        if (
-            $Param{Config}->{$Attribute}
-            && $Param{Config}->{$Attribute} =~ m{\A<OTRS_(?:Ticket|TICKET)_([A-Za-z0-9_]+)>\z}msx
-            )
+        for ( my $replacement = 0;
+            $replacement <= 1000 
+            && $Param{Config}->{$Attribute}
+            && $Param{Config}->{$Attribute} =~ m{<OTRS_TICKET_([A-Za-z0-9_]+)>}misx;
+            $replacement++ )
         {
             my $TicketAttribute = $1;
-            $Param{Config}->{$Attribute} = $Param{Ticket}->{$TicketAttribute} //= '';
+            $Param{Config}->{$Attribute} =~ s/<OTRS_TICKET_$1>/$Param{Ticket}->{$TicketAttribute}/misxg // '';
         }
     }
 
