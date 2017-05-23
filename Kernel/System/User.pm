@@ -533,11 +533,29 @@ sub UserUpdate {
     }
 
     # set email address
-    $Self->SetPreferences(
-        UserID => $Param{UserID},
-        Key    => 'UserEmail',
-        Value  => $Param{UserEmail}
-    );
+    
+    for my $Key ( sort keys %Param ) {
+        # detect non-preferences keys
+        if ( $Key =~ m{ \A (?: UserTitle | UserFirstname | UserLastname | UserLogin | ValidID | ChangeUserID | UserID | UserPw ) }xms ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'debug',
+                Message  => 'non-preference value detected: ' . $Key,
+            );
+        }
+        else {
+            # set Preferences
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'debug',
+                Message  => 'preference value detected: ' . $Key
+                            . '. Value is: ' . $Param{$Key},
+            );
+            $Self->SetPreferences(
+                UserID => $Param{UserID},
+                Key    => $Key,
+                Value  => $Param{$Key}
+            );
+        }
+    }
 
     # delete cache
     $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
