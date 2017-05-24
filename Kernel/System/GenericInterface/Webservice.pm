@@ -1,6 +1,5 @@
 # --
-# Kernel/System/GenericInterface/Webservice.pm - GenericInterface webservice config backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -148,7 +147,7 @@ sub WebserviceAdd {
 
     # md5 of content
     my $MD5 = $Kernel::OM->Get('Kernel::System::Main')->MD5sum(
-        String => $Kernel::OM->Get('Kernel::System::Time')->SystemTime() . int( rand(1000000) ),
+        String => $Param{Name},
     );
 
     # get database object
@@ -387,11 +386,6 @@ sub WebserviceUpdate {
     # dump config as string
     my $Config = $Kernel::OM->Get('Kernel::System::YAML')->Dump( Data => $Param{Config} );
 
-    # md5 of content
-    my $MD5 = $Kernel::OM->Get('Kernel::System::Main')->MD5sum(
-        String => $Kernel::OM->Get('Kernel::System::Time')->SystemTime() . int( rand(1000000) ),
-    );
-
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
@@ -418,10 +412,10 @@ sub WebserviceUpdate {
     # sql
     return if !$DBObject->Do(
         SQL => 'UPDATE gi_webservice_config SET name = ?, config = ?, '
-            . ' config_md5 = ?, valid_id = ?, change_time = current_timestamp, '
+            . ' valid_id = ?, change_time = current_timestamp, '
             . ' change_by = ? WHERE id = ?',
         Bind => [
-            \$Param{Name}, \$Config, \$MD5, \$Param{ValidID}, \$Param{UserID},
+            \$Param{Name}, \$Config, \$Param{ValidID}, \$Param{UserID},
             \$Param{ID},
         ],
     );

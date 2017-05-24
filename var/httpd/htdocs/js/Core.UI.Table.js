@@ -1,6 +1,5 @@
 // --
-// Core.UI.Table.js - Table specific functions
-// Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -71,19 +70,23 @@ Core.UI.Table = (function (TargetNS) {
      * @return nothing
      */
     TargetNS.InitTableFilter = function ($FilterInput, $Container, ColumnNumber) {
-        var Timeout,
-            $Rows = $Container.find('tbody tr:not(.FilterMessage), li:not(.Header):not(.FilterMessage)'),
-            $Elements = $Rows.closest('tr, li');
+        var Timeout;
 
-        // Only search in one special column of the table
-        if (typeof ColumnNumber === 'string' || typeof ColumnNumber === 'number') {
-            $Rows = $Rows.find('td:eq(' + ColumnNumber + ')');
-        }
-
-        $FilterInput.unbind('keydown.FilterInput').bind('keydown.FilterInput', function () {
+        $FilterInput.off('keydown.FilterInput').on('keydown.FilterInput', function () {
 
             window.clearTimeout(Timeout);
             Timeout = window.setTimeout(function () {
+
+                var FilterText = ($FilterInput.val() || '').toLowerCase(),
+
+                // Get table rows again in case something has changed since page has loaded.
+                $Rows = $Container.find('tbody tr:not(.FilterMessage), li:not(.Header):not(.FilterMessage)'),
+                $Elements = $Rows.closest('tr, li');
+
+                 // Only search in one special column of the table.
+                if (typeof ColumnNumber === 'string' || typeof ColumnNumber === 'number') {
+                    $Rows = $Rows.find('td:eq(' + ColumnNumber + ')');
+                }
 
                 /**
                  * @function
@@ -119,7 +122,6 @@ Core.UI.Table = (function (TargetNS) {
                     return false;
                 }
 
-                var FilterText = ($FilterInput.val() || '').toLowerCase();
                 if (FilterText.length) {
                     $Elements.hide();
                     $Rows.each(function () {
@@ -145,7 +147,7 @@ Core.UI.Table = (function (TargetNS) {
         });
 
         // Prevent submit when the Return key was pressed
-        $FilterInput.unbind('keypress.FilterInput').bind('keypress.FilterInput', function (Event) {
+        $FilterInput.off('keypress.FilterInput').on('keypress.FilterInput', function (Event) {
             if ((Event.charCode || Event.keyCode) === 13) {
                 Event.preventDefault();
             }

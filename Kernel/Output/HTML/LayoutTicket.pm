@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/LayoutTicket.pm - provides generic ticket HTML output
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -117,9 +116,16 @@ sub AgentCustomerViewTable {
                 Key   => $Field->[1],
                 Value => $Param{Data}->{ $Field->[0] },
             );
-            if ( $Field->[6] ) {
+            if (
+                $Field->[6]
+                && ( $Param{Data}->{TicketID} || $Param{Ticket} )
+                )
+            {
                 $Record{LinkStart} = "<a href=\"$Field->[6]\"";
-                if ( $Field->[8] ) {
+                if ( !$Param{Ticket} ) {
+                    $Record{LinkStart} .= " target=\"_blank\"";
+                }
+                elsif ( $Field->[8] ) {
                     $Record{LinkStart} .= " target=\"$Field->[8]\"";
                 }
                 if ( $Field->[9] ) {
@@ -229,6 +235,7 @@ sub AgentQueueListOption {
 
     # set OnChange if AJAX is used
     if ( $Param{Ajax} ) {
+
         if ( !$Param{Ajax}->{Depend} ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
@@ -275,7 +282,7 @@ sub AgentQueueListOption {
         # find index of first element in array @QueueDataArray for displaying in frontend
         # at the top should be element with ' $QueueDataArray[$_]->{Key} = 0' like "- Move -"
         # when such element is found, it is moved at the top
-        my ($FirstElementIndex) = grep $QueueDataArray[$_]->{Key} == 0, 0 .. $#QueueDataArray;
+        my ($FirstElementIndex) = grep $QueueDataArray[$_]->{Key} == 0, 0 .. $#QueueDataArray || 0;
         splice( @QueueDataArray, 0, 0, splice( @QueueDataArray, $FirstElementIndex, 1 ) );
         $Param{Data} = \@QueueDataArray;
 
@@ -329,10 +336,13 @@ sub AgentQueueListOption {
         $Data{$_} .= '::';
     }
 
+    # get HTML utils object
+    my $HTMLUtilsObject = $Self->{HTMLUtilsObject};
+
     # set default item of select box
     if ($ValueNoQueue) {
         $Param{MoveQueuesStrg} .= '<option value="'
-            . $KeyNoQueue
+            . $HTMLUtilsObject->ToHTML( String => $KeyNoQueue )
             . '">'
             . $ValueNoQueue
             . "</option>\n";
@@ -390,7 +400,7 @@ sub AgentQueueListOption {
                         my $DSpace               = '&nbsp;&nbsp;' x $Index;
                         my $OptionTitleHTMLValue = '';
                         if ($OptionTitle) {
-                            my $HTMLValue = $Self->{HTMLUtilsObject}->ToHTML(
+                            my $HTMLValue = $HTMLUtilsObject->ToHTML(
                                 String => $Queue[$Index],
                             );
                             $OptionTitleHTMLValue = ' title="' . $HTMLValue . '"';
@@ -411,11 +421,14 @@ sub AgentQueueListOption {
             my $String               = $Space . $Queue[-1];
             my $OptionTitleHTMLValue = '';
             if ($OptionTitle) {
-                my $HTMLValue = $Self->{HTMLUtilsObject}->ToHTML(
+                my $HTMLValue = $HTMLUtilsObject->ToHTML(
                     String => $Queue[-1],
                 );
                 $OptionTitleHTMLValue = ' title="' . $HTMLValue . '"';
             }
+            my $HTMLValue = $HTMLUtilsObject->ToHTML(
+                String => $_,
+            );
             if (
                 $SelectedID eq $_
                 || $Selected eq $Param{Data}->{$_}
@@ -424,7 +437,7 @@ sub AgentQueueListOption {
             {
                 $Param{MoveQueuesStrg}
                     .= '<option selected="selected" value="'
-                    . $_ . '"'
+                    . $HTMLValue . '"'
                     . $OptionTitleHTMLValue . '>'
                     . $String
                     . "</option>\n";
@@ -440,7 +453,7 @@ sub AgentQueueListOption {
             else {
                 $Param{MoveQueuesStrg}
                     .= '<option value="'
-                    . $_ . '"'
+                    . $HTMLValue . '"'
                     . $OptionTitleHTMLValue . '>'
                     . $String
                     . "</option>\n";
@@ -536,9 +549,10 @@ sub ArticleQuote {
 
             # convert html body to correct charset
             $Body = $Self->{EncodeObject}->Convert(
-                Text => $AttachmentHTML{Content},
-                From => $Charset,
-                To   => $Self->{UserCharset},
+                Text  => $AttachmentHTML{Content},
+                From  => $Charset,
+                To    => $Self->{UserCharset},
+                Check => 1,
             );
 
             # add url quoting
@@ -799,7 +813,7 @@ sub TicketListShow {
 
     # update preferences if needed
     my $Key = 'UserTicketOverview' . $Env->{Action};
-    if ( !$Self->{ConfigObject}->Get('DemoSystem') && $Self->{$Key} ne $View ) {
+    if ( !$Self->{ConfigObject}->Get('DemoSystem') && ( $Self->{$Key} // '' ) ne $View ) {
         $Self->{UserObject}->SetPreferences(
             UserID => $Self->{UserID},
             Key    => $Key,
@@ -1037,6 +1051,20 @@ sub TicketListShow {
                 # configure columns
                 my @ColumnsEnabled = @{ $Object->{ColumnsEnabled} };
                 my @ColumnsAvailable;
+
+                # remove duplicate columns
+                my %UniqueColumns;
+                my @ColumnsEnabledAux;
+
+                for my $Column (@ColumnsEnabled) {
+                    if ( !$UniqueColumns{$Column} ) {
+                        push @ColumnsEnabledAux, $Column;
+                    }
+                    $UniqueColumns{$Column} = 1;
+                }
+
+                # set filtered column list
+                @ColumnsEnabled = @ColumnsEnabledAux;
 
                 for my $ColumnName ( sort { $a cmp $b } @{ $Object->{ColumnsAvailable} } ) {
                     if ( !grep { $_ eq $ColumnName } @ColumnsEnabled ) {

@@ -1,6 +1,5 @@
 # --
-# TableAlter.t - database tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -16,6 +15,8 @@ use vars (qw($Self));
 # get needed objects
 my $DBObject  = $Kernel::OM->Get('Kernel::System::DB');
 my $XMLObject = $Kernel::OM->Get('Kernel::System::XML');
+
+my $UID;
 
 # ------------------------------------------------------------ #
 # XML test 7 - default value test (alter table)
@@ -107,7 +108,7 @@ my $Counter3 = 1;
 for my $Test ( @{$DefaultTest2Insert} ) {
 
     # create unique id
-    my $ID = int rand 30_000;
+    my $ID = $UID++;
 
     my @InsertColumnsSorted = sort { $a cmp $b } keys %{ $Test->{Insert} };
     my @InsertValuesSorted  = map  { $Test->{Insert}->{$_} } @InsertColumnsSorted;
@@ -285,7 +286,7 @@ my $Counter4 = 1;
 for my $Test ( @{$DefaultTest2Alter1} ) {
 
     # create unique id
-    my $ID = int rand 30_000;
+    my $ID = $UID++;
 
     my @InsertColumnsSorted = sort { $a cmp $b } keys %{ $Test->{Insert} };
     my @InsertValuesSorted  = map  { $Test->{Insert}->{$_} } @InsertColumnsSorted;
@@ -445,7 +446,7 @@ my $Counter5 = 1;
 for my $Test ( @{$DefaultTest2Alter2} ) {
 
     # create unique id
-    my $ID = int rand 30_000;
+    my $ID = $UID++;
 
     my @InsertColumnsSorted = sort { $a cmp $b } keys %{ $Test->{Insert} };
     my @InsertValuesSorted  = map  { $Test->{Insert}->{$_} } @InsertColumnsSorted;

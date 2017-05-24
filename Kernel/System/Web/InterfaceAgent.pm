@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Web/InterfaceAgent.pm - the agent interface file (incl. auth)
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -28,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::Time',
     'Kernel::System::User',
     'Kernel::System::Web::Request',
+    'Kernel::System::Valid',
 );
 
 =head1 NAME
@@ -141,6 +141,11 @@ sub Run {
             || $FrameworkParams->{$Key};
     }
 
+    # validate language
+    if ( $Param{Lang} && $Param{Lang} !~ m{\A[a-z]{2}(?:_[A-Z]{2})?\z}xms ) {
+        delete $Param{Lang};
+    }
+
     # check if the browser sends the SessionID cookie and set the SessionID-cookie
     # as SessionID! GET or POST SessionID have the lowest priority.
     my $BrowserHasCookie = 0;
@@ -156,7 +161,7 @@ sub Run {
             Lang         => $Param{Lang},
             UserLanguage => $Param{Lang},
         },
-        'Kernel::Lanugage' => {
+        'Kernel::Language' => {
             UserLanguage => $Param{Lang}
         },
     );
@@ -596,7 +601,11 @@ sub Run {
             User  => $User,
             Valid => 1
         );
-        if ( !$UserData{UserID} ) {
+
+        # verify user is valid when requesting password reset
+        my @ValidIDs = $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet();
+        my $UserIsValid = grep { $UserData{ValidID} && $UserData{ValidID} == $_ } @ValidIDs;
+        if ( !$UserData{UserID} || !$UserIsValid ) {
 
             # Security: pretend that password reset instructions were actually sent to
             #   make sure that users cannot find out valid usernames by
@@ -910,12 +919,14 @@ sub Run {
         );
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout'] );
 
-        # updated last request time
-        $Self->{SessionObject}->UpdateSessionID(
-            SessionID => $Param{SessionID},
-            Key       => 'UserLastRequest',
-            Value     => $Self->{TimeObject}->SystemTime(),
-        );
+        # update last request time
+        if ( !$Self->{ParamObject}->IsAJAXRequest() ) {
+            $Self->{SessionObject}->UpdateSessionID(
+                SessionID => $Param{SessionID},
+                Key       => 'UserLastRequest',
+                Value     => $Self->{TimeObject}->SystemTime(),
+            );
+        }
 
         # pre application module
         my $PreModule = $Self->{ConfigObject}->Get('PreApplicationModule');
@@ -1004,7 +1015,7 @@ sub Run {
                 close $Out;
 
                 $Self->{LogObject}->Log(
-                    Priority => 'notice',
+                    Priority => 'debug',
                     Message  => "Response::Agent: "
                         . ( time() - $Self->{PerformanceLogStart} )
                         . "s taken (URL:$QueryString:$UserData{UserLogin})",

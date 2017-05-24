@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.FillDB.pl - fill db with demo data
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -82,7 +81,7 @@ sub Run {
     if ( $Opts{h} ) {
         print <<EOF;
 otrs.FillDB.pl - OTRS fill db with data
-Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 
 usage: otrsFillDB.pl -q <QUEUES> -t <TICKETS> -m <MODIFY_TICKETS> -a <ARTICLES> -f <SETSEENFLAG> -u <USERS> -g <GROUPS> -c <CUSTOMERUSERS> -r <REALLYDOTHIS>
 EOF
@@ -171,7 +170,7 @@ EOF
             Title        => RandomSubject(),
             QueueID      => $QueueIDs[ int( rand($#QueueIDs) ) ],
             Lock         => 'unlock',
-            Priority     => '3 normal',
+            Priority     => PriorityGet(),
             State        => 'new',
             CustomerNo   => int( rand(1000) ),
             CustomerUser => RandomAddress(),
@@ -498,6 +497,18 @@ sub RandomBody {
         $Body .= $Text[ int( rand( $#Text + 1 ) ) ] . "\n";
     }
     return $Body;
+}
+
+sub PriorityGet {
+    my %PriorityList = $Kernel::OM->Get('Kernel::System::Priority')->PriorityList(
+        Valid => 1,
+    );
+
+    my @Priorities;
+    for my $PriorityID ( sort keys %PriorityList ) {
+        push @Priorities, $PriorityList{$PriorityID};
+    }
+    return $Priorities[ int( rand( $#Priorities + 1 ) ) ];
 }
 
 sub QueueGet {

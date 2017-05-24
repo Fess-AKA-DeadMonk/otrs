@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DB/mysql.pm - mysql database backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -16,6 +15,7 @@ use Encode ();
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::System::Encode',
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::Time',
@@ -86,6 +86,7 @@ sub LoadPreferences {
 sub PreProcessSQL {
     my ( $Self, $SQLRef ) = @_;
     $Self->_FixMysqlUTF8($SQLRef);
+    $Kernel::OM->Get('Kernel::System::Encode')->EncodeOutput($SQLRef);
     return;
 }
 
@@ -94,8 +95,18 @@ sub PreProcessBindData {
 
     my $Size = scalar @{ $BindRef // [] };
 
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
+
     for ( my $I = 0; $I < $Size; $I++ ) {
+
         $Self->_FixMysqlUTF8( \$BindRef->[$I] );
+
+        # DBD::mysql 4.042+ requires data to be octets, so we encode the data on our own.
+        #   The mysql_enable_utf8 flag seems to be unusable because it treats ALL data as UTF8 unless
+        #   it has a custom bind data type like SQL_BLOB.
+        #
+        #   See also https://bugs.otrs.org/show_bug.cgi?id=12677.
+        $EncodeObject->EncodeOutput( \$BindRef->[$I] );
     }
     return;
 }
@@ -623,7 +634,7 @@ sub ForeignKeyCreate {
         );
         $ForeignKey = substr $ForeignKey, 0, 58;
         $ForeignKey .= substr $MD5, 0,  1;
-        $ForeignKey .= substr $MD5, 61, 1;
+        $ForeignKey .= substr $MD5, 31, 1;
     }
 
     # add foreign key
@@ -655,7 +666,7 @@ sub ForeignKeyDrop {
         );
         $ForeignKey = substr $ForeignKey, 0, 58;
         $ForeignKey .= substr $MD5, 0,  1;
-        $ForeignKey .= substr $MD5, 61, 1;
+        $ForeignKey .= substr $MD5, 31, 1;
     }
 
     # drop foreign key

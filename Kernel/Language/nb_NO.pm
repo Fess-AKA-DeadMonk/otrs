@@ -1,5 +1,4 @@
 # --
-# Kernel/Language/nb_NO.pm - Norwegian (bokmÃ¥l) language translation
 # Copyright (C) 2004 Arne Georg Gleditsch <argggh at linpro.no>
 # Copyright (C) 2005 Espen Stefansen <libbe at stefansen dot net>
 # Copyright (C) 2006 Knut Haugen <knuthaug at linpro.no>
@@ -281,9 +280,14 @@ sub Data {
         'Dispatching by email To: field.' => 'Utsending etter oppføringer i To:-felt.',
         'Dispatching by selected Queue.' => 'Utsending etter valgt kø.',
         'No entry found!' => 'Ingen oppføringer funnet!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => 'Sesjonen er ugyldig. Vennligst logg inn igjen.',
         'Session has timed out. Please log in again.' => 'Sesjonen har gått ut på tid.  Vennligst logg inn igjen.',
         'Session limit reached! Please try again later.' => 'Grensen for total antall sesjoner er nådd. Vennligst prøv igjen senere.',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => 'Ingen rettigheter!',
         '(Click here to add)' => '(Klikk her for å legge til)',
         'Preview' => 'Forhåndsvisning',
@@ -295,6 +299,7 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             'Du har fraværassistenten aktivert, vil du så den av?',
         'News about OTRS releases!' => 'Nyheter om OTRS utgivelser!',
+        'Go to dashboard!' => '',
         'Customer %s added' => 'Kunde %s lagt til',
         'Role added!' => 'Rollen ble lagt til!',
         'Role updated!' => 'Rolle oppdatert!',
@@ -423,7 +428,7 @@ sub Data {
         'Problems processing server result. Please try again later.' => 'Problemer med å prosessere serverresultat. Prøv igjen senere.',
         'Username and password do not match. Please try again.' => 'Brukernavn og passord stemmer ikke overens. Prøv igjen.',
         'The selected process is invalid!' => 'Valgt prosess er ikke gyldig!',
-        'Upgrade to %s now!' => '',
+        'Upgrade to %s now!' => 'Oppgrader til %s nå!',
         '%s Go to the upgrade center %s' => '',
         'The license for your %s is about to expire. Please make contact with %s to renew your contract!' =>
             '',
@@ -706,6 +711,9 @@ sub Data {
         'Webserver Version' => 'Webtjener versjon',
         'Could not determine webserver version.' => 'Kunne ikke bestemme webtjenerversjon.',
         'Loaded Apache Modules' => '',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => 'CGI Accelerator status',
         'You should use FastCGI or mod_perl to increase your performance.' =>
             'Du bør benytte FastCGI eller mod_perl for å forbedre ytelsen.',
@@ -869,6 +877,7 @@ sub Data {
         'Create new Email Ticket' => 'Opprett ny sak ved å sende e-post',
         'Phone-Ticket' => 'Henvendelser',
         'Search Tickets' => 'Søk i saker',
+        'Customer Realname' => '',
         'Customer History' => '',
         'Edit Customer Users' => 'Rediger kundebrukere',
         'Edit Customer' => 'Endre kunde',
@@ -1074,7 +1083,8 @@ sub Data {
         'You can use the following tags' => 'Du kan bruke de følgende "tags"',
         'To get the first 20 character of the subject.' => 'For å hente de første 20 tegnene i overskriften.',
         'To get the first 5 lines of the email.' => 'For å hente de første 5 linjene i e-posten.',
-        'To get the realname of the sender (if given).' => 'For å hente senderens virkelige navn (hvis oppgitt).',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => 'For å hente innlegg-attributtet',
         ' e. g.' => 'f.eks.',
         'Options of the current customer user data' => 'Valg for den nåværende brukerens brukerdata',
@@ -1299,6 +1309,7 @@ sub Data {
         'This event is already attached to the job, Please use a different one.' =>
             '',
         'Delete this Event Trigger' => 'Fjern denne Hendelses Utløseren',
+        'Remove selection' => '',
         'Select Tickets' => '',
         '(e. g. 10*5155 or 105658*)' => 'f.eks. 10*5144 eller 105658*',
         '(e. g. 234321)' => 'f.eks. 234321',
@@ -1376,6 +1387,8 @@ sub Data {
         '%s Tickets affected! What do you want to do?' => '%s saker blir påvirket! Hva vil du gjøre?',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
             'ADVARSEL: Du brukte SLETTE-valget. Alle saker som slettes blir borte for godt!',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
+            '',
         'Edit job' => 'Endre jobb',
         'Run job' => 'Kjør jobb',
         'Affected Tickets' => 'Antall saker påvirket',
@@ -1767,7 +1780,7 @@ sub Data {
             '',
         'You are about to downgrade to OTRS Free and will lose the following features and all data related to these:' =>
             '',
-        'Chat' => '',
+        'Chat' => 'Chat',
         'Timeline view in ticket zoom' => '',
         'DynamicField ContactWithData' => '',
         'DynamicField Database' => '',
@@ -1824,8 +1837,8 @@ sub Data {
         'Download' => 'Last ned',
         'Download file from package!' => 'Last ned fil fra pakke!',
         'Required' => 'Påkrevd',
-        'PrimaryKey' => 'Primærnøkkel',
-        'AutoIncrement' => 'Auto-inkrementer',
+        'Primary Key' => '',
+        'Auto Increment' => '',
         'SQL' => 'SQL',
         'File differences for file %s' => 'Forskjeller for filen %s',
 
@@ -2049,6 +2062,7 @@ sub Data {
             '',
         'Transition' => 'Overgang',
         'Transition Name' => 'Overgangsnavn',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => 'Koblingstype mellom tilstander',
         'Remove this Condition' => 'Slett denne tilstanden',
         'Type of Linking' => 'Koblingtype',
@@ -2132,7 +2146,7 @@ sub Data {
         'System deregistration not possible' => '',
         'Please note that you can\'t deregister your system if you\'re using the %s or having a valid service contract.' =>
             '',
-        'OTRS-ID Login' => '',
+        'OTRS-ID Login' => 'OTRS-ID',
         'System registration is a service of OTRS Group, which provides a lot of advantages!' =>
             '',
         'Read more' => 'Les mer',
@@ -2337,7 +2351,7 @@ sub Data {
         'Here you can enter SQL to send it directly to the application database. It is not possible to change the content of the tables, only select queries are allowed.' =>
             '',
         'Here you can enter SQL to send it directly to the application database.' =>
-            '',
+            'Her kan du skrive SQL for å sende kommandoer rett til OTRS sin database',
         'Only select queries are allowed.' => '',
         'The syntax of your SQL query has a mistake. Please check it.' =>
             'SQL-spørringen har en syntaks-feil. Vennligst sjekk den.',
@@ -2830,6 +2844,8 @@ sub Data {
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => 'Forfatt svar til sak',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => 'Vennligst oppgi minst en mottaker',
         'Remove Ticket Customer' => 'Fjern kunde fra sak',
         'Please remove this entry and enter a new one with the correct value.' =>
@@ -2855,6 +2871,13 @@ sub Data {
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => '',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => 'Videresend sak: %s - %s',
@@ -3053,6 +3076,7 @@ sub Data {
         'Incoming Chat Requests' => '',
         'You have unanswered chat requests' => '',
         'Edit personal preferences' => 'Endre personlige innstillinger',
+        'Logout %s %s' => '',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => '',
@@ -3139,9 +3163,12 @@ sub Data {
             'En sprettoppvindu med denne skjermen er allerede åpen. Vil du stenge vinduet og laste det inn her i stedet?',
         'Please enter at least one search value or * to find anything.' =>
             'Vennligst oppgi minst en søkeverdi eller * for å finne noe.',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            '',
         'Please check the fields marked as red for valid inputs.' => '',
         'Please perform a spell check on the the text first.' => '',
         'Slide the navigation bar' => '',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => 'Du er innlogget som',
@@ -3152,6 +3179,7 @@ sub Data {
         'JavaScript not available' => 'JavaScript er ikke tilgjengelig',
         'Database Settings' => 'Databaseinnstillinger',
         'General Specifications and Mail Settings' => 'Generelle spesifikasjoner og e-post-innstillinger',
+        'Welcome to %s' => '',
         'Web site' => 'Websted',
         'Mail check successful.' => 'E-postsjekk fullført',
         'Error in the mail settings. Please correct and try again.' => 'Feil i e-postoppsettet. Korriger og prøv igjen.',
@@ -3275,6 +3303,7 @@ sub Data {
 
         # Template: Test
         'OTRS Test Page' => 'OTRS Test-side',
+        'Welcome %s %s' => '',
         'Counter' => 'Teller',
 
         # Template: Warning
@@ -3286,6 +3315,7 @@ sub Data {
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => '%s minutt(er) lagt til. Total tid er %s minutt(er).',
         '(UserLogin) Firstname Lastname' => '(Brukernavn) Fornavn Etternavn',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3417,8 +3447,8 @@ sub Data {
             '',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             'Automatisk lås og sett eier til nåværende agent etter å ha blitt valgt i en masseredigeringshandling',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
-            'Sett automatisk eieren av saken som ansvarlig for den (hvis saksansvar er slått på).',
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
+            '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             'Sett automatisk ansvarlig for en sak (hvis ikke satt) etter første eieroppdatering',
         'Balanced white skin by Felix Niklas (slim version).' => '',
@@ -3486,6 +3516,7 @@ sub Data {
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             '',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             'Gir kunder mulighet til å sortere sakene sine.',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3551,9 +3582,9 @@ sub Data {
             '',
         'Default loop protection module.' => 'Standard loop-beskyttelsesmodul',
         'Default queue ID used by the system in the agent interface.' => 'Standard køID brukt av systemet for saksbehandlere.',
-        'Default skin for OTRS 3.0 interface.' => 'Standard-utseende for OTRS 3.0',
         'Default skin for the agent interface (slim version).' => '',
         'Default skin for the agent interface.' => '',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             'Standard Saksnr brukt av systemet i saksbehandler-delen',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3669,6 +3700,8 @@ sub Data {
         'Defines scheduler PID update time in seconds.' => '',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             '',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             'Spesifiserer Regulær-uttrykk for IPen til lokalt pakkelager. Du må slå dette på for å ha tilgang til ditt lokale pakkelager. I tillegg er package::RepositoryList påkrevd på andre tjenere.',
         'Defines the URL CSS path.' => 'Definerer URL til CSS',
@@ -3691,6 +3724,8 @@ sub Data {
         'Defines the body text for rejected emails.' => 'Meldingstekst for avviste e-poster.',
         'Defines the boldness of the line drawed by the graph.' => 'Tykkheten på linjer tegnet i grafer.',
         'Defines the calendar width in percent. Default is 95%.' => '',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => 'Fargene på grafene.',
         'Defines the column to store the keys for the preferences table.' =>
             'Definerer hvilken kolonne som skal brukes for å lagre nøkler til valgtabellen',
@@ -3964,7 +3999,7 @@ sub Data {
             '',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             '',
-        'Defines the list of possible next actions on an error screen.' =>
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
             '',
         'Defines the list of types for templates.' => '',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
@@ -4000,6 +4035,8 @@ sub Data {
             '',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             '',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             '',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4020,8 +4057,8 @@ sub Data {
         'Defines the name of the key for customer sessions.' => '',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             '',
-        'Defines the name of the table, where the customer preferences are stored.' =>
-            'Definerer navnet på tabellen der kundens innstillinger lagres.',
+        'Defines the name of the table where the user preferences are stored.' =>
+            '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             '',
         'Defines the next possible states after forwarding a ticket in the ticket forward screen of the agent interface.' =>
@@ -4149,7 +4186,7 @@ sub Data {
         'Defines the valid state types for a ticket.' => '',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             '',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
             '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             '',
@@ -4203,11 +4240,17 @@ sub Data {
             '',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             '',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
             '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             '',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
+            '',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
             '',
         'Display settings to override defaults for Process Tickets.' => '',
         'Displays the accounted time for an article in the ticket zoom view.' =>
@@ -4540,6 +4583,7 @@ sub Data {
             '',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             '',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             'Inkluder opprettelsestidspunkt i søkedelen av agentdelen.',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4553,6 +4597,8 @@ sub Data {
             '',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             '',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => 'Etternavn, Fornavn',
         'Lastname, Firstname (UserLogin)' => 'Etternavn, Fornavn (Brukernavn)',
         'Left' => '',
@@ -4619,6 +4665,7 @@ sub Data {
             'Maksimum antall autosvar til egne e-postadresser per dag (beskyttelse mot e-post-looping)',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             'Maks. størrelse (i kilobytes) på e-post som kan hentes via POP3/IMAP',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             '',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4874,8 +4921,7 @@ sub Data {
             'Send varsling kun til sakens eier dersom en sak låses opp (normalt sendes meldingen til alle saksbehandlere).',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             'Send all utgående e-post via Bcc til spesifisert adresse. Vennligst bruk dette kun for sikkerhetskopiering.',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            'Send kundemeldinger kun til den oppsatte kundekontakten. Normalt vil kundens siste innsender få melding dersom ingen kundekontakt er spesifisert.',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             'Sender en påminnelse om opplåsing av saker etter oppnådd tidsfrist (sendes kun til sakens eier).',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4884,6 +4930,8 @@ sub Data {
         'Service view' => '',
         'Set sender email addresses for this system.' => 'Sett opp avsenderadresse for denne installasjonen',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
+            '',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
             '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             '',
@@ -4969,6 +5017,8 @@ sub Data {
         'Sets the display order of the different items in the preferences view.' =>
             '',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
+            '',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
             '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             '',
@@ -5072,7 +5122,8 @@ sub Data {
             '',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             '',
-        'Sets the time (in seconds) a user is marked as active.' => '',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => '',
         'Sets the timeout (in seconds) for http/ftp downloads.' => '',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>

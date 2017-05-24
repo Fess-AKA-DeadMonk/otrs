@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/ObjectType/Article.pm - Article object handler for DynamicField
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -125,8 +124,12 @@ sub PostValueSet {
     $TicketObject->EventHandler(
         Event => 'ArticleDynamicFieldUpdate',
         Data  => {
+            FieldName => $Param{DynamicFieldConfig}->{Name},
+            Value     => $Param{Value},
+            OldValue  => $Param{OldValue},
             TicketID  => $Article{TicketID},
             ArticleID => $Param{ObjectID},
+            UserID    => $Param{UserID},
         },
         UserID => $Param{UserID},
     );

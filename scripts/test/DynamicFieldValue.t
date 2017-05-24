@@ -1,6 +1,5 @@
 # --
-# DynamicFieldValue.t - DynamicFieldValue backend tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -37,6 +36,25 @@ my $TicketID = $TicketObject->TicketCreate(
 # sanity check
 $Self->True(
     $TicketID,
+    "TicketCreate() successful for Ticket ID $TicketID",
+);
+
+# Create second ticket.
+my $TicketID2 = $TicketObject->TicketCreate(
+    Title        => 'Some Ticket Title',
+    Queue        => 'Raw',
+    Lock         => 'unlock',
+    Priority     => '3 normal',
+    State        => 'new',
+    CustomerID   => '123465',
+    CustomerUser => 'customer@example.com',
+    OwnerID      => 1,
+    UserID       => 1,
+);
+
+# sanity check
+$Self->True(
+    $TicketID2,
     "TicketCreate() successful for Ticket ID $TicketID",
 );
 
@@ -718,7 +736,53 @@ $Self->True(
         0,
         "ValueGet() - deleted value - for field3 FieldID $FieldID",
     );
+
+    # Set value for second ticket.
+    $Success = $DynamicFieldValueObject->ValueSet(
+        FieldID    => $FieldID2,
+        ObjectType => 'Ticket',
+        ObjectID   => $TicketID2,
+        Value      => [
+            {
+                ValueText => 'Value test field2 ',
+            },
+        ],
+        UserID => 1,
+    );
+
+    # sanity check
+    $Self->True(
+        $Success,
+        "ValueSet() - with True - for Object ID $TicketID2",
+    );
 }
+
+# Delete the dynamic field values for object ID.
+my $ObjectValueDelete = $DynamicFieldValueObject->ObjectValuesDelete(
+    ObjectType => 'Ticket',
+    ObjectID   => $TicketID2,
+    UserID     => 1,
+);
+
+# Sanity check.
+$Self->True(
+    $ObjectValueDelete,
+    "ObjectValuesDelete() successful for Object ID $TicketID2",
+);
+
+# get the value with ValueGet()
+my $DeletedValue = $DynamicFieldValueObject->ValueGet(
+    FieldID    => $FieldID2,
+    ObjectType => 'Ticket',
+    ObjectID   => $TicketID2
+);
+
+# sanity check
+$Self->Is(
+    $DeletedValue->[0]->{ValueText},
+    undef,
+    "ValueGet() - for ObjectValuesDelete() is successful",
+);
 
 # delete the dynamic field values
 my $FieldValueDelete = $DynamicFieldValueObject->AllValuesDelete(

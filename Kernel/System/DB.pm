@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DB.pm - the global database wrapper to support different databases
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -24,6 +23,8 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
 );
+
+our $UseSlaveDB = 0;
 
 =head1 NAME
 
@@ -206,6 +207,10 @@ sub Connect {
         $Self->{dbh}->{pg_enable_utf8} = 1;
     }
 
+    if ( $Self->{SlaveDBObject} ) {
+        $Self->{SlaveDBObject}->Connect();
+    }
+
     return $Self->{dbh};
 }
 
@@ -232,6 +237,10 @@ sub Disconnect {
     # do disconnect
     if ( $Self->{dbh} ) {
         $Self->{dbh}->disconnect();
+    }
+
+    if ( $Self->{SlaveDBObject} ) {
+        $Self->{SlaveDBObject}->Disconnect();
     }
 
     return 1;
@@ -441,6 +450,37 @@ sub Do {
     return 1;
 }
 
+sub _InitSlaveDB {
+    my ( $Self, %Param ) = @_;
+
+    # Run only once!
+    return $Self->{SlaveDBObject} if $Self->{_InitSlaveDB}++;
+
+    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+    my $MasterDSN     = $ConfigObject->Get('DatabaseDSN');
+    my $SlaveDSN      = $ConfigObject->Get('Core::MirrorDB::DSN');
+    my $SlaveUser     = $ConfigObject->Get('Core::MirrorDB::User');
+    my $SlavePassword = $ConfigObject->Get('Core::MirrorDB::Password');
+
+    # If a slave is configured and it is not already used in the current object
+    #   and we are actually in the master connection object: then create a slave.
+    if (
+        $SlaveDSN
+        && $SlaveUser
+        && $SlavePassword
+        && $SlaveDSN ne $Self->{DSN}
+        && $MasterDSN eq $Self->{DSN}
+        )
+    {
+        $Self->{SlaveDBObject} = Kernel::System::DB->new(
+            DatabaseDSN  => $SlaveDSN,
+            DatabaseUser => $SlaveUser,
+            DatabasePw   => $SlavePassword,
+        );
+    }
+    return $Self->{SlaveDBObject};
+}
+
 =item Prepare()
 
 to prepare a SELECT statement
@@ -493,6 +533,20 @@ sub Prepare {
         );
         return;
     }
+
+    $Self->{_PreparedOnSlaveDB} = 0;
+
+    # Route SELECT statements to the DB slave if requested and a slave is configured.
+    if (
+        $UseSlaveDB
+        && $Self->_InitSlaveDB()    # this is very cheap after the first call (cached)
+        && $SQL =~ m{\A\s*SELECT}xms
+        )
+    {
+        $Self->{_PreparedOnSlaveDB} = 1;
+        return $Self->{SlaveDBObject}->Prepare(%Param);
+    }
+
     if ( defined $Param{Encode} ) {
         $Self->{Encode} = $Param{Encode};
     }
@@ -612,6 +666,10 @@ to process the results of a SELECT statement
 sub FetchrowArray {
     my $Self = shift;
 
+    if ( $UseSlaveDB && $Self->{_PreparedOnSlaveDB} && $Self->_InitSlaveDB() ) {
+        return $Self->{SlaveDBObject}->FetchrowArray();
+    }
+
     # work with cursors if database don't support limit
     if ( !$Self->{Backend}->{'DB::Limit'} && $Self->{Limit} ) {
         if ( $Self->{Limit} <= $Self->{LimitCounter} ) {
@@ -677,10 +735,10 @@ to retrieve the column names of a database statement
 sub GetColumnNames {
     my $Self = shift;
 
-    my $ColumnNames = $Self->{Cursor}->{NAME};
+    my $ColumnNames = $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( $Self->{Cursor}->{NAME} );
 
     my @Result;
-    if ( ref $ColumnNames eq 'ARRAY' ) {
+    if ( IsArrayRefWithData($ColumnNames) ) {
         @Result = @{$ColumnNames};
     }
 
@@ -1240,12 +1298,14 @@ sub QueryCondition {
             $Word =~ s/%%/%/g;
             $Word =~ s/%%/%/g;
 
-            # perform quoting depending on query type
-            if ( $Word =~ m/%/ ) {
-                $Word = $Self->Quote( $Word, 'Like' );
-            }
-            else {
-                $Word = $Self->Quote($Word);
+            # perform quoting depending on query type (only if not in bind mode)
+            if ( !$BindMode ) {
+                if ( $Word =~ m/%/ ) {
+                    $Word = $Self->Quote( $Word, 'Like' );
+                }
+                else {
+                    $Word = $Self->Quote($Word);
+                }
             }
 
             # if it's a NOT LIKE condition
@@ -1288,7 +1348,7 @@ sub QueryCondition {
                         $SQLA .= "LOWER($Key) $Type LOWER($WordSQL)";
                     }
 
-                    if ( $Type eq 'NOT LIKE' && !$BindMode ) {
+                    if ( $Type eq 'NOT LIKE' ) {
                         $SQLA .= " $LikeEscapeString";
                     }
 
@@ -1337,7 +1397,7 @@ sub QueryCondition {
                         $SQLA .= "LOWER($Key) $Type LOWER($WordSQL)";
                     }
 
-                    if ( $Type eq 'LIKE' && !$BindMode ) {
+                    if ( $Type eq 'LIKE' ) {
                         $SQLA .= " $LikeEscapeString";
                     }
 
@@ -1427,6 +1487,12 @@ sub QueryCondition {
             Priority => 'notice',
             Message  => "Invalid condition '$Param{Value}', $Open open and $Close close!",
         );
+        if ($BindMode) {
+            return (
+                'SQL'    => "1=0",
+                'Values' => [],
+            );
+        }
         return "1=0";
     }
 

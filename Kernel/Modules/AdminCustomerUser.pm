@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminCustomerUser.pm - to add/update/delete customer user and preferences
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -933,6 +932,11 @@ sub _Edit {
                 SelectedID => $Param{ $Entry->[0] } || $Param{CustomerID},
                 Class      => $Param{RequiredClass} . ' ' . $Param{Errors}->{ $Entry->[0] . 'Invalid' },
             );
+        }
+        elsif ( $Param{Action} eq 'Add' && $Entry->[0] =~ /^UserCustomerID$/i ) {
+
+            # Use CustomerID param if called from CIC.
+            $Param{Value} = $Param{ $Entry->[0] } || $Param{CustomerID} || '';
         }
         else {
             $Param{Value} = $Param{ $Entry->[0] } || '';

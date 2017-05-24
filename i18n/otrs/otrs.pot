@@ -947,6 +947,14 @@ msgid "No entry found!"
 msgstr ""
 
 #. Template: AAABase
+msgid "Please note that the session limit is almost reached."
+msgstr ""
+
+#. Template: AAABase
+msgid "You have exceeded the number of concurrent agents - contact sales@otrs.com."
+msgstr ""
+
+#. Template: AAABase
 msgid "Session invalid. Please log in again."
 msgstr ""
 
@@ -956,6 +964,10 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Session limit reached! Please try again later."
+msgstr ""
+
+#. Template: AAABase
+msgid "Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!"
 msgstr ""
 
 #. Template: AAABase
@@ -992,6 +1004,10 @@ msgstr ""
 
 #. Template: AAABase
 msgid "News about OTRS releases!"
+msgstr ""
+
+#. Template: AAABase
+msgid "Go to dashboard!"
 msgstr ""
 
 #. Template: AAABase
@@ -2431,6 +2447,14 @@ msgid "Loaded Apache Modules"
 msgstr ""
 
 #. Template: AAASupportDataCollector
+msgid "MPM model"
+msgstr ""
+
+#. Template: AAASupportDataCollector
+msgid "OTRS requires apache to be run with the 'prefork' MPM model."
+msgstr ""
+
+#. Template: AAASupportDataCollector
 msgid "CGI Accelerator Usage"
 msgstr ""
 
@@ -3052,6 +3076,10 @@ msgstr ""
 
 #. Template: AAATicket
 msgid "Search Tickets"
+msgstr ""
+
+#. Template: AAATicket
+msgid "Customer Realname"
 msgstr ""
 
 #. Template: AAATicket
@@ -3755,7 +3783,7 @@ msgid "To get the first 5 lines of the email."
 msgstr ""
 
 #. Template: AdminAutoResponse
-msgid "To get the realname of the sender (if given)."
+msgid "To get the realname of the ticket's customer user (if given)."
 msgstr ""
 
 #. Template: AdminAutoResponse
@@ -4443,6 +4471,10 @@ msgid "Delete this Event Trigger"
 msgstr ""
 
 #. Template: AdminGenericAgent
+msgid "Remove selection"
+msgstr ""
+
+#. Template: AdminGenericAgent
 msgid "Select Tickets"
 msgstr ""
 
@@ -4736,6 +4768,10 @@ msgstr ""
 
 #. Template: AdminGenericAgent
 msgid "Warning: You used the DELETE option. All deleted tickets will be lost!"
+msgstr ""
+
+#. Template: AdminGenericAgent
+msgid "Warning: There are %s tickets affected but only %s may be modified during one job execution!"
 msgstr ""
 
 #. Template: AdminGenericAgent
@@ -6780,6 +6816,10 @@ msgstr ""
 
 #. Template: AdminProcessManagementTransition
 msgid "Transition Name"
+msgstr ""
+
+#. Template: AdminProcessManagementTransition
+msgid "Conditions can only operate on non-empty fields."
 msgstr ""
 
 #. Template: AdminProcessManagementTransition
@@ -9015,6 +9055,10 @@ msgid "Compose answer for ticket"
 msgstr ""
 
 #. Template: AgentTicketCompose
+msgid "This address is registered as system address and cannot be used: %s"
+msgstr ""
+
+#. Template: AgentTicketCompose
 msgid "Please include at least one recipient"
 msgstr ""
 
@@ -9084,6 +9128,26 @@ msgstr ""
 
 #. Template: AgentTicketEmailOutbound
 msgid "E-Mail Outbound"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: update time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time will be over in %s/%s!"
 msgstr ""
 
 #. Template: AgentTicketForward
@@ -9674,6 +9738,10 @@ msgstr ""
 msgid "Edit personal preferences"
 msgstr ""
 
+#. Template: CustomerNavigationBar
+msgid "Logout %s %s"
+msgstr ""
+
 #. Template: CustomerRichTextEditor
 msgid "Split Quote"
 msgstr ""
@@ -9919,6 +9987,10 @@ msgid "Please enter at least one search value or * to find anything."
 msgstr ""
 
 #. Template: FooterJS
+msgid "Please remove the following words from your search as they cannot be searched for:"
+msgstr ""
+
+#. Template: FooterJS
 msgid "Please check the fields marked as red for valid inputs."
 msgstr ""
 
@@ -9928,6 +10000,10 @@ msgstr ""
 
 #. Template: FooterJS
 msgid "Slide the navigation bar"
+msgstr ""
+
+#. Template: FooterJS
+msgid "Do you really want to continue?"
 msgstr ""
 
 #. Template: Header
@@ -9948,6 +10024,10 @@ msgstr ""
 
 #. Template: Installer
 msgid "General Specifications and Mail Settings"
+msgstr ""
+
+#. Template: Installer
+msgid "Welcome to %s"
 msgstr ""
 
 #. Template: Installer
@@ -10291,6 +10371,10 @@ msgid "OTRS Test Page"
 msgstr ""
 
 #. Template: Test
+msgid "Welcome %s %s"
+msgstr ""
+
+#. Template: Test
 msgid "Counter"
 msgstr ""
 
@@ -10316,6 +10400,10 @@ msgstr ""
 
 #. SysConfig
 msgid "(UserLogin) Firstname Lastname"
+msgstr ""
+
+#. SysConfig
+msgid "(UserLogin) Lastname Firstname"
 msgstr ""
 
 #. SysConfig
@@ -10639,7 +10727,7 @@ msgid "Automatically lock and set owner to current Agent after selecting for an 
 msgstr ""
 
 #. SysConfig
-msgid "Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled)."
+msgid "Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface."
 msgstr ""
 
 #. SysConfig
@@ -10824,6 +10912,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Controls how to display the ticket history entries as readable values."
+msgstr ""
+
+#. SysConfig
+msgid "Controls if CutomerID is editable in the agent interface."
 msgstr ""
 
 #. SysConfig
@@ -11039,15 +11131,15 @@ msgid "Default queue ID used by the system in the agent interface."
 msgstr ""
 
 #. SysConfig
-msgid "Default skin for OTRS 3.0 interface."
-msgstr ""
-
-#. SysConfig
 msgid "Default skin for the agent interface (slim version)."
 msgstr ""
 
 #. SysConfig
 msgid "Default skin for the agent interface."
+msgstr ""
+
+#. SysConfig
+msgid "Default skin for the customer interface."
 msgstr ""
 
 #. SysConfig
@@ -11304,6 +11396,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Defines scheduler sleep time in seconds after processing all available tasks (floating point number)."
+msgstr ""
+
+#. SysConfig
+msgid "Defines the HTTP hostname for the support data collection with the public module 'PublicSupportDataCollector' (e.g. used from the OTRS Daemon)."
 msgstr ""
 
 #. SysConfig
@@ -11935,7 +12031,7 @@ msgid "Defines the list of online repositories. Another installations can be use
 msgstr ""
 
 #. SysConfig
-msgid "Defines the list of possible next actions on an error screen."
+msgid "Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed."
 msgstr ""
 
 #. SysConfig
@@ -12015,6 +12111,10 @@ msgid "Defines the module to display a notification in the agent interface, if t
 msgstr ""
 
 #. SysConfig
+msgid "Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached."
+msgstr ""
+
+#. SysConfig
 msgid "Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn't work as admin)."
 msgstr ""
 
@@ -12059,7 +12159,7 @@ msgid "Defines the name of the session key. E.g. Session, SessionID or OTRS."
 msgstr ""
 
 #. SysConfig
-msgid "Defines the name of the table, where the customer preferences are stored."
+msgid "Defines the name of the table where the user preferences are stored."
 msgstr ""
 
 #. SysConfig
@@ -12343,7 +12443,7 @@ msgid "Defines the valid states for unlocked tickets. To unlock tickets the scri
 msgstr ""
 
 #. SysConfig
-msgid "Defines the viewable locks of a ticket. Default: unlock, tmp_lock."
+msgid "Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock."
 msgstr ""
 
 #. SysConfig
@@ -12459,7 +12559,15 @@ msgid "Determines which queues will be valid for ticket's recepients in the cust
 msgstr ""
 
 #. SysConfig
-msgid "Disable restricted security for IFrames in IE. May be required for SSO to work in IE8."
+msgid "Disable HTTP header \"Content-Security-Policy\" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!"
+msgstr ""
+
+#. SysConfig
+msgid "Disable HTTP header \"X-Frame-Options: SAMEORIGIN\" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!"
+msgstr ""
+
+#. SysConfig
+msgid "Disable restricted security for IFrames in IE. May be required for SSO to work in IE."
 msgstr ""
 
 #. SysConfig
@@ -12468,6 +12576,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to \"No\", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box."
+msgstr ""
+
+#. SysConfig
+msgid "Display a warning and prevent search when using stop words within fulltext search."
 msgstr ""
 
 #. SysConfig
@@ -13055,7 +13167,7 @@ msgid "If \"HTTPBasicAuth\" was selected for Customer::AuthModule, you can speci
 msgstr ""
 
 #. SysConfig
-msgid "If \"HTTPBasicAuth\" was selected for Customer::AuthModule, you can specify to strip leading parts of user names (e. g. for domains like example_domain\\user to user)."
+msgid "If \"HTTPBasicAuth\" was selected for Customer::AuthModule, you can specify to strip leading parts of user names (e. g. for domains like example_domain\\\\user to user)."
 msgstr ""
 
 #. SysConfig
@@ -13267,6 +13379,10 @@ msgid "Ignore article with system sender type for new article feature (e. g. aut
 msgstr ""
 
 #. SysConfig
+msgid "Include unknown customers in ticket filter."
+msgstr ""
+
+#. SysConfig
 msgid "Includes article create times in the ticket search of the agent interface."
 msgstr ""
 
@@ -13292,6 +13408,14 @@ msgstr ""
 
 #. SysConfig
 msgid "It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in \"Key\" should match the domain, and the value in \"Content\" should be a valid theme on your system. Please see the example entries for the proper form of the regex."
+msgstr ""
+
+#. SysConfig
+msgid "Lastname Firstname"
+msgstr ""
+
+#. SysConfig
+msgid "Lastname Firstname (UserLogin)"
 msgstr ""
 
 #. SysConfig
@@ -13496,6 +13620,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes)."
+msgstr ""
+
+#. SysConfig
+msgid "Maximum Number of a calendar shown in a dropdown."
 msgstr ""
 
 #. SysConfig
@@ -14159,7 +14287,7 @@ msgid "Sends all outgoing email via bcc to the specified address. Please use thi
 msgstr ""
 
 #. SysConfig
-msgid "Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification."
+msgid "Sends customer notifications just to the mapped customer."
 msgstr ""
 
 #. SysConfig
@@ -14184,6 +14312,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Set the default height (in pixels) of inline HTML articles in AgentTicketZoom."
+msgstr ""
+
+#. SysConfig
+msgid "Set the limit of tickets that will be executed on a single genericagent job execution."
 msgstr ""
 
 #. SysConfig
@@ -14364,6 +14496,10 @@ msgstr ""
 
 #. SysConfig
 msgid "Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out."
+msgstr ""
+
+#. SysConfig
+msgid "Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents."
 msgstr ""
 
 #. SysConfig
@@ -14579,7 +14715,7 @@ msgid "Sets the ticket type in the ticket responsible screen of the agent interf
 msgstr ""
 
 #. SysConfig
-msgid "Sets the time (in seconds) a user is marked as active."
+msgid "Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds)."
 msgstr ""
 
 #. SysConfig

@@ -1,6 +1,5 @@
 # --
-# TaskManager.t - TaskManager tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -51,6 +50,16 @@ $Self->Is(
     "Kernel::System::Scheduler::TaskManager->new()",
 );
 
+my $TestTaskList = sub {
+
+    my %IgnoreTaskTypes = (
+        SupportDataCollectorAsynchronous => 1,
+        RegistrationUpdate               => 1,
+    );
+
+    return grep { !$IgnoreTaskTypes{ $_->{Type} } } $TaskManagerObject->TaskList();
+};
+
 # get task list
 my @TaskList = $TaskManagerObject->TaskList();
 
@@ -70,7 +79,7 @@ for my $Task (@TaskList) {
 }
 
 $Self->Is(
-    scalar $TaskManagerObject->TaskList(),
+    scalar $TestTaskList->(),
     0,
     "Initial task list is empty",
 );
@@ -228,7 +237,7 @@ for my $Test (@Tests) {
 }
 
 # list check
-my @List  = $TaskManagerObject->TaskList();
+my @List  = $TestTaskList->();
 my $Count = 0;
 for my $TaskIDFromList (@List) {
     $Self->Is(
@@ -436,7 +445,7 @@ for my $TaskID (@TaskIDs) {
 }
 
 $Self->Is(
-    scalar $TaskManagerObject->TaskList(),
+    scalar $TestTaskList->(),
     0,
     "TaskList() empty",
 );

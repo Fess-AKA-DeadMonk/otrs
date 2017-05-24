@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/TicketOverviewSmall.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -84,7 +83,19 @@ sub new {
             Data => $Preferences{ $Self->{PrefKeyColumns} },
         );
 
-        @ColumnsEnabled = @{$ColumnsEnabled};
+        # remove duplicate columns
+        my %UniqueColumns;
+        my @ColumnsEnabledAux;
+
+        for my $Column ( @{$ColumnsEnabled} ) {
+            if ( !$UniqueColumns{$Column} ) {
+                push @ColumnsEnabledAux, $Column;
+            }
+            $UniqueColumns{$Column} = 1;
+        }
+
+        # set filtered column list
+        @ColumnsEnabled = @ColumnsEnabledAux;
     }
 
     # always set TicketNumber
@@ -120,11 +131,12 @@ sub new {
     $Self->{ColumnFilterObject} = Kernel::System::Ticket::ColumnFilter->new(%Param);
 
     # hash with all valid sortable columuns (taken from TicketSearch)
-    # SortBy  => 'Age',   # Owner|Responsible|CustomerID|State|TicketNumber|Queue
+    # SortBy  => 'Age',   # Created|Owner|Responsible|CustomerID|State|TicketNumber|Queue
     # |Priority|Type|Lock|Title|Service|Changed|SLA|PendingTime|EscalationTime
     # | EscalationUpdateTime|EscalationResponseTime|EscalationSolutionTime
     $Self->{ValidSortableColumns} = {
         'Age'                    => 1,
+        'Created'                => 1,
         'Owner'                  => 1,
         'Responsible'            => 1,
         'CustomerID'             => 1,
@@ -407,20 +419,17 @@ sub Run {
 
             # Fallback for tickets without articles: get at least basic ticket data
             if ( !%Article ) {
-                %Article = $Self->{TicketObject}->TicketGet(
-                    TicketID      => $TicketID,
-                    DynamicFields => 0,
-                );
+                %Article = %Ticket;
                 if ( !$Article{Title} ) {
                     $Article{Title} = $Self->{LayoutObject}->{LanguageObject}->Translate(
                         'This ticket has no title or subject'
                     );
                 }
                 $Article{Subject} = $Article{Title};
-
-                # show ticket create time in small view
-                $Article{Created} = $Ticket{Created};
             }
+
+            # show ticket create time in small view
+            $Article{Created} = $Ticket{Created};
 
             # prepare a "long" version of the subject to show in the title attribute. We don't take
             # the whole string (which could be VERY long) to avoid polluting the DOM and having too

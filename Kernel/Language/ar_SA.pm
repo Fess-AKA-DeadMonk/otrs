@@ -1,5 +1,4 @@
 # --
-# Kernel/Language/ar_SA.pm - provides ar_SA language translation
 # Copyright (C) 2007 Mohammad Saleh <maoaf at yahoo.com>
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -275,9 +274,14 @@ sub Data {
         'Dispatching by email To: field.' => '',
         'Dispatching by selected Queue.' => '',
         'No entry found!' => 'لا توجد نتائج!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => '',
         'Session has timed out. Please log in again.' => '',
         'Session limit reached! Please try again later.' => '',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => 'لا توجد صلاحيات!',
         '(Click here to add)' => '(أختر هنا للإضافة)',
         'Preview' => 'استعراض',
@@ -289,6 +293,7 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             '',
         'News about OTRS releases!' => '',
+        'Go to dashboard!' => '',
         'Customer %s added' => '',
         'Role added!' => '',
         'Role updated!' => '',
@@ -396,7 +401,7 @@ sub Data {
         'Align Center' => '',
         'Align Right' => '',
         'Justify' => '',
-        'Header' => '',
+        'Header' => 'النوع',
         'Indent' => '',
         'Outdent' => '',
         'Create an Unordered List' => '',
@@ -699,6 +704,9 @@ sub Data {
         'Webserver Version' => '',
         'Could not determine webserver version.' => '',
         'Loaded Apache Modules' => '',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => '',
         'You should use FastCGI or mod_perl to increase your performance.' =>
             '',
@@ -735,7 +743,7 @@ sub Data {
         'Move' => 'نقل',
         'Queue' => 'قائمة البطاقات',
         'Priority' => 'أولوية',
-        'Priorities' => '',
+        'Priorities' => 'أولوية',
         'Priority Update' => '',
         'Priority added!' => '',
         'Priority updated!' => '',
@@ -747,9 +755,9 @@ sub Data {
         'Service' => '',
         'Services' => '',
         'State' => 'الحالة',
-        'States' => '',
+        'States' => 'الحالة',
         'Status' => 'الحالة',
-        'Statuses' => '',
+        'Statuses' => 'الحالة',
         'Ticket Type' => '',
         'Ticket Types' => '',
         'Compose' => 'إرسال',
@@ -862,6 +870,7 @@ sub Data {
         'Create new Email Ticket' => 'أنشيء بطاقة بريد جديدة',
         'Phone-Ticket' => 'بطاقة-هاتف',
         'Search Tickets' => 'أبحث في البطاقات',
+        'Customer Realname' => '',
         'Customer History' => '',
         'Edit Customer Users' => 'تعديل معلومات العملاء',
         'Edit Customer' => '',
@@ -1067,7 +1076,8 @@ sub Data {
         'You can use the following tags' => '',
         'To get the first 20 character of the subject.' => '',
         'To get the first 5 lines of the email.' => '',
-        'To get the realname of the sender (if given).' => '',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => '',
         ' e. g.' => '',
         'Options of the current customer user data' => '',
@@ -1112,7 +1122,7 @@ sub Data {
 
         # Template: AdminCustomerUserGroup
         'Manage Customer-Group Relations' => '',
-        'Notice' => '',
+        'Notice' => 'ملاحظة',
         'This feature is disabled!' => '',
         'Just use this feature if you want to define group permissions for customers.' =>
             '',
@@ -1292,6 +1302,7 @@ sub Data {
         'This event is already attached to the job, Please use a different one.' =>
             '',
         'Delete this Event Trigger' => '',
+        'Remove selection' => '',
         'Select Tickets' => '',
         '(e. g. 10*5155 or 105658*)' => '',
         '(e. g. 234321)' => '',
@@ -1357,7 +1368,7 @@ sub Data {
         'Send agent/customer notifications on changes' => '',
         'CMD' => '',
         'This command will be executed. ARG[0] will be the ticket number. ARG[1] the ticket id.' =>
-            '',
+            'حذف بطاقات',
         'Delete tickets' => 'حذف بطاقات',
         'Warning: All affected tickets will be removed from the database and cannot be restored!' =>
             '',
@@ -1368,6 +1379,8 @@ sub Data {
         'Results' => 'النتيجة',
         '%s Tickets affected! What do you want to do?' => '',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
+            '',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
             '',
         'Edit job' => '',
         'Run job' => '',
@@ -1755,7 +1768,7 @@ sub Data {
         'Go to OTRS Package Manager' => '',
         'Sorry, but currently you can\'t downgrade due to the following packages which depend on %s:' =>
             '',
-        'Vendor' => '',
+        'Vendor' => 'تطوير',
         'Please uninstall the packages first using the package manager and try again.' =>
             '',
         'You are about to downgrade to OTRS Free and will lose the following features and all data related to these:' =>
@@ -1797,7 +1810,7 @@ sub Data {
         'Install' => 'تخزين',
         'Install Package' => '',
         'Update repository information' => '',
-        'Online Repository' => '',
+        'Online Repository' => 'النسخة',
         'Module documentation' => '',
         'Upgrade' => 'تطوير',
         'Local Repository' => '',
@@ -1811,14 +1824,14 @@ sub Data {
         'Rebuild package' => '',
         'Metadata' => '',
         'Change Log' => '',
-        'Date' => '',
+        'Date' => 'بيانات',
         'List of Files' => '',
         'Permission' => '',
         'Download' => 'تنزيل',
         'Download file from package!' => '',
         'Required' => 'مطلوب',
-        'PrimaryKey' => '',
-        'AutoIncrement' => '',
+        'Primary Key' => '',
+        'Auto Increment' => '',
         'SQL' => '',
         'File differences for file %s' => '',
 
@@ -2042,6 +2055,7 @@ sub Data {
             '',
         'Transition' => '',
         'Transition Name' => '',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => '',
         'Remove this Condition' => '',
         'Type of Linking' => '',
@@ -2259,7 +2273,7 @@ sub Data {
         'Permissions to move tickets into this group/queue.' => '',
         'create' => '',
         'Permissions to create tickets in this group/queue.' => '',
-        'note' => '',
+        'note' => 'ملاحظة',
         'Permissions to add notes to tickets in this group/queue.' => '',
         'owner' => '',
         'Permissions to change the owner of tickets in this group/queue.' =>
@@ -2377,7 +2391,7 @@ sub Data {
             '',
         'The email address for this user is invalid, this option has been disabled.' =>
             '',
-        'Sending' => '',
+        'Sending' => 'المرسل',
         'The support bundle will be sent to OTRS Group via email automatically.' =>
             '',
         'Download File' => '',
@@ -2407,7 +2421,7 @@ sub Data {
         'Example signature' => '',
 
         # Template: AdminState
-        'State Management' => '',
+        'State Management' => 'الحالة',
         'Add state' => '',
         'Please also update the states in SysConfig where needed.' => '',
         'Add State' => '',
@@ -2451,7 +2465,7 @@ sub Data {
         'New Loader File' => '',
         'NavBarName' => '',
         'NavBar' => '',
-        'LinkOption' => '',
+        'LinkOption' => 'رابط',
         'Block' => '',
         'AccessKey' => '',
         'Add NavBar entry' => '',
@@ -2813,7 +2827,7 @@ sub Data {
 
         # Template: AgentTicketBulk
         'Ticket Bulk Action' => 'التنفيذ الجماعي للبطاقة',
-        'Send Email' => '',
+        'Send Email' => 'إرسال البريد',
         'Merge to' => 'دمج إلى',
         'Invalid ticket identifier!' => '',
         'Merge to oldest' => '',
@@ -2823,6 +2837,8 @@ sub Data {
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => 'أرسل إجابة إلى البطاقة',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => '',
         'Remove Ticket Customer' => '',
         'Please remove this entry and enter a new one with the correct value.' =>
@@ -2848,6 +2864,13 @@ sub Data {
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => '',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => '',
@@ -2897,7 +2920,7 @@ sub Data {
 
         # Template: AgentTicketPlain
         'Email Text Plain View' => '',
-        'Plain' => '',
+        'Plain' => 'عادي',
         'Download this email' => '',
 
         # Template: AgentTicketPrint
@@ -2975,7 +2998,7 @@ sub Data {
         'Show all articles' => '',
         'Show Ticket Timeline View' => '',
         'Unread articles' => '',
-        'No.' => '',
+        'No.' => 'لا',
         'Important' => '',
         'Unread Article!' => '',
         'Incoming message' => '',
@@ -3001,7 +3024,7 @@ sub Data {
         'First message' => '',
 
         # Template: CustomerError
-        'Traceback' => '',
+        'Traceback' => 'طباعة',
 
         # Template: CustomerFooter
         'Powered by' => 'أنتج بواسطة',
@@ -3030,7 +3053,7 @@ sub Data {
         'Your user name' => '',
         'Your password' => '',
         'Forgot password?' => '',
-        'Log In' => '',
+        'Log In' => 'تسجيل الدخول',
         'Not yet registered?' => '',
         'Request new password' => 'طلب كلمة مرور جديدة',
         'Your User Name' => '',
@@ -3046,6 +3069,7 @@ sub Data {
         'Incoming Chat Requests' => '',
         'You have unanswered chat requests' => '',
         'Edit personal preferences' => '',
+        'Logout %s %s' => '',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => '',
@@ -3080,7 +3104,7 @@ sub Data {
         'Save as Template' => '',
         'Template Name' => '',
         'Pick a profile name' => '',
-        'Output to' => '',
+        'Output to' => 'نموذج النتيجة',
 
         # Template: CustomerTicketSearchResultShort
         'of' => 'من',
@@ -3103,9 +3127,9 @@ sub Data {
         'Saturday' => '',
         'Su' => '',
         'Mo' => '',
-        'Tu' => '',
-        'We' => '',
-        'Th' => '',
+        'Tu' => 'مارس',
+        'We' => 'تفعيل',
+        'Th' => 'إلى',
         'Fr' => '',
         'Sa' => '',
         'Event Information' => '',
@@ -3132,9 +3156,12 @@ sub Data {
             '',
         'Please enter at least one search value or * to find anything.' =>
             '',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            '',
         'Please check the fields marked as red for valid inputs.' => '',
         'Please perform a spell check on the the text first.' => '',
         'Slide the navigation bar' => '',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => '',
@@ -3145,13 +3172,14 @@ sub Data {
         'JavaScript not available' => '',
         'Database Settings' => '',
         'General Specifications and Mail Settings' => '',
+        'Welcome to %s' => '',
         'Web site' => '',
         'Mail check successful.' => '',
         'Error in the mail settings. Please correct and try again.' => '',
 
         # Template: InstallerConfigureMail
         'Configure Outbound Mail' => '',
-        'Outbound mail type' => '',
+        'Outbound mail type' => 'النوع',
         'Select outbound mail type.' => '',
         'Outbound mail port' => '',
         'Select outbound mail port.' => '',
@@ -3164,13 +3192,13 @@ sub Data {
         'SMTP auth password' => '',
         'Password for SMTP auth.' => '',
         'Configure Inbound Mail' => '',
-        'Inbound mail type' => '',
+        'Inbound mail type' => 'النوع',
         'Select inbound mail type.' => '',
         'Inbound mail host' => '',
         'Inbound mail host.' => '',
-        'Inbound mail user' => '',
+        'Inbound mail user' => 'مستخدم',
         'User for inbound mail.' => '',
-        'Inbound mail password' => '',
+        'Inbound mail password' => 'كلمة المرور',
         'Password for inbound mail.' => '',
         'Result of mail configuration check' => '',
         'Check mail configuration' => '',
@@ -3268,6 +3296,7 @@ sub Data {
 
         # Template: Test
         'OTRS Test Page' => 'صفحة التجربة ل OTRS',
+        'Welcome %s %s' => '',
         'Counter' => 'العداد',
 
         # Template: Warning
@@ -3279,6 +3308,7 @@ sub Data {
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => '',
         '(UserLogin) Firstname Lastname' => '',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3410,7 +3440,7 @@ sub Data {
             '',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             '',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
             '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             '',
@@ -3479,6 +3509,7 @@ sub Data {
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             '',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             '',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3544,9 +3575,9 @@ sub Data {
             '',
         'Default loop protection module.' => '',
         'Default queue ID used by the system in the agent interface.' => '',
-        'Default skin for OTRS 3.0 interface.' => '',
         'Default skin for the agent interface (slim version).' => '',
         'Default skin for the agent interface.' => '',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             '',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3662,6 +3693,8 @@ sub Data {
         'Defines scheduler PID update time in seconds.' => '',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             '',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             '',
         'Defines the URL CSS path.' => '',
@@ -3684,6 +3717,8 @@ sub Data {
         'Defines the body text for rejected emails.' => '',
         'Defines the boldness of the line drawed by the graph.' => '',
         'Defines the calendar width in percent. Default is 95%.' => '',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => '',
         'Defines the column to store the keys for the preferences table.' =>
             '',
@@ -3957,7 +3992,7 @@ sub Data {
             '',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             '',
-        'Defines the list of possible next actions on an error screen.' =>
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
             '',
         'Defines the list of types for templates.' => '',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
@@ -3993,6 +4028,8 @@ sub Data {
             '',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             '',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             '',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4013,7 +4050,7 @@ sub Data {
         'Defines the name of the key for customer sessions.' => '',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             '',
-        'Defines the name of the table, where the customer preferences are stored.' =>
+        'Defines the name of the table where the user preferences are stored.' =>
             '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             '',
@@ -4142,7 +4179,7 @@ sub Data {
         'Defines the valid state types for a ticket.' => '',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             '',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
             '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             '',
@@ -4196,11 +4233,17 @@ sub Data {
             '',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             '',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
             '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             '',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
+            '',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
             '',
         'Display settings to override defaults for Process Tickets.' => '',
         'Displays the accounted time for an article in the ticket zoom view.' =>
@@ -4533,6 +4576,7 @@ sub Data {
             '',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             '',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             '',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4546,6 +4590,8 @@ sub Data {
             '',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             '',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => '',
         'Lastname, Firstname (UserLogin)' => '',
         'Left' => '',
@@ -4612,6 +4658,7 @@ sub Data {
             '',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             '',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             '',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4867,8 +4914,7 @@ sub Data {
             '',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             '',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            '',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             '',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4877,6 +4923,8 @@ sub Data {
         'Service view' => '',
         'Set sender email addresses for this system.' => '',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
+            '',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
             '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             '',
@@ -4962,6 +5010,8 @@ sub Data {
         'Sets the display order of the different items in the preferences view.' =>
             '',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
+            '',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
             '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             '',
@@ -5065,7 +5115,8 @@ sub Data {
             '',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             '',
-        'Sets the time (in seconds) a user is marked as active.' => '',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => '',
         'Sets the timeout (in seconds) for http/ftp downloads.' => '',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>

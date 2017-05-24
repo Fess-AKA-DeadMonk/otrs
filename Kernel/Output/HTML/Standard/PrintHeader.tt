@@ -1,6 +1,5 @@
 # --
-# PrintHeader.tt - provides global print header
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -315,7 +314,7 @@ fieldset.TableLike.FixedLabelSmall > .Value {
                             <table border="0" cellspacing="1" cellpadding="0" width="100%">
                                 <tr>
                                     <td align="right" valign="top">
-                                        <font size="-2">[% Translate("printed by") | html %] [% Env("UserFirstname") | html %] [% Env("UserLastname") | html %] ([% Env("UserEmail") | html %]) [% Env("Time") | html %]</font>
+                                        <font size="-2">[% Translate("printed by") | html %] [% Env("UserFirstname") | html %] [% Env("UserLastname") | html %] ([% Env("UserEmail") | html %]) [% Env("DateTimeString") | Localize("TimeLong") | html %]</font>
                                     </td>
                                 </tr>
                             </table>

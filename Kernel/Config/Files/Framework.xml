@@ -80,6 +80,30 @@
             <String Regex="">yourhost.example.com</String>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="SupportDataCollector::HTTPHostname" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">Defines the HTTP hostname for the support data collection with the public module 'PublicSupportDataCollector' (e.g. used from the OTRS Daemon).</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <String Regex=""></String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SupportDataCollector::WebUserAgent::Timeout" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">Defines the timeout (in seconds, minimum is 20 seconds) for the support data collection with the public module 'PublicSupportDataCollector' (e.g. used from the OTRS Daemon).</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <String Regex="^[2-9][0-9]{1,}|[1-9][0-9]{2,}$">20</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="NodeID" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <String Regex="^[1-9][\d]?$">1</String>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="HttpType" Required="1" Valid="1" ConfigLevel="200">
         <Description Translatable="1">Defines the type of protocol, used by the web server, to serve the application. If https protocol will be used instead of plain http, it must be specified here. Since this has no affect on the web server's settings or behavior, it will not change the method of access to the application and, if it is wrong, it will not prevent you from logging into the application. This setting is only used as a variable, OTRS_CONFIG_HttpType which is found in all forms of messaging used by the application, to build links to the tickets within your system.</Description>
         <Group>Framework</Group>
@@ -144,15 +168,16 @@
                 <Item Key="et">Eesti</Item>
                 <Item Key="el">Greek (&amp;#x0395;&amp;#x03bb;&amp;#x03bb;&amp;#x03b7;&amp;#x03bd;&amp;#x03b9;&amp;#x03ba;&amp;#x03ac;)</Item>
                 <Item Key="fa">Persian (&amp;#x0641;&amp;#x0627;&amp;#x0631;&amp;#x0633;&amp;#x0649;)</Item>
+                <Item Key="fi">Suomi</Item>
                 <Item Key="fr">Fran&amp;ccedil;ais</Item>
                 <Item Key="fr_CA">Fran&amp;ccedil;ais (Canada)</Item>
-                <Item Key="fi">Suomi</Item>
+                <Item Key="gl">Galego</Item>
                 <Item Key="he">Hebrew (עִבְרִית)</Item>
                 <Item Key="hi">Hindi</Item>
                 <Item Key="hr">Hrvatski</Item>
                 <Item Key="hu">Magyar</Item>
                 <Item Key="it">Italiano</Item>
-                <Item Key="ja">Japanese (&amp;#x65e5;&amp;#x672c;&amp;#x8a9e)</Item>
+                <Item Key="ja">Japanese (&amp;#x65e5;&amp;#x672c;&amp;#x8a9e;)</Item>
                 <Item Key="lt">Lietuvi&#371; kalba</Item>
                 <Item Key="lv">Latvijas</Item>
                 <Item Key="ms">Malay</Item>
@@ -346,7 +371,7 @@
         <Group>Framework</Group>
         <SubGroup>Core::Web</SubGroup>
         <Setting>
-            <String Regex="">&lt;OTRS_CONFIG_Frontend::WebPath&gt;js/thirdparty/ckeditor-4.4.5/</String>
+            <String Regex="">&lt;OTRS_CONFIG_Frontend::WebPath&gt;js/thirdparty/ckeditor-4.4.8/</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::RichTextWidth" Required="1" Valid="1">
@@ -385,13 +410,35 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="DisableMSIFrameSecurityRestricted" Required="0" Valid="1">
-        <Description Translatable="1">Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.</Description>
+        <Description Translatable="1">Disable restricted security for IFrames in IE. May be required for SSO to work in IE.</Description>
         <Group>Framework</Group>
         <SubGroup>Core::Web</SubGroup>
         <Setting>
             <Option SelectedID="0">
                 <Item Key="0">No</Item>
                 <Item Key="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="DisableIFrameOriginRestricted" Required="0" Valid="1">
+        <Description Translatable="1">Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="DisableContentSecurityPolicy" Required="0" Valid="1">
+        <Description Translatable="1">Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
             </Option>
         </Setting>
     </ConfigItem>
@@ -676,11 +723,22 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SendmailNotificationEnvelopeFrom" Required="0" Valid="0" ConfigLevel="200">
-        <Description Translatable="1">If set, this address is used as envelope sender header in outgoing notifications. If no address is specified, the envelope sender header is empty.</Description>
+        <Description Translatable="1">If set, this address is used as envelope sender header in outgoing notifications. If no address is specified, the envelope sender header is empty (unless SendmailNotificationEnvelopeFrom::FallbackToEmailFrom is set).</Description>
         <Group>Framework</Group>
         <SubGroup>Core::Sendmail</SubGroup>
         <Setting>
             <String Regex=""></String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SendmailNotificationEnvelopeFrom::FallbackToEmailFrom" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">If no SendmailNotificationEnvelopeFrom is specified, this setting makes it possible to use the email's from address instead of an empty envelope sender (required in certain mail server configurations).</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Sendmail</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
+            </Option>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SendmailEncodingForce" Required="0" Valid="0" ConfigLevel="200">
@@ -769,6 +827,16 @@
         <Setting>
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::NotificationUIDCheck</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::NotifyModule###250-AgentSessionLimit" Required="1" Valid="1">
+        <Description Translatable="1">Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent::ModuleNotify</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::NotificationAgentSessionLimit</Item>
             </Hash>
         </Setting>
     </ConfigItem>
@@ -893,11 +961,11 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SessionActiveTime" Required="1" Valid="1">
-        <Description Translatable="1">Sets the time (in seconds) a user is marked as active.</Description>
+        <Description Translatable="1">Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).</Description>
         <Group>Framework</Group>
         <SubGroup>Core::Session</SubGroup>
         <Setting>
-            <String Regex="^[0-9]{1,8}$">600</String>
+            <String Regex="^[3-9][0-9]{2,6}|[1-9][0-9]{3,6}$">600</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SessionDeleteIfTimeToOld" Required="1" Valid="1">
@@ -942,6 +1010,14 @@
                 <Item Key="0">No</Item>
                 <Item Key="1">Yes</Item>
             </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="AgentSessionLimitPriorWarning" Required="0" Valid="0">
+        <Description Translatable="1">Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Session</SubGroup>
+        <Setting>
+            <String Regex="^[0-9]{1,8}$">90</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="AgentSessionLimit" Required="0" Valid="1">
@@ -1046,6 +1122,14 @@
                 <Item Key="0">No</Item>
                 <Item Key="1">Yes</Item>
             </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="MaximumCalendarNumber" Required="0" Valid="0">
+        <Description Translatable="1">Maximum Number of a calendar shown in a dropdown.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Time</SubGroup>
+        <Setting>
+            <String Regex="^[0-9]{1,3}$">50</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="CalendarWeekDayStart" Required="1" Valid="1">
@@ -3243,7 +3327,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="PGP::StoreDecryptedData" Required="1" Valid="1">
-        <Description Translatable="1">If this option is enabled, then the decrypted data will be stored in the database if they are displayed in AgentTicketZoom.</Description>
+        <Description Translatable="1">If this option is disabled, articles will not automatically be decrypted and stored in the database. Please note that this also means no decryption will take place and the articles will be shown in ticket zoom in their original (encrypted) form.</Description>
         <Group>Framework</Group>
         <SubGroup>Crypt::PGP</SubGroup>
         <Setting>
@@ -3297,7 +3381,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SMIME::StoreDecryptedData" Required="1" Valid="1">
-        <Description Translatable="1">If this option is enabled, then the decrypted data will be stored in the database if they are displayed in AgentTicketZoom.</Description>
+        <Description Translatable="1">If this option is disabled, articles will not automatically be decrypted and stored in the database. Please note that this also means no decryption will take place and the articles will be shown in ticket zoom in their original (encrypted) form.</Description>
         <Group>Framework</Group>
         <SubGroup>Crypt::SMIME</SubGroup>
         <Setting>
@@ -3437,9 +3521,9 @@ You can log in via the following URL:
         </Setting>
     </ConfigItem>
     <ConfigItem Name="PreferencesTable" Required="1" Valid="1">
-        <Description Translatable="1">Defines the name of the table, where the customer preferences are stored.</Description>
+        <Description Translatable="1">Defines the name of the table where the user preferences are stored.</Description>
         <Group>Framework</Group>
-        <SubGroup>Frontend::Customer::Preferences</SubGroup>
+        <SubGroup>Frontend::Agent::Preferences</SubGroup>
         <Setting>
             <String Regex="">user_preferences</String>
         </Setting>
@@ -3447,7 +3531,7 @@ You can log in via the following URL:
     <ConfigItem Name="PreferencesTableKey" Required="1" Valid="1">
         <Description Translatable="1">Defines the column to store the keys for the preferences table.</Description>
         <Group>Framework</Group>
-        <SubGroup>Frontend::Customer::Preferences</SubGroup>
+        <SubGroup>Frontend::Agent::Preferences</SubGroup>
         <Setting>
             <String Regex="">preferences_key</String>
         </Setting>
@@ -6250,7 +6334,7 @@ via the Preferences button after logging in.
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Secure::DisableBanner" Required="0" Valid="0">
-        <Description Translatable="1">If enabled, the OTRS version tag will be removed from the Webinterface, the HTTP headers and the X-Headers of outgoing mails.</Description>
+        <Description Translatable="1">If enabled, the OTRS version tag will be removed from the Webinterface, the HTTP headers and the X-Headers of outgoing mails. NOTE: If you change this option, please make sure to delete the cache.</Description>
         <Group>Framework</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
@@ -6258,16 +6342,6 @@ via the Preferences button after logging in.
                 <Item Key="0">No</Item>
                 <Item Key="1">Yes</Item>
             </Option>
-        </Setting>
-    </ConfigItem>
-    <ConfigItem Name="StandardTemplate2QueueByCreating" Required="0" Valid="0">
-        <Description Translatable="1">List of default Standard Templates which are assigned automatically to new Queues upon creation.</Description>
-        <Group>Framework</Group>
-        <SubGroup>Core</SubGroup>
-        <Setting>
-            <Array>
-                <Item></Item>
-            </Array>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Loader::Enabled::CSS" Required="1" Valid="1">
@@ -6349,8 +6423,8 @@ via the Preferences button after logging in.
                 <Item>Core.Config.js</Item>
                 <Item>Core.Exception.js</Item>
                 <Item>Core.JSON.js</Item>
-                <Item>Core.AJAX.js</Item>
                 <Item>Core.App.js</Item>
+                <Item>Core.AJAX.js</Item>
                 <Item>Core.UI.js</Item>
                 <Item>Core.UI.Accordion.js</Item>
                 <Item>Core.UI.Datepicker.js</Item>
@@ -6432,8 +6506,8 @@ via the Preferences button after logging in.
                 <Item>Core.JSON.js</Item>
                 <Item>Core.JavaScriptEnhancements.js</Item>
                 <Item>Core.Config.js</Item>
-                <Item>Core.AJAX.js</Item>
                 <Item>Core.App.js</Item>
+                <Item>Core.AJAX.js</Item>
                 <Item>Core.UI.js</Item>
                 <Item>Core.UI.Accessibility.js</Item>
                 <Item>Core.UI.Dialog.js</Item>
@@ -6483,6 +6557,11 @@ via the Preferences button after logging in.
                 <Item Key="3" Translatable="1">Lastname, Firstname (UserLogin)</Item>
                 <Item Key="4" Translatable="1">(UserLogin) Firstname Lastname</Item>
                 <Item Key="5" Translatable="1">(UserLogin) Lastname, Firstname</Item>
+                <!-- Hungarian -->
+                <Item Key="6" Translatable="1">Lastname Firstname</Item>
+                <Item Key="7" Translatable="1">Lastname Firstname (UserLogin)</Item>
+                <Item Key="8" Translatable="1">(UserLogin) Lastname Firstname</Item>
+                <!-- End Hungarian -->
             </Option>
         </Setting>
     </ConfigItem>
@@ -6559,14 +6638,14 @@ via the Preferences button after logging in.
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Loader::Customer::Skin###000-default" Required="0" Valid="1">
-        <Description Translatable="1">Default skin for OTRS 3.0 interface.</Description>
+        <Description Translatable="1">Default skin for the customer interface.</Description>
         <Group>Framework</Group>
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
             <Hash>
                 <Item Key="InternalName">default</Item>
                 <Item Key="VisibleName">Default</Item>
-                <Item Key="Description">This is the default orange - black skin for OTRS 3.0.</Item>
+                <Item Key="Description">This is the default orange - black skin for the customer interface.</Item>
                 <Item Key="HomePage">www.otrs.org</Item>
             </Hash>
         </Setting>
@@ -6607,8 +6686,8 @@ via the Preferences button after logging in.
         <SubGroup>Frontend::Admin::AdminCustomerUser</SubGroup>
         <Setting>
             <Option SelectedID="1">
-                <Item Key="1">No</Item>
-                <Item Key="0">Yes</Item>
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
             </Option>
         </Setting>
     </ConfigItem>
@@ -6781,12 +6860,12 @@ via the Preferences button after logging in.
         </Setting>
     </ConfigItem>
     <ConfigItem Name="PossibleNextActions" Required="0" Valid="1">
-        <Description Translatable="1">Defines the list of possible next actions on an error screen.</Description>
+        <Description Translatable="1">Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.</Description>
         <Group>Framework</Group>
         <SubGroup>Frontend::Agent</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Go to dashboard!">[% Env("CGIHandle") %]?Action=AgentDashboard</Item>
+                <Item Key="Go to dashboard!">[% Env('CGIHandle') %]?Action=AgentDashboard</Item>
             </Hash>
         </Setting>
     </ConfigItem>

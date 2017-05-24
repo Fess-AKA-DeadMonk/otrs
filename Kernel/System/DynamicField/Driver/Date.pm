@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/Date.pm - Delegate for DynamicField Date Driver
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -237,7 +236,6 @@ sub EditFieldRender {
         $Value = $FieldConfig->{DefaultValue} || '';
     }
 
-    my %SplitedFieldValues;
     if ( defined $Param{Value} ) {
         $Value = $Param{Value};
     }
@@ -245,18 +243,15 @@ sub EditFieldRender {
         my ( $Year, $Month, $Day, $Hour, $Minute, $Second ) = $Value =~
             m{ \A ( \d{4} ) - ( \d{2} ) - ( \d{2} ) \s ( \d{2} ) : ( \d{2} ) : ( \d{2} ) \z }xms;
 
-        %SplitedFieldValues = (
-
-            # if a value is sent this value must be active, then the Used part needs to be set to 1
-            # otherwise user can easily forget to mark the checkbox and this could lead into data
-            # lost Bug#8258
-            $FieldName . 'Used'   => 1,
-            $FieldName . 'Year'   => $Year,
-            $FieldName . 'Month'  => $Month,
-            $FieldName . 'Day'    => $Day,
-            $FieldName . 'Hour'   => $Hour,
-            $FieldName . 'Minute' => $Minute,
-        );
+        # If a value is sent this value must be active, then the Used part needs to be set to 1
+        #   otherwise user can easily forget to mark the checkbox and this could lead into data
+        #   lost (Bug#8258).
+        $FieldConfig->{ $FieldName . 'Used' }   = 1;
+        $FieldConfig->{ $FieldName . 'Year' }   = $Year;
+        $FieldConfig->{ $FieldName . 'Month' }  = $Month;
+        $FieldConfig->{ $FieldName . 'Day' }    = $Day;
+        $FieldConfig->{ $FieldName . 'Hour' }   = $Hour;
+        $FieldConfig->{ $FieldName . 'Minute' } = $Minute;
     }
 
     # extract the dynamic field value form the web request
@@ -323,7 +318,6 @@ sub EditFieldRender {
         $FieldName . Optional => 1,
         Validate              => 1,
         %{$FieldConfig},
-        %SplitedFieldValues,
         %YearsPeriodRange,
         OverrideTimeZone => 1,
     );
@@ -385,7 +379,7 @@ sub EditFieldValueGet {
     my %DynamicFieldValues;
 
     # check if there is a Template and retrieve the dynamic field value from there
-    if ( IsHashRefWithData( $Param{Template} ) ) {
+    if ( IsHashRefWithData( $Param{Template} ) && defined $Param{Template}->{ $Prefix . 'Used' } ) {
         for my $Type (qw(Used Year Month Day)) {
             $DynamicFieldValues{ $Prefix . $Type } = $Param{Template}->{ $Prefix . $Type } || 0;
         }
@@ -739,6 +733,15 @@ EOF
         return $Data;
     }
 
+    # to set the years range
+    my %YearsPeriodRange;
+    if ( defined $FieldConfig->{YearsPeriod} && $FieldConfig->{YearsPeriod} eq '1' ) {
+        %YearsPeriodRange = (
+            YearPeriodPast   => $FieldConfig->{YearsInPast}   || 0,
+            YearPeriodFuture => $FieldConfig->{YearsInFuture} || 0,
+        );
+    }
+
     # build HTML for start value set
     $HTMLString .= $Param{LayoutObject}->BuildDateSelection(
         %Param,
@@ -748,6 +751,7 @@ EOF
         DiffTime             => -( ( 60 * 60 * 24 ) * 30 ),
         Validate             => 1,
         %{ $Value->{ValueStart} },
+        %YearsPeriodRange,
     );
 
     # build HTML for "and" separator
@@ -762,6 +766,7 @@ EOF
         DiffTime             => +( ( 60 * 60 * 24 ) * 30 ),
         Validate             => 1,
         %{ $Value->{ValueStop} },
+        %YearsPeriodRange,
     );
 
     my $AdditionalText;
@@ -1299,6 +1304,24 @@ sub RandomValueSet {
         Success => 1,
         Value   => $Value,
     };
+}
+
+sub ValueLookup {
+    my ( $Self, %Param ) = @_;
+
+    my $Value = defined $Param{Key} ? $Param{Key} : '';
+
+    # check if a translation is possible
+    if ( defined $Param{LanguageObject} ) {
+
+        # translate value
+        $Value = $Param{LanguageObject}->FormatTimeString(
+            $Value,
+            'DateFormatShort',
+        );
+    }
+
+    return $Value;
 }
 
 1;

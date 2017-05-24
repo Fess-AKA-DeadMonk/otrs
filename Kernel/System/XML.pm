@@ -1,6 +1,5 @@
 # --
-# Kernel/System/XML.pm - lib xml
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -818,7 +817,8 @@ sub XMLParse {
             );
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => 'XML::Parser produced errors. I use XML::Parser::Lite as fallback!'
+                Message =>
+                    "XML::Parser had errors, falling back to XML::Parser::Lite. Offending XML was: $Param{String}",
             );
         }
     }

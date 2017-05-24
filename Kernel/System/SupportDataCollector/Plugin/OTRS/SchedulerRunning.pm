@@ -1,6 +1,5 @@
 # --
-# Kernel/System/SupportDataCollector/Plugin/OTRS/SchedulerRunning.pm - system data collector plugin
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -44,8 +43,9 @@ sub Run {
     }
     else {
         $Self->AddResultOk(
-            Label => 'Scheduler',
-            Value => 1,
+            Label   => 'Scheduler',
+            Value   => 1,
+            Message => 'Scheduler is running.',
         );
     }
 

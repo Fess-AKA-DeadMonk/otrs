@@ -1,6 +1,5 @@
 # --
-# ColumnNames.t - database tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -31,6 +30,11 @@ my @Tests = (
         Name   => 'SELECT with all columns',
         Data   => 'SELECT * FROM groups',
         Result => [qw(id name comments valid_id create_time create_by change_time change_by)],
+    },
+    {
+        Name   => 'SELECT with unicode characters',
+        Data   => 'SELECT name AS äöüüßüöä FROM groups',
+        Result => ['äöüüßüöä'],
     },
 );
 

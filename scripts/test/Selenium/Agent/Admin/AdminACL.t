@@ -1,6 +1,5 @@
 # --
-# AdminACL.t - frontend tests for the ACL admin screen
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -59,10 +58,10 @@ JAVASCRIPT
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminACL");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminACL");
 
         # click 'Create new ACL' link
-        $Selenium->find_element( "a.Create", 'css' )->click();
+        $Selenium->find_element( "a.Create", 'css' )->VerifiedClick();
 
         # check add page
         for my $ID (
@@ -77,7 +76,7 @@ JAVASCRIPT
         # check client side validation
         my $Element = $Selenium->find_element( "#Name", 'css' );
         $Element->send_keys("");
-        $Element->submit();
+        $Element->VerifiedSubmit();
 
         $Self->Is(
             $Selenium->execute_script(
@@ -88,7 +87,7 @@ JAVASCRIPT
         );
 
         # create a real test queue
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = 'ACL' . $Helper->GetRandomID() . ' $ @';
 
         # fill in test data
         $Selenium->find_element( "#Name",                      'css' )->send_keys($RandomID);
@@ -98,7 +97,7 @@ JAVASCRIPT
         $Selenium->find_element( "#ValidID option[value='1']", 'css' )->click();
 
         # send form
-        $Selenium->find_element( "#Name", 'css' )->submit();
+        $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();
 
         # the next screen should be the edit screen for this ACL
         # which means that there should be dropdowns present for Match/Change settings
@@ -170,8 +169,19 @@ JAVASCRIPT
         );
 
         # type in some text & confirm by pressing 'enter', which should produce a new field
-        $Selenium->find_element( '#ACLMatch .DataItem .NewDataKey', 'css' )->send_keys('Test');
-        $Selenium->find_element( '#ACLMatch .DataItem .NewDataKey', 'css' )->send_keys("\N{U+E007}");
+        $Selenium->find_element( '#ACLMatch .DataItem .NewDataKey', 'css' )->send_keys( '<Test>', "\N{U+E007}" );
+
+        # check if the text was escaped correctly
+        $Self->Is(
+            $Selenium->execute_script("return \$('.DataItem .DataItem.Editable').data('content');"),
+            '<Test>',
+            'Check for correctly unescaped item content',
+        );
+        $Self->Is(
+            $Selenium->execute_script("return \$('.DataItem .DataItem.Editable').find('span:not(.Icon)').html();"),
+            '&lt;Test&gt;',
+            'Check for correctly escaped item text',
+        );
 
         # now there should be a two new elements: .ItemPrefix and .NewDataItem
         $Self->Is(
@@ -199,7 +209,7 @@ JAVASCRIPT
             '1',
             'Check for .AddAll element',
         );
-        }
+    }
 );
 
 1;

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Web/InterfaceCustomer.pm - the customer interface file (incl. auth)
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +12,7 @@ use strict;
 use warnings;
 
 use Kernel::System::Email;
+use Kernel::System::VariableCheck qw(IsArrayRefWithData);
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -27,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
     'Kernel::System::Web::Request',
+    'Kernel::System::Valid',
 );
 
 =head1 NAME
@@ -135,6 +136,11 @@ sub Run {
     for my $Key ( sort keys %{$FrameworkParams} ) {
         $Param{$Key} = $Self->{ParamObject}->GetParam( Param => $Key )
             || $FrameworkParams->{$Key};
+    }
+
+    # validate language
+    if ( $Param{Lang} && $Param{Lang} !~ m{\A[a-z]{2}(?:_[A-Z]{2})?\z}xms ) {
+        delete $Param{Lang};
     }
 
     my $BrowserHasCookie = 0;
@@ -580,7 +586,11 @@ sub Run {
 
         # get user data
         my %UserData = $Self->{UserObject}->CustomerUserDataGet( User => $User );
-        if ( !$UserData{UserID} ) {
+
+        # verify customer user is valid when requesting password reset
+        my @ValidIDs = $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet();
+        my $UserIsValid = grep { $UserData{ValidID} && $UserData{ValidID} == $_ } @ValidIDs;
+        if ( !$UserData{UserID} || !$UserIsValid ) {
 
             # Security: pretend that password reset instructions were actually sent to
             #   make sure that users cannot find out valid usernames by
@@ -1060,52 +1070,67 @@ sub Run {
             return;
         }
 
-        # module permisson check
+        # module permission check for action
         if ( !$ModuleReg->{GroupRo} && !$ModuleReg->{Group} ) {
             $Param{AccessRo} = 1;
             $Param{AccessRw} = 1;
         }
         else {
-            PERMISSION:
-            for my $Permission (qw(GroupRo Group)) {
-                my $AccessOk = 0;
-                my $Group    = $ModuleReg->{$Permission};
-                my $Key      = "UserIs$Permission";
-                next PERMISSION if !$Group;
-                if ( ref $Group eq 'ARRAY' ) {
-                    GROUP:
-                    for ( @{$Group} ) {
-                        next GROUP if !$_;
-                        next GROUP if !$UserData{ $Key . "[$_]" };
-                        next GROUP if $UserData{ $Key . "[$_]" } ne 'Yes';
-                        $AccessOk = 1;
-                        last GROUP;
-                    }
-                }
-                else {
-                    if ( $UserData{ $Key . "[$Group]" } && $UserData{ $Key . "[$Group]" } eq 'Yes' )
-                    {
-                        $AccessOk = 1;
-                    }
-                }
-                if ( $Permission eq 'Group' && $AccessOk ) {
-                    $Param{AccessRo} = 1;
-                    $Param{AccessRw} = 1;
-                }
-                elsif ( $Permission eq 'GroupRo' && $AccessOk ) {
-                    $Param{AccessRo} = 1;
-                }
-            }
+
+            ( $Param{AccessRo}, $Param{AccessRw} ) = $Self->_CheckModulePermission(
+                ModuleReg => $ModuleReg,
+                %UserData,
+            );
+
             if ( !$Param{AccessRo} ) {
 
                 # new layout object
                 my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
                 $Self->{LogObject}->Log(
                     Priority => 'error',
-                    Message  => 'No Permission to use this frontend module!'
+                    Message  => 'No Permission to use this frontend action module!'
                 );
                 $LayoutObject->CustomerFatalError( Comment => 'Please contact your administrator' );
                 return;
+            }
+
+        }
+
+        # module permission check for submenu item
+        if ( IsArrayRefWithData( $ModuleReg->{NavBar} ) ) {
+            LINKCHECK:
+            for my $ModuleReg ( @{ $ModuleReg->{NavBar} } ) {
+                next LINKCHECK if $Param{RequestedURL} !~ m/Subaction/i;
+                if ( $ModuleReg->{Link} =~ m/Subaction=/i && $ModuleReg->{Link} !~ m/$Param{Subaction}/i ) {
+                    next LINKCHECK;
+                }
+                $Param{AccessRo} = 0;
+                $Param{AccessRw} = 0;
+
+                # module permission check for submenu item
+                if ( !$ModuleReg->{GroupRo} && !$ModuleReg->{Group} ) {
+                    $Param{AccessRo} = 1;
+                    $Param{AccessRw} = 1;
+                }
+                else {
+
+                    ( $Param{AccessRo}, $Param{AccessRw} ) = $Self->_CheckModulePermission(
+                        ModuleReg => $ModuleReg,
+                        %UserData,
+                    );
+
+                    if ( !$Param{AccessRo} ) {
+
+                        # new layout object
+                        my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+                        $Self->{LogObject}->Log(
+                            Priority => 'error',
+                            Message  => 'No Permission to use this frontend subaction module!'
+                        );
+                        $LayoutObject->CustomerFatalError( Comment => 'Please contact your administrator' );
+                        return;
+                    }
+                }
             }
         }
 
@@ -1121,12 +1146,14 @@ sub Run {
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout'] );
         my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-        # updated last request time
-        $Self->{SessionObject}->UpdateSessionID(
-            SessionID => $Param{SessionID},
-            Key       => 'UserLastRequest',
-            Value     => $Self->{TimeObject}->SystemTime(),
-        );
+        # update last request time
+        if ( !$Self->{ParamObject}->IsAJAXRequest() ) {
+            $Self->{SessionObject}->UpdateSessionID(
+                SessionID => $Param{SessionID},
+                Key       => 'UserLastRequest',
+                Value     => $Self->{TimeObject}->SystemTime(),
+            );
+        }
 
         # pre application module
         my $PreModule = $Self->{ConfigObject}->Get('CustomerPanelPreApplicationModule');
@@ -1212,7 +1239,7 @@ sub Run {
                     . "::$UserData{UserLogin}::$QueryString\n";
                 close $Out;
                 $Self->{LogObject}->Log(
-                    Priority => 'notice',
+                    Priority => 'debug',
                     Message  => 'Response::Customer: '
                         . ( time() - $Self->{PerformanceLogStart} )
                         . "s taken (URL:$QueryString:$UserData{UserLogin})",
@@ -1244,6 +1271,64 @@ sub Run {
     );
     return;
 }
+
+=begin Internal:
+
+=item _CheckModulePermission()
+
+module permission check
+
+    ($AccessRo, $AccessRw = $AutoResponseObject->_CheckModulePermission(
+        ModuleReg => $ModuleReg,
+        %UserData,
+    );
+
+=cut
+
+sub _CheckModulePermission {
+    my ( $Self, %Param ) = @_;
+
+    my $AccessRo = 0;
+    my $AccessRw = 0;
+
+    PERMISSION:
+    for my $Permission (qw(GroupRo Group)) {
+        my $AccessOk = 0;
+        my $Group    = $Param{ModuleReg}->{$Permission};
+
+        my $Key = "UserIs$Permission";
+        next PERMISSION if !$Group;
+        if ( IsArrayRefWithData($Group) ) {
+            GROUP:
+            for my $Item ( @{$Group} ) {
+                next GROUP if !$Item;
+                next GROUP if !$Param{ $Key . "[$Item]" };
+                next GROUP if $Param{ $Key . "[$Item]" } ne 'Yes';
+                $AccessOk = 1;
+                last GROUP;
+            }
+        }
+        else {
+            if ( $Param{ $Key . "[$Group]" } && $Param{ $Key . "[$Group]" } eq 'Yes' )
+            {
+                $AccessOk = 1;
+            }
+        }
+        if ( $Permission eq 'Group' && $AccessOk ) {
+            $AccessRo = 1;
+            $AccessRw = 1;
+        }
+        elsif ( $Permission eq 'GroupRo' && $AccessOk ) {
+            $AccessRo = 1;
+        }
+    }
+
+    return ( $AccessRo, $AccessRw );
+}
+
+=end Internal:
+
+=cut
 
 sub DESTROY {
     my $Self = shift;

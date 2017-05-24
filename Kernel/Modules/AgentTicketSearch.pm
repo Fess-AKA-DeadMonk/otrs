@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketSearch.pm - Utilities for tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -53,29 +52,6 @@ sub new {
     $Self->{LockObject}          = Kernel::System::Lock->new(%Param);
     $Self->{DynamicFieldObject}  = Kernel::System::DynamicField->new(%Param);
     $Self->{BackendObject}       = Kernel::System::DynamicField::Backend->new(%Param);
-
-    # if we need to do a fulltext search on an external mirror database
-    if ( $Self->{ConfigObject}->Get('Core::MirrorDB::DSN') ) {
-        my $ExtraDatabaseObject = Kernel::System::DB->new(
-            LogObject    => $Param{LogObject},
-            ConfigObject => $Param{ConfigObject},
-            MainObject   => $Param{MainObject},
-            EncodeObject => $Param{EncodeObject},
-            DatabaseDSN  => $Self->{ConfigObject}->Get('Core::MirrorDB::DSN'),
-            DatabaseUser => $Self->{ConfigObject}->Get('Core::MirrorDB::User'),
-            DatabasePw   => $Self->{ConfigObject}->Get('Core::MirrorDB::Password'),
-        );
-        if ( !$ExtraDatabaseObject ) {
-            $Self->{LayoutObject}->FatalError();
-        }
-        $Self->{TicketObjectSearch} = Kernel::System::Ticket->new(
-            %Param,
-            DBObject => $ExtraDatabaseObject,
-        );
-    }
-    else {
-        $Self->{TicketObjectSearch} = $Self->{TicketObject};
-    }
 
     $Self->{Config} = $Self->{ConfigObject}->Get("Ticket::Frontend::$Self->{Action}");
 
@@ -381,6 +357,49 @@ sub Run {
                 $GetParam{ShownAttributes} = [ split /;/, $GetParam{ShownAttributes} ];
             }
 
+            # replace StateType to StateIDs
+            if ( $GetParam{StateType} ) {
+                my @StateIDs;
+
+                if ( $GetParam{StateType} eq 'Open' ) {
+                    @StateIDs = $Self->{StateObject}->StateGetStatesByType(
+                        Type   => 'Viewable',
+                        Result => 'ID',
+                    );
+                }
+                elsif ( $GetParam{StateType} eq 'Closed' ) {
+                    my %ViewableStateOpenLookup = $Self->{StateObject}->StateGetStatesByType(
+                        Type   => 'Viewable',
+                        Result => 'HASH',
+                    );
+
+                    my %StateList = $Self->{StateObject}->StateList( UserID => $Self->{UserID} );
+                    for my $Item ( sort keys %StateList ) {
+                        if ( !$ViewableStateOpenLookup{$Item} ) {
+                            push @StateIDs, $Item;
+                        }
+                    }
+                }
+
+                # current ticket state type
+                else {
+                    @StateIDs = $Self->{StateObject}->StateGetStatesByType(
+                        StateType => $GetParam{StateType},
+                        Result    => 'ID',
+                    );
+                }
+
+                # merge with StateIDs
+                if ( @StateIDs && IsArrayRefWithData( $GetParam{StateIDs} ) ) {
+                    my %StateIDs = map { $_ => 1 } @StateIDs;
+                    @StateIDs = grep { exists $StateIDs{$_} } @{ $GetParam{StateIDs} };
+                }
+
+                if (@StateIDs) {
+                    $GetParam{StateIDs} = \@StateIDs;
+                }
+            }
+
             # insert new profile params
             KEY:
             for my $Key ( sort keys %GetParam ) {
@@ -488,7 +507,7 @@ sub Run {
             }
         }
 
-        # Special behaviour for the fulltext search toolbar module:
+        # Special behavior for the fulltext search toolbar module:
         # - Check full text string to see if contents is a ticket number.
         # - If exists and not in print or CSV mode, redirect to the ticket.
         # See http://bugs.otrs.org/show_bug.cgi?id=4238 for details.
@@ -502,7 +521,7 @@ sub Run {
             && $GetParam{ResultForm} ne 'Print'
             )
         {
-            my $TicketID = $Self->{TicketObjectSearch}->TicketIDLookup(
+            my $TicketID = $Self->{TicketObject}->TicketIDLookup(
                 TicketNumber => $GetParam{Fulltext},
                 UserID       => $Self->{UserID},
             );
@@ -538,7 +557,7 @@ sub Run {
 
         my %AttributeLookup;
 
-        # create attibute lookup table
+        # create attribute lookup table
         for my $Attribute ( @{ $GetParam{ShownAttributes} || [] } ) {
             $AttributeLookup{$Attribute} = 1;
         }
@@ -588,20 +607,26 @@ sub Run {
             }
         }
 
-        # perform ticket search
-        my @ViewableTicketIDs = $Self->{TicketObjectSearch}->TicketSearch(
-            Result              => 'ARRAY',
-            SortBy              => $Self->{SortBy},
-            OrderBy             => $Self->{OrderBy},
-            Limit               => $Self->{SearchLimit},
-            UserID              => $Self->{UserID},
-            ConditionInline     => $Self->{Config}->{ExtendedSearchCondition},
-            ContentSearchPrefix => '*',
-            ContentSearchSuffix => '*',
-            FullTextIndex       => 1,
-            %GetParam,
-            %DynamicFieldSearchParameters,
-        );
+        my @ViewableTicketIDs;
+
+        {
+            local $Kernel::System::DB::UseSlaveDB = 1;
+
+            # perform ticket search
+            @ViewableTicketIDs = $Self->{TicketObject}->TicketSearch(
+                Result              => 'ARRAY',
+                SortBy              => $Self->{SortBy},
+                OrderBy             => $Self->{OrderBy},
+                Limit               => $Self->{SearchLimit},
+                UserID              => $Self->{UserID},
+                ConditionInline     => $Self->{Config}->{ExtendedSearchCondition},
+                ContentSearchPrefix => '*',
+                ContentSearchSuffix => '*',
+                FullTextIndex       => 1,
+                %GetParam,
+                %DynamicFieldSearchParameters,
+            );
+        }
 
         # CSV and Excel output
         if (
@@ -630,7 +655,7 @@ sub Run {
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
-                my %Data = $Self->{TicketObjectSearch}->ArticleFirstArticle(
+                my %Data = $Self->{TicketObject}->ArticleFirstArticle(
                     TicketID      => $TicketID,
                     Extended      => 1,
                     DynamicFields => 1,
@@ -639,7 +664,7 @@ sub Run {
                 if ( !%Data ) {
 
                     # get ticket data instead
-                    %Data = $Self->{TicketObjectSearch}->TicketGet(
+                    %Data = $Self->{TicketObject}->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 1,
                     );
@@ -663,7 +688,7 @@ sub Run {
 
                 # get whole article (if configured!)
                 if ( $Self->{Config}->{SearchArticleCSVTree} ) {
-                    my @Article = $Self->{TicketObjectSearch}->ArticleGet(
+                    my @Article = $Self->{TicketObject}->ArticleGet(
                         TicketID      => $TicketID,
                         DynamicFields => 0,
                     );
@@ -703,7 +728,7 @@ sub Run {
                     %Data,
                     %UserInfo,
                     AccountedTime =>
-                        $Self->{TicketObjectSearch}->TicketAccountedTimeGet( TicketID => $TicketID ),
+                        $Self->{TicketObject}->TicketAccountedTimeGet( TicketID => $TicketID ),
                 );
 
                 my @Data;
@@ -814,7 +839,7 @@ sub Run {
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
-                my %Data = $Self->{TicketObjectSearch}->ArticleFirstArticle(
+                my %Data = $Self->{TicketObject}->ArticleFirstArticle(
                     TicketID      => $TicketID,
                     DynamicFields => 1,
                 );
@@ -822,7 +847,7 @@ sub Run {
                 if ( !%Data ) {
 
                     # get ticket data instead
-                    %Data = $Self->{TicketObjectSearch}->TicketGet(
+                    %Data = $Self->{TicketObject}->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 1,
                     );
@@ -903,8 +928,12 @@ sub Run {
                     . $Self->{LayoutObject}->{LanguageObject}->Translate('Search');
                 my $PrintedBy = $Self->{LayoutObject}->{LanguageObject}->Translate('printed by');
                 my $Page      = $Self->{LayoutObject}->{LanguageObject}->Translate('Page');
-                my $Time      = $Self->{LayoutObject}->{Time};
-                my $Url       = '';
+                my $Time      = $Self->{LayoutObject}->{LanguageObject}->FormatTimeString(
+                    $Self->{TimeObject}->CurrentTimestamp(),
+                    'DateFormat',
+                );
+
+                my $Url = '';
                 if ( $ENV{REQUEST_URI} ) {
                     $Url = $Self->{ConfigObject}->Get('HttpType') . '://'
                         . $Self->{ConfigObject}->Get('FQDN')
@@ -1076,7 +1105,7 @@ sub Run {
                 Value     => $URL,
             );
 
-            # start html page
+            # start HTML page
             my $Output = $Self->{LayoutObject}->Header();
             $Output .= $Self->{LayoutObject}->NavigationBar();
 
@@ -1158,6 +1187,35 @@ sub Run {
         );
         my $Output = $Self->{LayoutObject}->JSONEncode(
             Data => 1,
+        );
+        return $Self->{LayoutObject}->Attachment(
+            NoCache     => 1,
+            ContentType => 'text/html',
+            Content     => $Output,
+            Type        => 'inline'
+        );
+    }
+    elsif ( $Self->{Subaction} eq 'AJAXStopWordCheck' ) {
+
+        my $StopWordCheckResult = {
+            FoundStopWords => [],
+        };
+
+        if ( $Self->{TicketObject}->SearchStringStopWordsUsageWarningActive() ) {
+            my @ParamNames = $Self->{ParamObject}->GetParamNames();
+            my %SearchStrings;
+            SEARCHSTRINGPARAMNAME:
+            for my $SearchStringParamName ( sort @ParamNames ) {
+                next SEARCHSTRINGPARAMNAME if $SearchStringParamName !~ m{\ASearchStrings\[(.*)\]\z}sm;
+                $SearchStrings{$1} = $Self->{ParamObject}->GetParam( Param => $SearchStringParamName );
+            }
+
+            $StopWordCheckResult->{FoundStopWords}
+                = $Self->{TicketObject}->SearchStringStopWordsFind( SearchStrings => \%SearchStrings );
+        }
+
+        my $Output = $Self->{LayoutObject}->JSONEncode(
+            Data => $StopWordCheckResult,
         );
         return $Self->{LayoutObject}->Attachment(
             NoCache     => 1,
@@ -1544,7 +1602,7 @@ sub Run {
             PREFERENCE:
             for my $Preference ( @{$SearchFieldPreferences} ) {
 
-                # get field html
+                # get field HTML
                 $DynamicFieldHTML{ $DynamicFieldConfig->{Name} . $Preference->{Type} }
                     = $Self->{BackendObject}->SearchFieldRender(
                     DynamicFieldConfig   => $DynamicFieldConfig,
@@ -1833,11 +1891,13 @@ sub Run {
             Prefix   => 'ArticleCreateTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{ArticleCreateTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'ArticleCreateTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'ArticleCreateTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
         $Param{TicketCreateTimePoint} = $Self->{LayoutObject}->BuildSelection(
             Data       => [ 1 .. 59 ],
@@ -1869,11 +1929,13 @@ sub Run {
             Prefix   => 'TicketCreateTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{TicketCreateTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'TicketCreateTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'TicketCreateTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
 
         $Param{TicketChangeTimePoint} = $Self->{LayoutObject}->BuildSelection(
@@ -1906,11 +1968,13 @@ sub Run {
             Prefix   => 'TicketChangeTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{TicketChangeTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'TicketChangeTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'TicketChangeTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
 
         $Param{TicketCloseTimePoint} = $Self->{LayoutObject}->BuildSelection(
@@ -1943,11 +2007,13 @@ sub Run {
             Prefix   => 'TicketCloseTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{TicketCloseTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'TicketCloseTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'TicketCloseTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
 
         $Param{TicketLastChangeTimePoint} = $Self->{LayoutObject}->BuildSelection(
@@ -1980,11 +2046,13 @@ sub Run {
             Prefix   => 'TicketLastChangeTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{TicketLastChangeTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'TicketLastChangeTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'TicketLastChangeTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
 
         $Param{TicketEscalationTimePoint} = $Self->{LayoutObject}->BuildSelection(
@@ -2018,11 +2086,13 @@ sub Run {
             Prefix   => 'TicketEscalationTimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( ( 60 * 60 * 24 ) * 30 ),
+            Validate => 1,
         );
         $Param{TicketEscalationTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
             %GetParam,
-            Prefix => 'TicketEscalationTimeStop',
-            Format => 'DateInputFormat',
+            Prefix   => 'TicketEscalationTimeStop',
+            Format   => 'DateInputFormat',
+            Validate => 1,
         );
 
         my %GetParamBackup = %GetParam;
@@ -2181,7 +2251,7 @@ sub Run {
             my @OrderedDefaults;
             if (%Defaults) {
 
-                # ordering atributes on the same order like in Atributes
+                # ordering attributes on the same order like in Attributes
                 for my $Item (@Attributes) {
                     my $KeyAtr = $Item->{Key};
                     for my $Key ( sort keys %Defaults ) {

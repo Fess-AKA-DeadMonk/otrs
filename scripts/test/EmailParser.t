@@ -1,6 +1,5 @@
 # --
-# EmailParser.t - email parser tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -127,7 +126,7 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 );
 $Self->Is(
     $EmailParserObject->GetCharset(),
-    'UTF-8',
+    'utf-8',                                                                       # automatically converted
     "#3 GetCharset()",
 );
 @Attachments = $EmailParserObject->GetAttachments();
@@ -225,7 +224,7 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 );
 $Self->Is(
     $EmailParserObject->GetCharset(),
-    'iso-8859-1',
+    'utf-8',                                                                       # automatically converted
     "#5 GetCharset()",
 );
 @Attachments = $EmailParserObject->GetAttachments();
@@ -334,7 +333,7 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 );
 $Self->Is(
     $EmailParserObject->GetCharset(),
-    'iso-8859-1',
+    'utf-8',                                                                       # automatically converted
     "#7 GetCharset()",
 );
 @Attachments = $EmailParserObject->GetAttachments();
@@ -535,7 +534,7 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 );
 $Self->Is(
     $EmailParserObject->GetCharset(),
-    'ISO-8859-1',
+    'utf-8',                                                                        # automatically converted
     "#12 GetCharset() - iso-8859-1 charset should be found",
 );
 $Self->Is(
@@ -880,14 +879,15 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 $Self->Is(
     $EmailParserObject->GetParam( WHAT => 'To' ),
     'QBQB Евгений Васильев Новоподзалупинский <xxzzyy@gmail.com>',
-    "#21 GetParam(WHAT => 'To' Multiline encode)",
+    "#22 GetParam(WHAT => 'To' Multiline encode)",
 );
 $Self->Is(
     $EmailParserObject->GetParam( WHAT => 'Subject' ),
     'QBQB Евгений Васильев Новоподзалупинский <xxzzyy@gmail.com>',
-    "#21 GetParam(WHAT => 'Subject' Multiline encode)",
+    "#22 GetParam(WHAT => 'Subject' Multiline encode)",
 );
 
+# test #23
 @Array = ();
 open( $IN, "<", "$Home/scripts/test/sample/EmailParser/UTF-7.box" );    ## no critic
 while (<$IN>) {
@@ -902,7 +902,25 @@ $EmailParserObject = Kernel::System::EmailParser->new(
 $Self->Is(
     $EmailParserObject->GetParam( WHAT => 'To' ),
     'wop+autoreply=no@ticket.noris.net',
-    "#22 GetParam(WHAT => 'To') UTF-7 not decoded",
+    "#23 GetParam(WHAT => 'To') UTF-7 not decoded",
+);
+
+# test #24
+@Array = ();
+open( $IN, "<", "$Home/scripts/test/sample/EmailParser/UTF-7.box" );    ## no critic
+while (<$IN>) {
+    push( @Array, $_ );
+}
+close($IN);
+
+$EmailParserObject = Kernel::System::EmailParser->new(
+    Email => \@Array,
+);
+
+$Self->Is(
+    $EmailParserObject->GetParam( WHAT => 'Envelope-To' ),
+    'wop+autoreply=no@ticket.noris.net',
+    "#24 GetParam(WHAT => 'Envelope-To') UTF-7 not decoded",
 );
 
 1;

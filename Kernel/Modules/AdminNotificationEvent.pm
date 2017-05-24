@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminNotificationEvent.pm - to manage event-based notifications
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -542,6 +541,14 @@ sub _Edit {
     for my $ObjectType ( sort keys %RegisteredEvents ) {
         push @Events, @{ $RegisteredEvents{$ObjectType} || [] };
     }
+
+    # Suppress these events because of danger of endless loops.
+    my %EventBlacklist = (
+        ArticleAgentNotification    => 1,
+        ArticleCustomerNotification => 1,
+    );
+
+    @Events = grep { !$EventBlacklist{$_} } @Events;
 
     # Build the list...
     $Param{EventsStrg} = $Self->{LayoutObject}->BuildSelection(

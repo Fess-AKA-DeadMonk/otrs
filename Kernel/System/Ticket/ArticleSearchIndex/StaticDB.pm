@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Ticket/ArticleSearchIndex/StaticDB.pm - article search index backend static
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -334,7 +333,9 @@ sub _ArticleIndexStringToWord {
     for my $Word ( split /\s+/, ${ $Param{String} } ) {
 
         # apply filters
+        FILTER:
         for my $Filter (@Filters) {
+            next FILTER if !$Word;
             $Word =~ s/$Filter//g;
         }
 

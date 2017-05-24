@@ -1,6 +1,5 @@
 # --
-# AgentTicketPhone.tt - provides HTML form for phone
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -170,7 +169,7 @@
 
                     <label for="CustomerID">[% Translate("CustomerID") | html %]:</label>
                     <div class="Field">
-                        <input type="text" name="CustomerID" id="CustomerID" value="[% Data.CustomerID | html %]" class="W75pc"/>
+                        <input type="text" name="CustomerID" id="CustomerID" value="[% Data.CustomerID | html %]" [% IF Config("Ticket::Frontend::AgentTicketPhone::CustomerIDReadOnly") %] readonly [% END %] class="W75pc"/>
                     </div>
                     <div class="Clear"></div>
 
@@ -352,7 +351,9 @@
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
     $('#StandardTemplateID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        Core.Agent.TicketAction.ConfirmTemplateOverwrite('RichText', $(this), function () {
+            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        });
         return false;
     });
 //]]></script>
@@ -511,6 +512,7 @@
                     </fieldset>
                 </form>
             </div>
+            <div class="Clear"></div>
         </div>
         <div id="CustomerTickets"></div>
     </div>

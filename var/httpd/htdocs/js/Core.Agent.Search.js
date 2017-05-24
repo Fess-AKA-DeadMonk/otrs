@@ -1,6 +1,5 @@
 // --
-// Core.Agent.Search.js - provides the special module functions for the global search
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -19,6 +18,8 @@ Core.Agent = Core.Agent || {};
  *      This namespace contains the special module functions for the search.
  */
 Core.Agent.Search = (function (TargetNS) {
+
+    var AJAXStopWordCheckRunning = false;
 
     /**
      * @function
@@ -204,6 +205,133 @@ Core.Agent.Search = (function (TargetNS) {
 
     /**
      * @function
+     * @private
+     * @param {Array} Search strings to check for stop words.
+     * @param {Function} Callback function to execute if stop words were found.
+     * @param {Function} Callback function to execute if no stop words were found.
+     * @return nothing
+     * @description Checks if the given search strings contain stop words.
+     */
+
+    function AJAXStopWordCheck(SearchStrings, CallbackStopWordsFound, CallbackNoStopWordsFound) {
+        var StopWordCheckData = {
+            Action:        'AgentTicketSearch',
+            Subaction:     'AJAXStopWordCheck',
+            SearchStrings: SearchStrings
+        };
+
+        // Prevent multiple stop word checks
+        if (AJAXStopWordCheckRunning) {
+            return;
+        }
+        AJAXStopWordCheckRunning = true;
+        Core.Form.DisableForm($('#SearchForm'));
+
+        Core.AJAX.FunctionCall(
+            Core.Config.Get('CGIHandle'),
+            StopWordCheckData,
+            function (Result) {
+                var FoundStopWords = '';
+
+                $.each( Result.FoundStopWords , function (Key, StopWords) {
+                    var TranslatedKey = Core.Config.Get('FieldTitle' + Key);
+
+                    if ( !StopWords.length ) {
+                        return;
+                    }
+
+                    if (!TranslatedKey) {
+                        TranslatedKey = Key;
+                    }
+
+                    FoundStopWords += TranslatedKey + ': ' + StopWords.join(', ') + "\n";
+                });
+
+                AJAXStopWordCheckRunning = false;
+                Core.Form.EnableForm($('#SearchForm'));
+
+                if (FoundStopWords.length) {
+                     CallbackStopWordsFound(FoundStopWords);
+                }
+                else {
+                    CallbackNoStopWordsFound();
+                }
+            }
+        );
+    }
+
+    /**
+     * @function
+     * @private
+     * @param {Function} Callback function to execute, if no stop words were found.
+     * @return nothing
+     * @description Checks if specific values of the search form contain stop words.
+     *              If stop words are present, a warning will be displayed.
+     *              If stop words are not present, the given callback will be executed.
+     */
+    function CheckSearchStringsForStopWords(Callback) {
+        var SearchStrings = {},
+            SearchStringsFound = 0,
+            RelevantElementNames = {
+                'From': 1,
+                'To': 1,
+                'Cc': 1,
+                'Subject': 1,
+                'Body': 1,
+                'Fulltext': 1
+            },
+            StopWordCheckData;
+
+        if (!Core.Config.Get('CheckSearchStringsForStopWords')) {
+            Callback();
+            return;
+        }
+
+        $('#SearchForm label').each(function () {
+            var ElementName,
+                $Element,
+                $LabelElement = $(this),
+                $FieldElement = $LabelElement.next('.Field');
+
+            // those with ID's are used for searching
+            if ( $(this).attr('id') ) {
+
+                // substring "Label" (e.g. first five characters ) from the
+                // label id, use the remaining name as name string for accessing
+                // the form input's value
+                ElementName = $(this).attr('id').substring(5);
+                if ( !RelevantElementNames[ElementName] ) {
+                    return;
+                }
+
+                $Element = $('#SearchForm input[name='+ElementName+']');
+
+                if ($Element.length) {
+                    if ( $Element.val() && $Element.val() !== '' ) {
+                        SearchStrings[ElementName] = $Element.val();
+                        SearchStringsFound = 1;
+                    }
+                }
+            }
+        });
+
+        // Check if stop words are present.
+        if (!SearchStringsFound) {
+            Callback();
+            return;
+        }
+
+        AJAXStopWordCheck(
+            SearchStrings,
+            function (FoundStopWords) {
+                alert(Core.Config.Get('SearchStringsContainStopWordsMsg') + "\n" + FoundStopWords);
+            },
+            Callback
+        );
+    }
+
+    /**
+     * @function
      * @param {String} Action which is used in framework right now.
      * @param {String} Used profile name.
      * @return nothing
@@ -293,15 +421,20 @@ Core.Agent.Search = (function (TargetNS) {
 
                 // register submit
                 $('#SearchFormSubmit').bind('click', function () {
-                    var ShownAttributes = '';
+
+                    var ShownAttributes = [];
+
+                    if ($('#SearchProfileAddAction, #SearchProfileAddName').is(':visible') && $('#SearchProfileAddName').val()) {
+                        $('#SearchProfileAddAction').trigger('click');
+                    }
 
                     // remember shown attributes
                     $('#SearchInsert label').each(function () {
                         if ( $(this).attr('id') ) {
-                            ShownAttributes = ShownAttributes + ';' + $(this).attr('id');
+                            ShownAttributes.push($(this).attr('id'));
                         }
                     });
-                    $('#SearchForm #ShownAttributes').val(ShownAttributes);
+                    $('#SearchForm #ShownAttributes').val(ShownAttributes.join(';'));
 
                     // Normal results mode will return HTML in the same window
                     if ($('#SearchForm #ResultForm').val() === 'Normal') {
@@ -310,8 +443,10 @@ Core.Agent.Search = (function (TargetNS) {
                             return false;
                         }
                         else {
-                           $('#SearchForm').submit();
-                           ShowWaitingDialog();
+                            CheckSearchStringsForStopWords( function () {
+                                $('#SearchForm').submit();
+                                return false;
+                           });
                         }
                     }
                     else { // Print and CSV should open in a new window, no waiting dialog
@@ -320,11 +455,19 @@ Core.Agent.Search = (function (TargetNS) {
                             return false;
                         }
                         else {
-                           $('#SearchForm').submit();
-                           $('#SearchForm').attr('target', '');
+                            CheckSearchStringsForStopWords( function () {
+                                $('#SearchForm').submit();
+                                $('#SearchForm').attr('target', '');
+                            });
                         }
                     }
                     return false;
+                });
+
+                Core.Form.Validate.Init();
+                Core.Form.Validate.SetSubmitFunction($('#SearchForm'), function (Form) {
+                    Form.submit();
+                    ShowWaitingDialog();
                 });
 
                 // load profile
@@ -433,6 +576,38 @@ Core.Agent.Search = (function (TargetNS) {
 
             }, 'html'
         );
+    };
+
+    /**
+     * @function
+     * @return nothing
+     * @description Inits toolbar fulltext search.
+     */
+
+    TargetNS.InitToolbarFulltextSearch = function () {
+
+        // register return key
+        $('#ToolBar li.Extended.SearchFulltext form[name="SearchFulltext"]').unbind('keypress.FilterInput').bind('keypress.FilterInput', function (Event) {
+            if ((Event.charCode || Event.keyCode) === 13) {
+                var SearchString = $('#Fulltext').val();
+
+                if (!SearchString.length || !Core.Config.Get('CheckSearchStringsForStopWords')) {
+                    return true;
+                }
+
+                AJAXStopWordCheck(
+                    { Fulltext: SearchString },
+                    function (FoundStopWords) {
+                        alert(Core.Config.Get('SearchStringsContainStopWordsMsg') + "\n" + FoundStopWords);
+                    },
+                    function () {
+                        $('#ToolBar li.Extended.SearchFulltext form[name="SearchFulltext"]').submit();
+                    }
+                );
+
+                return false;
+            }
+        });
     };
 
     return TargetNS;

@@ -1,6 +1,5 @@
 // --
-// Core.Agent.js - provides the application functions
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -105,6 +104,12 @@ Core.Agent = (function (TargetNS) {
             })
             .bind('mouseenter', function () {
                 var $Element = $(this);
+
+                // clear close timeout on mouseenter, even if OpenMainMenuOnHover is not enabled
+                // this makes sure, that leaving the subnav for a short time and coming back
+                // will leave the subnav opened
+                ClearSubnavCloseTimeout($Element);
+
                 // special treatment for the first menu level: by default this opens submenus only via click,
                 //  but the config setting "OpenMainMenuOnHover" also activates opening on hover for it.
                 if ($Element.parent().attr('id') !== 'Navigation' || Core.Config.Get('OpenMainMenuOnHover')) {

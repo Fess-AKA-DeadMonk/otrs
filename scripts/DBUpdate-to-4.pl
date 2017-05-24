@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# DBUpdate-to-4.pl - update script to migrate OTRS 3.3.x to 4.0.x
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -64,7 +63,7 @@ my %EntityLookup;
         print <<"EOF";
 
 DBUpdate-to-4.pl - Upgrade script for OTRS 3.3 to 4 migration.
-Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 
 Usage: $0 [-h]
     Options are as follows:
@@ -494,6 +493,26 @@ sub _MigrateProcessManagementEntityIDs {
             $EntityLookup{$Part}->{$EntityID} = $NewEntityID;
         }
     }
+
+    # print EntityIDs migration table
+    my $Output = "\n Process EntityIDs Migration Reference\n";
+    for my $Part (qw(Process Activity ActivityDialog Transition TransitionAction)) {
+        my $DisplayPart = uc $Part;
+        if ( $Part eq 'ActivityDialog' ) {
+            $DisplayPart = 'ACTIVITY DIALOG';
+        }
+        elsif ( $Part eq 'TransitionAction' ) {
+            $DisplayPart = 'TRANSITION ACTION';
+        }
+        $Output .= "  $DisplayPart:\n";
+        for my $OldEntitiy ( sort keys %{ $EntityLookup{$Part} } ) {
+            $Output .= '   ' . sprintf '%-8s', $OldEntitiy;
+            $Output .= "$EntityLookup{$Part}->{$OldEntitiy}\n";
+        }
+        $Output .= "\n";
+    }
+    $Output .= "\n";
+    print $Output;
 
     my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');

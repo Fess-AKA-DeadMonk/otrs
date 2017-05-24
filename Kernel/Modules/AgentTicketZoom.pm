@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketZoom.pm - to get a closer view
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -182,6 +181,7 @@ sub new {
         AddNote                         => 'Note Added',
         AddNoteCustomer                 => 'Note Added (Customer)',
         EmailAgent                      => 'Outgoing Email',
+        EmailAgentInternal              => 'Outgoing Email (internal)',
         EmailCustomer                   => 'Incoming Customer Email',
         TicketDynamicFieldUpdate        => 'Dynamic Field Updated',
         PhoneCallAgent                  => 'Outgoing Phone Call',
@@ -259,7 +259,7 @@ sub Run {
 
         return $Self->{LayoutObject}->NoPermission(
             Message    => $TranslatableMessage,
-            WithHeader => 'yes',
+            WithHeader => $Self->{Subaction} && $Self->{Subaction} eq 'ArticleUpdate' ? 'no' : 'yes',
         );
     }
 
@@ -2144,6 +2144,7 @@ sub _ArticleTree {
         my @TypesInternal = qw(
             AddNote
             ChatInternal
+            EmailAgentInternal
         );
 
         # outgoing types
@@ -2244,6 +2245,18 @@ sub _ArticleTree {
                 $Item->{HistoryType} = 'AddNoteCustomer';
             }
 
+            # special treatment for internal emails
+            elsif (
+                $Item->{ArticleID}
+                && $Item->{HistoryType} eq 'EmailAgent'
+                && IsHashRefWithData( $ArticlesByArticleID->{ $Item->{ArticleID} } )
+                && $ArticlesByArticleID->{ $Item->{ArticleID} }->{ArticleType} eq 'email-internal'
+                )
+            {
+                $Item->{Class}       = 'TypeNoteInternal';
+                $Item->{HistoryType} = 'EmailAgentInternal';
+            }
+
             # special treatment for certain types, e.g. external notes from customers
             elsif (
                 $Item->{ArticleID}
@@ -2262,6 +2275,15 @@ sub _ArticleTree {
             {
                 $Item->{HistoryType} = 'ChatInternal';
                 $Item->{Class}       = 'TypeInternal';
+            }
+            elsif (
+                $Item->{HistoryType} eq 'Forward'
+                && $Item->{ArticleID}
+                && IsHashRefWithData( $ArticlesByArticleID->{ $Item->{ArticleID} } )
+                && $ArticlesByArticleID->{ $Item->{ArticleID} }->{ArticleType} eq 'email-internal'
+                )
+            {
+                $Item->{Class} = 'TypeNoteInternal';
             }
             elsif ( grep { $_ eq $Item->{HistoryType} } @TypesTicketAction ) {
                 $Item->{Class} = 'TypeTicketAction';
@@ -3064,7 +3086,7 @@ sub _ArticleMenu {
         # (only show forward on email-external, email-internal, phone, webrequest and fax
         if (
             $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketForward}
-            && ( !defined $AclAction{AgentTicketForward} || $AclAction{AgentTicketForward} )
+            && $AclActionLookup{AgentTicketForward}
             && $Article{ArticleType} =~ /^(email-external|email-internal|phone|webrequest|fax)$/i
             )
         {
@@ -3160,7 +3182,7 @@ sub _ArticleMenu {
         # (only show forward on email-external and email-internal
         if (
             $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketBounce}
-            && ( !defined $AclAction{AgentTicketBounce} || $AclAction{AgentTicketBounce} )
+            && $AclActionLookup{AgentTicketBounce}
             && $Article{ArticleType} =~ /^(email-external|email-internal)$/i
             )
         {
@@ -3206,7 +3228,7 @@ sub _ArticleMenu {
     # check if split link should be shown
     if (
         $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketPhone}
-        && ( $AclActionLookup{AgentTicketPhone} )
+        && $AclActionLookup{AgentTicketPhone}
         && $Article{ArticleType} !~ /^(chat-external|chat-internal)$/i
         )
     {
@@ -3223,7 +3245,7 @@ sub _ArticleMenu {
     # check if print link should be shown
     if (
         $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketPrint}
-        && ( !defined $AclAction{AgentTicketPrint} || $AclAction{AgentTicketPrint} )
+        && $AclActionLookup{AgentTicketPrint}
         )
     {
         my $OK = $Self->{TicketObject}->TicketPermission(
@@ -3249,7 +3271,7 @@ sub _ArticleMenu {
     if (
         $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketPlain}
         && $Self->{ConfigObject}->Get('Ticket::Frontend::PlainView')
-        && ( !defined $AclAction{AgentTicketPlain} || $AclAction{AgentTicketPlain} )
+        && $AclActionLookup{AgentTicketPlain}
         && $Article{ArticleType} =~ /email/i
         )
     {
@@ -3309,7 +3331,7 @@ sub _ArticleMenu {
     # check if internal reply link should be shown
     if (
         $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketNote}
-        && ( !defined $AclAction{AgentTicketNote} || $AclAction{AgentTicketNote} )
+        && $AclActionLookup{AgentTicketNote}
         && $Article{ArticleType} =~ /^note-(internal|external)$/i
         )
     {

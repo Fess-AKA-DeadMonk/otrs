@@ -1,6 +1,5 @@
 # --
-# AgentDashboardTicketGeneric.tt - provides HTML for global dashboard
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -9,7 +8,9 @@
 
 [% RenderBlockStart("ContentLargeTicketGenericFilter") %]
 <ul class="Tab Actions">
+[% RenderBlockStart("ContentLargeTicketGenericFilterLocked") %]
     <li class="[% Data.item("Locked::Selected") | html %]"><a href="#" id="Dashboard[% Data.Name | html %]Locked" data-filter="Locked">[% Translate("My locked tickets") | html %] ([% Data.Locked | html %])</a></li>
+[% RenderBlockEnd("ContentLargeTicketGenericFilterLocked") %]
 [% RenderBlockStart("ContentLargeTicketGenericFilterWatcher") %]
     <li class="[% Data.item("Watcher::Selected") | html %]"><a href="#" id="Dashboard[% Data.Name | html %]Watcher" data-filter="Watcher">[% Translate("My watched tickets") | html %] ([% Data.Watcher | html %])</a></li>
 [% RenderBlockEnd("ContentLargeTicketGenericFilterWatcher") %]
@@ -43,7 +44,7 @@
 [% RenderBlockStart("GeneralOverviewHeader") %]
 
 [% RenderBlockStart("ContentLargeTicketGenericHeaderMeta") %]
-                <th class="DashboardHeader [% Data.CSS | html %]">
+                <th class="DashboardHeader [% Data.CSS | html %]" data-column="[% Data.HeaderColumnName | html %]">
 [% RenderBlockStart("ContentLargeTicketGenericHeaderMetaLink") %]
                     <a id="[% Data.HeaderColumnName | html %]OverviewControl[% Data.Name | html %]" name="[% Data.HeaderColumnName | html %]OverviewControl[% Data.Name | html %]" href="#" title="[% Data.Title | html %]" ></a>
 
@@ -583,10 +584,10 @@ if (Core.Config.Get('RefreshSeconds_[% Data.NameHTML | html %]')) {
             OrderBy     = '';
 
         if ($OrderByObj && $OrderByObj.hasClass('SortDescendingLarge')) {
-            OrderBy = 'Up';
+            OrderBy = 'Down';
         }
         else if ($OrderByObj && $OrderByObj.hasClass('SortAscendingLarge')) {
-            OrderBy = 'Down';
+            OrderBy = 'Up';
         }
 
         $('#Dashboard[% Data.Name | html %]-box').addClass('Loading');

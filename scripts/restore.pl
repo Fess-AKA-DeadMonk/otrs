@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# scripts/restore.pl - the restore script
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -39,7 +38,7 @@ my $DBDump = '';
 getopt( 'hbd', \%Opts );
 if ( exists $Opts{h} ) {
     print "restore.pl - restore script\n";
-    print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+    print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
     print "usage: restore.pl -b /data_backup/<TIME>/ -d /opt/otrs/\n";
     exit 1;
 }
@@ -80,6 +79,11 @@ my $DatabaseUser = $Kernel::OM->Get('Kernel::Config')->Get('DatabaseUser');
 my $DatabasePw   = $Kernel::OM->Get('Kernel::Config')->Get('DatabasePw');
 my $DatabaseDSN  = $Kernel::OM->Get('Kernel::Config')->Get('DatabaseDSN');
 my $ArticleDir   = $Kernel::OM->Get('Kernel::Config')->Get('ArticleDir');
+
+# decrypt pw (if needed)
+if ( $DatabasePw =~ m/^\{(.*)\}$/ ) {
+    $DatabasePw = $Kernel::OM->Get('Kernel::System::DB')->_Decrypt($1);
+}
 
 # check db backup support
 if ( $DatabaseDSN =~ m/:mysql/i ) {

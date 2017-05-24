@@ -1,6 +1,5 @@
 # --
-# SupportBundleGenerator.t - SupportBundleGenerator tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -14,12 +13,16 @@ use utf8;
 use vars (qw($Self));
 
 use Archive::Tar;
-
 use Kernel::System::VariableCheck qw(:all);
 
-# get needed objects
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreSystemConfiguration => 1,
+    },
+);
 my $ConfigObject                 = $Kernel::OM->Get('Kernel::Config');
-my $HelperObject                 = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $SysConfigObject              = $Kernel::OM->Get('Kernel::System::SysConfig');
+my $Helper                       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $MainObject                   = $Kernel::OM->Get('Kernel::System::Main');
 my $SupportBundleGeneratorObject = $Kernel::OM->Get('Kernel::System::SupportBundleGenerator');
 my $PackageObject                = $Kernel::OM->Get('Kernel::System::Package');
@@ -28,6 +31,15 @@ my $JSONObject                   = $Kernel::OM->Get('Kernel::System::JSON');
 my $RegistrationObject           = $Kernel::OM->Get('Kernel::System::Registration');
 my $SupportDataCollectorObject   = $Kernel::OM->Get('Kernel::System::SupportDataCollector');
 my $TempObject                   = $Kernel::OM->Get('Kernel::System::FileTemp');
+
+# Disabled the package deployment plugins, to avoid timeout issues in the test.
+$SysConfigObject->ConfigItemUpdate(
+    Valid => 1,
+    Key   => 'SupportDataCollector::DisablePlugins',
+    Value => [
+        'Kernel::System::SupportDataCollector::Plugin::OTRS::PackageDeployment',
+    ],
+);
 
 # cleanup the Home variable (remove tailing "/")
 my $Home = $ConfigObject->Get('Home');
@@ -84,9 +96,10 @@ if ($IsDevelopmentSystem) {
         );
         my $Output;
         my $File = 'Kernel/Config.pm';
+        LINE:
         for my $Line ( @{$ArchiveContent} ) {
             if ( $Line =~ m(\A\w+::$File\n\z) ) {
-                $Line = int( rand(1000000) ) . "::$File\n";
+                next LINE;
             }
             $Output .= $Line;
         }
@@ -183,7 +196,7 @@ for my $Test (@Tests) {
         for my $File ( @{ $Test->{ModifyFiles} } ) {
 
             # this operation is destructive be aware of it!
-            my $Content = $HelperObject->GetRandomID();
+            my $Content = $Helper->GetRandomID();
             $Content .= "\n";
             my $FileLocation = $MainObject->FileWrite(
                 Location => $File,
@@ -438,7 +451,9 @@ if (%RegistrationInfo) {
 }
 
 # GenerateSupportData tests
-my %OriginalResult = $SupportDataCollectorObject->Collect();
+my %OriginalResult = $SupportDataCollectorObject->Collect(
+    WebTimeout => 40,
+);
 
 # for this test we will just check that both results has the same identifiers
 my %OriginalIdentifiers;
@@ -447,7 +462,7 @@ for my $Entry ( @{ $OriginalResult{Result} } ) {
 }
 $OriginalResult{Result} = \%OriginalIdentifiers;
 
-# for some strange reasons if mod_perl is activated, it happnes that some times it uses it and
+# for some strange reasons if mod_perl is activated, it happens that some times it uses it and
 # sometimes is doesn't for this test we delete the possible offending identifiers
 for my $Identifier (
     qw(
@@ -457,6 +472,8 @@ for my $Identifier (
     Kernel::System::SupportDataCollector::Plugin::Webserver::Apache::Performance::ModHeadersLoaded
     Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::MOD_PERL
     Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::MOD_PERL_API_VERSION
+    Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::PERL_USE_UNSAFE_INC
+    Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::LANGUAGE
     )
     )
 {
@@ -496,7 +513,7 @@ for my $Entry ( @{ $PerlStructureScalar->{Result} } ) {
 }
 $PerlStructureScalar->{Result} = \%NewIdentifiers;
 
-# for some strange reasons if mod_perl is activated, it happnes that some times it uses it and
+# for some strange reasons if mod_perl is activated, it happens that some times it uses it and
 # sometimes is doesn't for this test we delete the possible offending identifiers
 for my $Identifier (
     qw(
@@ -506,6 +523,8 @@ for my $Identifier (
     Kernel::System::SupportDataCollector::Plugin::Webserver::Apache::Performance::ModHeadersLoaded
     Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::MOD_PERL
     Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::MOD_PERL_API_VERSION
+    Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::PERL_USE_UNSAFE_INC
+    Kernel::System::SupportDataCollector::Plugin::Webserver::EnvironmentVariables::LANGUAGE
     )
     )
 {

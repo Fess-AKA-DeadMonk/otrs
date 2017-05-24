@@ -1,6 +1,5 @@
 # --
-# Kernel/System/TemplateGenerator.pm - generate salutations, signatures and responses
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -131,10 +130,18 @@ sub Salutation {
         );
     }
 
+    # get list unsupported tags for standard template
+    my @ListOfUnSupportedTag = qw(OTRS_AGENT_SUBJECT OTRS_AGENT_BODY OTRS_CUSTOMER_BODY OTRS_CUSTOMER_SUBJECT);
+
+    my $SalutationText = $Self->_RemoveUnSupportedTag(
+        Text => $Salutation{Text} || '',
+        ListOfUnSupportedTag => \@ListOfUnSupportedTag,
+    );
+
     # replace place holder stuff
-    my $SalutationText = $Self->_Replace(
+    $SalutationText = $Self->_Replace(
         RichText => $Self->{RichText},
-        Text     => $Salutation{Text},
+        Text     => $SalutationText,
         TicketID => $Param{TicketID},
         Data     => $Param{Data},
         UserID   => $Param{UserID},
@@ -242,10 +249,18 @@ sub Signature {
         );
     }
 
+    # get list unsupported tags for standard template
+    my @ListOfUnSupportedTag = qw(OTRS_AGENT_SUBJECT OTRS_AGENT_BODY OTRS_CUSTOMER_BODY OTRS_CUSTOMER_SUBJECT);
+
+    my $SignatureText = $Self->_RemoveUnSupportedTag(
+        Text => $Signature{Text} || '',
+        ListOfUnSupportedTag => \@ListOfUnSupportedTag,
+    );
+
     # replace place holder stuff
-    my $SignatureText = $Self->_Replace(
+    $SignatureText = $Self->_Replace(
         RichText => $Self->{RichText},
-        Text     => $Signature{Text},
+        Text     => $SignatureText,
         TicketID => $Param{TicketID} || '',
         Data     => $Param{Data},
         QueueID  => $Param{QueueID},
@@ -410,13 +425,41 @@ sub Template {
         );
     }
 
+    # get user language
+    my $Language;
+    if ( defined $Param{TicketID} ) {
+
+        # get ticket data
+        my %Ticket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet(
+            TicketID => $Param{TicketID},
+        );
+
+        # get recipient
+        my %User = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserDataGet(
+            User => $Ticket{CustomerUserID},
+        );
+        $Language = $User{UserLanguage};
+    }
+
+    # if customer language is not defined, set default language
+    $Language //= $Kernel::OM->Get('Kernel::Config')->Get('DefaultLanguage') || 'en';
+
+    # get list unsupported tags for standard template
+    my @ListOfUnSupportedTag = qw(OTRS_AGENT_SUBJECT OTRS_AGENT_BODY OTRS_CUSTOMER_BODY OTRS_CUSTOMER_SUBJECT);
+
+    my $TemplateText = $Self->_RemoveUnSupportedTag(
+        Text => $Template{Template} || '',
+        ListOfUnSupportedTag => \@ListOfUnSupportedTag,
+    );
+
     # replace place holder stuff
-    my $TemplateText = $Self->_Replace(
+    $TemplateText = $Self->_Replace(
         RichText => $Self->{RichText},
-        Text     => $Template{Template} || '',
+        Text     => $TemplateText || '',
         TicketID => $Param{TicketID} || '',
         Data     => $Param{Data} || {},
         UserID   => $Param{UserID},
+        Language => $Language,
     );
 
     return $TemplateText;
@@ -582,8 +625,8 @@ sub AutoResponse {
     }
 
     # get recipient
-    my %User = $Kernel::OM->Get('Kernel::System::CustomerUser')->GetPreferences(
-        UserID => $Ticket{CustomerUserID},
+    my %User = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserDataGet(
+        User => $Ticket{CustomerUserID},
     );
 
     # get user language
@@ -1033,11 +1076,29 @@ sub _Replace {
 
     # translate ticket values if needed
     if ( $Param{Language} ) {
+
         my $LanguageObject = Kernel::Language->new(
             UserLanguage => $Param{Language},
         );
+
+        # Translate the diffrent values.
         for my $Field (qw(Type State StateType Lock Priority)) {
             $Ticket{$Field} = $LanguageObject->Translate( $Ticket{$Field} );
+        }
+
+        # Transform the date values from the ticket data (but not the dynamic field values).
+        ATTRIBUTE:
+        for my $Attribute ( sort keys %Ticket ) {
+            next ATTRIBUTE if $Attribute =~ m{ \A DynamicField_ }xms;
+            next ATTRIBUTE if !$Ticket{$Attribute};
+
+            if ( $Ticket{$Attribute} =~ m{\A(\d\d\d\d)-(\d\d)-(\d\d)\s(\d\d):(\d\d):(\d\d)\z}xi ) {
+                $Ticket{$Attribute} = $LanguageObject->FormatTimeString(
+                    $Ticket{$Attribute},
+                    'DateFormat',
+                    'NoSeconds',
+                );
+            }
         }
     }
 
@@ -1048,12 +1109,21 @@ sub _Replace {
         );
     }
 
-    # get config object
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
-    # replace config options
+    # Replace config options.
     my $Tag = $Start . 'OTRS_CONFIG_';
-    $Param{Text} =~ s{$Tag(.+?)$End}{$ConfigObject->Get($1)}egx;
+    $Param{Text} =~ s{$Tag(.+?)$End}{
+        my $Replace = '';
+        # Mask secret config options.
+        if ($1 =~ m{(Password|Pw)\d*$}smxi) {
+            $Replace = 'xxx';
+        }
+        else {
+            $Replace = $ConfigObject->Get($1) // '';
+        }
+        $Replace;
+    }egx;
 
     # cleanup
     $Param{Text} =~ s/$Tag.+?$End/-/gi;
@@ -1457,7 +1527,7 @@ sub _Replace {
     $Tag = $Start . 'OTRS_CUSTOMER_REALNAME';
     if ( $Param{Text} =~ /$Tag$End/i ) {
 
-        my $From = '';
+        my $From;
 
         if ( $Ticket{CustomerUserID} ) {
 
@@ -1512,6 +1582,48 @@ sub _Replace {
     $Param{Text} =~ s/(?:$Tag|$Tag2).+?$End/-/gi;
 
     return $Param{Text};
+}
+
+=head2 _RemoveUnSupportedTag()
+
+cleanup all not supported tags
+
+    my $Text = $TemplateGeneratorObject->_RemoveUnSupportedTag(
+        Text => $SomeTextWithTags,
+        ListOfUnSupportedTag => \@ListOfUnSupportedTag,
+    );
+
+=cut
+
+sub _RemoveUnSupportedTag {
+
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Item (qw(Text ListOfUnSupportedTag)) {
+        if ( !defined $Param{$Item} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Item!"
+            );
+            return;
+        }
+    }
+
+    my $Start = '<';
+    my $End   = '>';
+    if ( $Self->{RichText} ) {
+        $Start = '&lt;';
+        $End   = '&gt;';
+        $Param{Text} =~ s/(\n|\r)//g;
+    }
+
+    # cleanup all not supported tags
+    my $NotSupportedTag = $Start . "(?:" . join( "|", @{ $Param{ListOfUnSupportedTag} } ) . ")" . $End;
+    $Param{Text} =~ s/$NotSupportedTag/-/gi;
+
+    return $Param{Text};
+
 }
 
 1;

@@ -1,6 +1,5 @@
 # --
-# Replace.t - template generator
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -281,16 +280,37 @@ my @Tests = (
         Result   => 'Test A',
     },
     {
-        Name => 'OTRS config value',                              # <OTRS_CONFIG_*>
-        Data => {
-            From => 'test@home.com',
-        },
+        Name     => 'OTRS config value',                          # <OTRS_CONFIG_*>
+        Data     => {},
         RichText => 0,
         Template => 'Test <OTRS_CONFIG_DefaultTheme>',
         Result   => 'Test Standard',
     },
     {
-        Name => 'mailto-Links',
+        Name     => 'OTRS secret config values, must be masked (even unknown settings)',
+        Data     => {},
+        RichText => 0,
+        Template =>
+            'Test <OTRS_CONFIG_DatabasePw> <OTRS_CONFIG_Core::MirrorDB::Password> <OTRS_CONFIG_SomeOtherValue::Password> <OTRS_CONFIG_SomeOtherValue::Pw>',
+        Result => 'Test xxx xxx xxx xxx',
+    },
+    {
+        Name     => 'OTRS secret config value and normal config value',
+        Data     => {},
+        RichText => 0,
+        Template => 'Test <OTRS_CONFIG_DatabasePw> and <OTRS_CONFIG_DefaultTheme>',
+        Result   => 'Test xxx and Standard',
+    },
+    {
+        Name     => 'OTRS secret config values with numbers',
+        Data     => {},
+        RichText => 0,
+        Template =>
+            'Test <OTRS_CONFIG_AuthModule::LDAP::SearchUserPw1> and <OTRS_CONFIG_AuthModule::LDAP::SearchUserPassword1>',
+        Result => 'Test xxx and xxx',
+    },
+    {
+        Name => 'mailto-Links RichText enabled',
         Data => {
             From => 'test@home.com',
         },

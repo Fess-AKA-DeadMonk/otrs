@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketPhone.pm - to handle phone calls
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -303,7 +302,9 @@ sub Run {
             # save article from for addresses list
             $ArticleFrom = $Article{From};
 
-            # if To is present and is no a queue
+            # if To is present
+            # and is no a queue
+            # and also is no a system address
             # set To as article from
             if ( IsStringWithData( $Article{To} ) ) {
                 my %Queues = $Self->{QueueObject}->QueueList();
@@ -316,9 +317,20 @@ sub Run {
                 }
 
                 my %QueueLookup = reverse %Queues;
-                if ( !defined $QueueLookup{ $Article{To} } ) {
+                my %SystemAddressLookup
+                    = reverse $Kernel::OM->Get('Kernel::System::SystemAddress')->SystemAddressList();
+                my @ArticleFromAddress;
+                my $SystemAddressEmail;
+
+                if ($ArticleFrom) {
+                    @ArticleFromAddress = Mail::Address->parse($ArticleFrom);
+                    $SystemAddressEmail = $ArticleFromAddress[0]->address();
+                }
+
+                if ( !defined $QueueLookup{ $Article{To} } && defined $SystemAddressLookup{$SystemAddressEmail} ) {
                     $ArticleFrom = $Article{To};
                 }
+
             }
 
             # body preparation for plain text processing
@@ -1631,7 +1643,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -1909,6 +1920,7 @@ sub _GetUsers {
     # workflow
     my $ACL = $Self->{TicketObject}->TicketAcl(
         %Param,
+        Action        => $Self->{Action},
         ReturnType    => 'Ticket',
         ReturnSubType => 'Owner',
         Data          => \%ShownUsers,
@@ -1969,6 +1981,7 @@ sub _GetResponsibles {
     # workflow
     my $ACL = $Self->{TicketObject}->TicketAcl(
         %Param,
+        Action        => $Self->{Action},
         ReturnType    => 'Ticket',
         ReturnSubType => 'Responsible',
         Data          => \%ShownUsers,
@@ -2106,6 +2119,10 @@ sub _GetTos {
                 || '<Realname> <<Email>> - Queue: <Queue>';
             $String =~ s/<Queue>/$QueueData{Name}/g;
             $String =~ s/<QueueComment>/$QueueData{Comment}/g;
+
+            # remove trailing spaces
+            $String =~ s{\s+\z}{} if !$QueueData{Comment};
+
             if ( $Self->{ConfigObject}->Get('Ticket::Frontend::NewQueueSelectionType') ne 'Queue' )
             {
                 my %SystemAddressData = $Self->{SystemAddress}->SystemAddressGet(

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/TextArea.pm - Delegate for DynamicField TextArea Driver
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -383,41 +382,6 @@ EOF
     };
 
     return $Data;
-}
-
-sub SearchFieldParameterBuild {
-    my ( $Self, %Param ) = @_;
-
-    # get field value
-    my $Value = $Self->SearchFieldValueGet(%Param);
-
-    if ( !$Value ) {
-        return {
-            Parameter => {
-                'Like' => '',
-            },
-            Display => '',
-            }
-    }
-
-    # return search parameter structure
-    return {
-        Parameter => {
-            'Like' => '*' . $Value . '*',
-        },
-        Display => $Value,
-    };
-}
-
-sub StatsSearchFieldParameterBuild {
-    my ( $Self, %Param ) = @_;
-
-    my $Operator = 'Equals';
-    my $Value    = $Param{Value};
-
-    return {
-        $Operator => $Value,
-    };
 }
 
 1;

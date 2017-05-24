@@ -1,6 +1,5 @@
 # --
-# Ticket/Number/Random.pm - a ticket number random generator
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -38,7 +37,7 @@ sub TicketCreateNumber {
     my $Tn = $SystemID . $Count;
 
     # Check ticket number. If exists generate new one!
-    if ( $Self->TicketCheckNumber( Tn => $Tn ) ) {
+    if ( $Self->TicketIDLookup( TicketNumber => $Tn ) ) {
 
         $Self->{LoopProtectionCounter}++;
 

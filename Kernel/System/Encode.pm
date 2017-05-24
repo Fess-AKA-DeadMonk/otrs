@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Encode.pm - character encodings
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -132,7 +131,19 @@ sub Convert {
         # check if string is valid utf-8
         if ( $Param{Check} && !eval { Encode::is_utf8( $Param{Text}, 1 ) } ) {
             Encode::_utf8_off( $Param{Text} );
-            print STDERR "No valid '$Param{To}' string: '$Param{Text}'!\n";
+
+            # We should not output error messages about invalid strings by default, as this happens regularly
+            #   with certain input data from SPAM mails and such.
+            if ( $Self->{Debug} ) {
+
+                # truncate text for error messages
+                my $TruncatedText = $Param{Text};
+                if ( length($TruncatedText) > 65 ) {
+                    $TruncatedText = substr( $TruncatedText, 0, 65 ) . '[...]';
+                }
+
+                print STDERR "No valid '$Param{To}' string: '$TruncatedText'!\n";
+            }
 
             # strip invalid chars / 0 = will put a substitution character in
             # place of a malformed character
@@ -196,7 +207,14 @@ sub Convert {
 
     # convert string
     if ( !eval { Encode::from_to( $Param{Text}, $Param{From}, $Param{To}, $Check ) } ) {
-        print STDERR "Charset encode '$Param{From}' -=> '$Param{To}' ($Param{Text})"
+
+        # truncate text for error messages
+        my $TruncatedText = $Param{Text};
+        if ( length($TruncatedText) > 65 ) {
+            $TruncatedText = substr( $TruncatedText, 0, 65 ) . '[...]';
+        }
+
+        print STDERR "Charset encode '$Param{From}' -=> '$Param{To}' ($TruncatedText)"
             . " not supported!\n";
 
         # strip invalid chars / 0 = will put a substitution character in place of
@@ -343,10 +361,9 @@ sub SetIO {
         next ROW if !defined $Row;
         next ROW if ref $Row ne 'GLOB';
 
-        # set binmode
         # http://www.perlmonks.org/?node_id=644786
-        # http://bugs.otrs.org/show_bug.cgi?id=5158
-        binmode( $Row, ':encoding(utf8)' );
+        # http://bugs.otrs.org/show_bug.cgi?id=12100
+        binmode( $Row, ':utf8' );    ## no critic
     }
 
     return;

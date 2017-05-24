@@ -1,6 +1,5 @@
 # --
-# Language.t - frontend tests for admin area
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -41,7 +40,7 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentPreferences");
 
         my @Languages = sort keys %{ $ConfigObject->Get('DefaultUsedLanguages') };
 
@@ -54,15 +53,7 @@ $Selenium->RunTest(
             # select the current language & submit
             $Element = $Selenium->find_child_element( $Element, "option[value='$Language']", 'css' );
             $Element->click();
-            $Element->submit();
-
-            ACTIVESLEEP:
-            for my $Second ( 1 .. 20 ) {
-                if ( $Selenium->execute_script("return \$('.MainBox h1').length") ) {
-                    last ACTIVESLEEP;
-                }
-                sleep 1;
-            }
+            $Element->VerifiedSubmit();
 
             # now check if the language was correctly applied in the interface
             my $LanguageObject = Kernel::Language->new(
@@ -84,7 +75,7 @@ $Selenium->RunTest(
                 "Success notification in $Language",
             );
         }
-        }
+    }
 );
 
 1;

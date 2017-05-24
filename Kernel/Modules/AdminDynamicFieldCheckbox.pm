@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminDynamicFieldCheckbox.pm - provides a dynamic fields text config view for admins
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -85,7 +84,7 @@ sub _Add {
     my %GetParam;
     for my $Needed (qw(ObjectType FieldType FieldOrder)) {
         $GetParam{$Needed} = $Self->{ParamObject}->GetParam( Param => $Needed );
-        if ( !$Needed ) {
+        if ( !$GetParam{$Needed} ) {
             return $Self->{LayoutObject}->ErrorScreen(
                 Message => "Need $Needed",
             );
@@ -215,7 +214,7 @@ sub _Change {
     my %GetParam;
     for my $Needed (qw(ObjectType FieldType)) {
         $GetParam{$Needed} = $Self->{ParamObject}->GetParam( Param => $Needed );
-        if ( !$Needed ) {
+        if ( !$GetParam{$Needed} ) {
             return $Self->{LayoutObject}->ErrorScreen(
                 Message => "Need $Needed",
             );

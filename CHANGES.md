@@ -1,4 +1,441 @@
-#4.0.8 2015-??-??
+#4.0.24 2017-??-??
+ - 2017-05-23 Fixed bug#[12797](https://bugs.otrs.org/show_bug.cgi?id=11243) - Wrong escalation time if response time set to 60 or less minutes.
+ - 2017-05-23 Fixed bug#[12797](https://bugs.otrs.org/show_bug.cgi?id=12797) - Unknown Customer is not displayed in a Process Dialog.
+ - 2017-05-19 Follow-up fix for bug#[12701](https://bugs.otrs.org/show_bug.cgi?id=12701) - Default values of "Owner" and "Responsible" fields placed in the activity dialogs in the process tickets cannot be settled.
+ - 2017-05-19 Fixed bug#[12834](https://bugs.otrs.org/show_bug.cgi?id=12834) - NotificationTag of a Date field displays a time-stamp "00:00".
+ - 2017-05-15 Fixed bug#[12743](https://bugs.otrs.org/show_bug.cgi?id=12743) - ACLs with ticket conditions are not matching on process list in AgentTicketProcess.
+ - 2017-05-12 Fixed bug#[12796](https://bugs.otrs.org/show_bug.cgi?id=12796) - GenericInterface only works with FastCGI for GET requests.
+ - 2017-05-08 Fixed bug#[12216](https://bugs.otrs.org/show_bug.cgi?id=12216) - Inconsistent behaviour in pop-ups which lock tickets.
+ - 2017-05-11 Fixed bug#[12809](https://bugs.otrs.org/show_bug.cgi?id=12809) - Unable to select queue if queue comment is empty (with modified Ticket::Frontend::NewQueueSelectionString).
+ - 2017-05-11 Fixed bug#[10685](https://bugs.otrs.org/show_bug.cgi?id=10685) - Removing an agent's access to a ticket while he is viewing the ticket leads to interface issues on the agent's side.
+ - 2017-05-10 Fixed bug#[12572](https://bugs.otrs.org/show_bug.cgi?id=12572) - Non-process tickets generate error messages in the syslog if process data are allowed to be displayed.
+ - 2017-05-10 Fixed bug#[10569](https://bugs.otrs.org/show_bug.cgi?id=10569) - DynamicField of type date resets after ticket split.
+ - 2017-05-10 Fixed bug#[6144](https://bugs.otrs.org/show_bug.cgi?id=6144) - Invaild System Email Address Problem.
+ - 2017-05-10 Fixed bug#[7913](https://bugs.otrs.org/show_bug.cgi?id=7913) - Incorrect parsing of Content-Type with additional attributes.
+ - 2017-05-09 Fixed bug#[12613](https://bugs.otrs.org/show_bug.cgi?id=12613) - Accents are missing from accented letters.
+ - 2017-05-09 Fixed bug#[12498](https://bugs.otrs.org/show_bug.cgi?id=12498) - An invalid date used in a search attribute returns a wrong result.
+ - 2017-05-09 Fixed bug#[4424](http://bugs.otrs.org/show_bug.cgi?id=4424) - Package Manager rebuild() creates invalid XML packages.
+ - 2017-05-09 Fixed bug#[8249](http://bugs.otrs.org/show_bug.cgi?id=8249) - System addresses should be unique.
+ - 2017-05-09 Fixed bug#[9972](https://bugs.otrs.org/show_bug.cgi?id=9972) - Spelling check unit test is not working correctly.
+ - 2017-05-09 Updated UnitTest DynamicFieldFromCustomerUser with new scenarios (bug#12587).
+ - 2017-05-09 Fixed bug#[12389](https://bugs.otrs.org/show_bug.cgi?id=12389) - Attachments with alias charsets are not properly processed in GenericInterface.
+ - 2017-05-08 Fixed bug#[8249](http://bugs.otrs.org/show_bug.cgi?id=8249) - system addresses should be unique.
+ - 2017-05-08 Fixed bug#[6751](http://bugs.otrs.org/show_bug.cgi?id=6751) - Problem if service name gets to long, or if service has too many subservices.
+ - 2017-05-08 Fixed bug#[11508](https://bugs.otrs.org/show_bug.cgi?id=11508) - Change Date has a confussing label in the ticket list statistic result.
+ - 2017-05-08 Fixed bug#[12286](https://bugs.otrs.org/show_bug.cgi?id=12286) - Article body with non-allowed characters breaks SOAP response.
+ - 2017-05-08 Fixed bug#[12193](https://bugs.otrs.org/show_bug.cgi?id=12193) - Article     never decrypted when StoreDecryptedData set to no.
+ - 2017-05-08 Fixed bug#[12347](https://bugs.otrs.org/show_bug.cgi?id=12347) - Error message "No such TicketID" on ticket delete.
+ - 2017-05-05 Fixed bug#[12791](https://bugs.otrs.org/show_bug.cgi?id=12791) - ArticleSend Documentation is incorrect.
+ - 2017-05-03 Added a web timeout config option for the support data collection and suppress the log message, if the internal web request for the support data collection doesn't work.
+ - 2017-04-28 Fixed bug#[10556](https://bugs.otrs.org/show_bug.cgi?id=10556)(PR#1737) - Missing library used in IMAP authentication mechanism. Thanks to S7!
+ - 2017-04-26 Fixed bug#[12783](https://bugs.otrs.org/show_bug.cgi?id=12783) - Display of Dynamic Field Date/Time values changed.
+ - 2017-04-24 Follow-up fix for bug#[12118](https://bugs.otrs.org/show_bug.cgi?id=12118) - Unified the search from text and textarea dynamic fields.
+ - 2017-04-19 Fixed bug#[12736](https://bugs.otrs.org/show_bug.cgi?id=12736)(PR#1709) - Malformed pgp-signed multipart mail can cause error in PGP.pm. Thanks to Michael and S7!
+ - 2017-04-13 Fixed bug#[7811](https://bugs.otrs.org/show_bug.cgi?id=7811)(PR#1710) - GenericAgent Search produces inconsistent results. Thanks to S7!
+ - 2017-04-13 Fixed bug#[12649](https://bugs.otrs.org/show_bug.cgi?id=12649)(PR#1669) - The long and short description of the process ticket are not displayed at the first activity. Thanks to S7!
+ - 2017-04-06 Fixed bug#[12753](https://bugs.otrs.org/show_bug.cgi?id=12753) - Function "SystemDataGroupGet" has problems with empty values in oracle.
+ - 2017-04-04 Fixed bug#[12627](https://bugs.otrs.org/show_bug.cgi?id=12627) - ACL value with brackets is not shown in ACL Editor.
+ - 2017-04-04 Follow-up fix for bug#[12334](https://bugs.otrs.org/show_bug.cgi?id=12334) - Net::SSLGlue issues warnings on modern systems.
+ - 2017-04-04 Fixed bug#[12746](https://bugs.otrs.org/show_bug.cgi?id=12746) - ACL ignores checks on dynamic fields.
+ - 2017-04-02 Fixed bug#[10825](https://bugs.otrs.org/show_bug.cgi?id=10825)(PR#936) -  - <OTRS_CUSTOMER_Body> in Reply-Template, thanks to S7.
+ - 2017-03-31 Follow-up fix: Activity dialog doesn't check process status before submit (bug#12443), thanks to Balázs Úr.
+ - 2017-03-29 Fixed bug#[12614](http://bugs.otrs.org/show_bug.cgi?id=12614) - PopUpAction doesn't work on the Create phone Ticket or Create e-mail ticket widgets.
+ - 2017-03-24 Fixed bug#[12719](https://bugs.otrs.org/show_bug.cgi?id=12719)(PR#1671) - The result of SQL box displays the unique column headers not with the right character encoding. Thanks to S7!
+ - 2017-03-24 Fixed bug#[12718](https://bugs.otrs.org/show_bug.cgi?id=12718)(PR#1668) - There is no check for the similar names when creating a mail filter. Thanks to S7!
+ - 2017-03-24 Fixed bug#[12724](https://bugs.otrs.org/show_bug.cgi?id=12724) - OTRS generates cron error messages on incoming mails with broken encoding.
+ - 2017-03-24 Fixed bug#[12703](https://bugs.otrs.org/show_bug.cgi?id=12703)(PR#1663) - dynamic list and dynamic matrix interpret agent/user Userfirstname. Thanks to S7!
+ - 2017-03-23 Fixed bug#[12723](https://bugs.otrs.org/show_bug.cgi?id=12723) - TicketNumber generators uses TicketCheckNumber() in a wrong way.
+ - 2017-03-23 Fixed bug#[12701](https://bugs.otrs.org/show_bug.cgi?id=12701)(PR#1666) - Default values of "Owner" and "Responsible" fields placed in the activity dialogs in the process tickets cannot be settled. Thanks to S7!
+ - 2017-03-23 Fixed bug#[12702](https://bugs.otrs.org/show_bug.cgi?id=12702) - TicketTypeUpdate not seen in Ticket history.
+
+#4.0.23 2017-03-28
+ - 2017-03-22 Fixed bug#[12716](https://bugs.otrs.org/show_bug.cgi?id=12716)(PR#1667) - Activity dialog causes an Error in customer interface. Thanks to S7!
+ - 2017-03-17 Fixed bug#[12683](https://bugs.otrs.org/show_bug.cgi?id=12683)(PR#1651) - There is a difference between key and content display in the Events Ticket Calendar. Thanks to S7!
+ - 2017-03-14 Fixed: Net::SSLGlue issues warnings on modern systems.
+ - 2017-03-14 Fixed bug#[12676](https://bugs.otrs.org/show_bug.cgi?id=12676)(PR#1645) - Ticket delete slows exponentially with dynamic fields. Thanks to S7!
+ - 2017-03-14 Improved backpup.pl to really only dump the database if -t dbonly is specified.
+ - 2017-03-13 Fixed bug#[12685](https://bugs.otrs.org/show_bug.cgi?id=12685) - Typos in TicketSearch operation in WSDL.
+ - 2017-03-10 Fixed bug#[12678](https://bugs.otrs.org/show_bug.cgi?id=12678) - DynamicField Date and DateTime only have the default values for 10 years in past and 1 year in future for the search.
+ - 2017-03-10 Fixed bug#[12624](https://bugs.otrs.org/show_bug.cgi?id=12624) - AgentTicketSearch gets broken with very long search templates.
+ - 2017-03-10 Fixed bug#[12677](https://bugs.otrs.org/show_bug.cgi?id=12677) - OTRS breaks with DBD::mysql 4.042.
+ - 2017-03-09 Fixed bug#[12669](https://bugs.otrs.org/show_bug.cgi?id=12669)(PR#1641) - ToolBar icon 'Ticket in my Services' is shown without access to tickets. Thanks to S7!
+ - 2017-03-08 Fixed bug#[12657](https://bugs.otrs.org/show_bug.cgi?id=12657)(PR#1640) - Search result different on DynamicFields if DB is case sensitive. Thanks to S7!
+ - 2017-03-07 Fixed bug#[12661](https://bugs.otrs.org/show_bug.cgi?id=12661)(PR#1639) - In overview views wrong dates are displayed in the Created column. Thanks to S7!
+ - 2017-03-06 Fixed bug#[12273](https://bugs.otrs.org/show_bug.cgi?id=12273) - ACLs do not work if referencing on DF with value 0.
+ - 2017-03-06 Fixed bug#[8998](https://bugs.otrs.org/show_bug.cgi?id=12400)(PR#1033) - Empty sender name in response, thanks to Pawel Boguslawski.
+ - 2017-03-03 Follow-up for bug#[12443](https://bugs.otrs.org/show_bug.cgi?id=12443) - Activity dialog doesn't check process status before submit.
+ - 2017-03-03 Fixed bug#[11880](https://bugs.otrs.org/show_bug.cgi?id=11880) - TicketSolutionResponseTime - No Values when Solution Time it NOT in use.
+ - 2017-03-03 Fixed bug#[12659](https://bugs.otrs.org/show_bug.cgi?id=12659) - Process editor freezes when "No data found" element is dragged on canvas.
+ - 2017-03-02 Fixed bug#[9729](https://bugs.otrs.org/show_bug.cgi?id=9729)(PR#1631) - An article body may be replaced with attachments in AgentTicketZoom. Thanks to S7!
+ - 2017-02-28 Fixed bug#[12582](https://bugs.otrs.org/show_bug.cgi?id=12582) - Select All Checkbox is shown in Ticket Overview screens when table is empty.
+
+#4.0.22 2017-03-07
+ - 2017-02-24 Fixed bug#[12628](https://bugs.otrs.org/show_bug.cgi?id=12628)(PR#1623) - Sorting of columns in Dashboard-Ticket-Widgets is toggling with every refresh of the widget. Thanks to S7!
+ - 2017-02-24 Fixed bug#[12487](https://bugs.otrs.org/show_bug.cgi?id=12487) - Statistic with a  '+' in the  CustomerId doesn't work.
+ - 2017-02-24 Fixed bug#[12595](https://bugs.otrs.org/show_bug.cgi?id=12595) - Not able to search for tickets at customer portal with brackets within login name.
+ - 2017-02-24 Unified the search from text and textarea dynamic fields (bug#12118).
+ - 2017-02-22 Fixed bug#[12596](https://bugs.otrs.org/show_bug.cgi?id=12596)(PR#1625) - AgentTicketQueue articles are not displayed properly. Thanks to S7!
+ - 2017-02-18 Fixed bug#[12443](https://bugs.otrs.org/show_bug.cgi?id=12443) - Activity dialog doesn't check process status before submit.
+ - 2017-02-17 Fixed bug#[8853](https://bugs.otrs.org/show_bug.cgi?id=8853) - Hardcoded Priority and State in bin/otrs.FillDB.pl.
+ - 2017-02-17 Fixed bug#[12555](https://bugs.otrs.org/show_bug.cgi?id=12555) - Deleting tickets via GenericAgent does not remove tickets completely (immediately?).
+ - 2017-02-17 Fixed bug#[12564](https://bugs.otrs.org/show_bug.cgi?id=12564) - Values that belong to the checkbox, appear in English in the statistics settings.
+ - 2017-02-14 Fixed bug#[12558](https://bugs.otrs.org/show_bug.cgi?id=12558)(PR#1603) - Filtering of "Available Columns" in Allocation List is not working well when columns are changed. Thanks to S7!
+ - 2017-02-13 Fixed bug#[12606](https://bugs.otrs.org/show_bug.cgi?id=12606) - In LinkObject module the class names are not translated even if they are translated in the language file.
+ - 2017-02-10 Fixed bug#[12583](https://bugs.otrs.org/show_bug.cgi?id=12583) - Superfluous block end directive in footer template.
+ - 2017-02-10 Fixed bug#[12588](https://bugs.otrs.org/show_bug.cgi?id=12588) - Unicode characters crash Postmaster with HTMLUtil.pm error.
+ - 2017-02-10 Fixed bug#[10918](https://bugs.otrs.org/show_bug.cgi?id=10918) - Reducing available processes by ACLs not possible.
+ - 2017-02-03 Fixed bug#[12533](https://bugs.otrs.org/show_bug.cgi?id=12533) - Setting a Dynamic Field to = 0  in a activity dialogue does  not set the value but deletes it.
+ - 2017-02-03 Fixed bug#[12577](https://bugs.otrs.org/show_bug.cgi?id=12577)(PR#1606) - Select All Checkboxes in Ticket Overview screens. Thanks to S7!
+ - 2017-01-26 Fixed bug#[12547](https://bugs.otrs.org/show_bug.cgi?id=12547) - System maintenance arranges notes in time order.
+ - 2017-01-24 Fixed bug#[12529](https://bugs.otrs.org/show_bug.cgi?id=12529) - Notifications break AgentTicketBulk.
+ - 2017-01-20 Follow-up fix for bug#[11810](http://bugs.otrs.org/show_bug.cgi?id=11810) - <OTRS_TICKET_State> not translated to spanish when answering from AgentTicketZoom screen.
+ - 2017-01-20 Fixed bug#[12543](https://bugs.otrs.org/show_bug.cgi?id=12543) - Missing header and footer after file upload in CustomerTicketProcess.
+ - 2017-01-20 Fixed bug#[4512](https://bugs.otrs.org/show_bug.cgi?id=4512) - HTMLUtils ToAscii forces line breake on fixed line-length 78.
+ - 2017-01-20 Fixed bug#[12536](https://bugs.otrs.org/show_bug.cgi?id=12536) - It's possible for an GenericAgent task to be submitted multiple times and depending on the jobs configuration, lead to a Denial of Service.
+
+#4.0.21 2017-01-24
+ - 2017-01-16 Fixed bug#[12421](https://bugs.otrs.org/show_bug.cgi?id=12421) - Wrong out of office state in statistics.
+ - 2017-01-06 Fixed bug#[12516](https://bugs.otrs.org/show_bug.cgi?id=12516) - Error when next state is not set and state is disabled in AgentTicketPhoneCommon.
+ - 2017-01-06 Fixed bug#[12512](https://bugs.otrs.org/show_bug.cgi?id=12512) - https RSS feeds don't use the proxy.
+ - 2016-12-23 Fixed bug#[12471](https://bugs.otrs.org/show_bug.cgi?id=12471) - out of office time calculation wrong if user time zone differs from OTRS default.
+ - 2016-12-23 Fixed bug#[12480](https://bugs.otrs.org/show_bug.cgi?id=12480) - Bulk function ignores queues <-> agent/role permissions. Thanks to S7 (PR#1590).
+ - 2016-12-16 Fixed bug#[12486](https://bugs.otrs.org/show_bug.cgi?id=12486) - Return-path is set to "<>" instead of having SMTP-From identical to Mailheader-From.
+ - 2016-12-16 Fixed bug#[12464](https://bugs.otrs.org/show_bug.cgi?id=12464) - Customer History table is still visible even though no selected customer users.
+ - 2016-12-16 Improved the support data collection to work without a internal web request.
+ - 2016-12-16 Fixed bug#[12473](https://bugs.otrs.org/show_bug.cgi?id=12473) - Banner cannot be disabled in customer interface.
+
+#4.0.20 2016-12-13
+ - 2016-12-07 Updated translations, thanks to all translators.
+ - 2016-12-07 Fixed bug#[12483](https://bugs.otrs.org/show_bug.cgi?id=12483) - YAML load problems with dynamic fields.
+ - 2016-12-02 Fixed bug#[12472](https://bugs.otrs.org/show_bug.cgi?id=12472) - Bug in Output Filter  Frontend::Output::FilterText###AAAUR: wrong FTP recognition.
+ - 2016-11-25 Fixed bug#[12457](http://bugs.otrs.org/show_bug.cgi?id=12457) - text/html Part only E-Mails with HTML Entities are Converted to Incorrect Charset.
+ - 2016-11-29 Fixed bug#[12293](https://bugs.otrs.org/show_bug.cgi?id=12293) - Auto response presents confidential information from internal communication to customer user. Please note that for this fix, the configuration setting "PostMaster::PostFilterModule###000-FollowUpArticleTypeCheck" was renamed to "PostMaster::PreCreateFilterModule###000-FollowUpArticleTypeCheck". If you had customized the old setting, please also apply your customizations to the new setting.
+ - 2016-11-25 Fixed bug#[1370](https://bugs.otrs.org/show_bug.cgi?id=1370) - Postmaster filters with 2 match conditions doesnt work.
+ - 2016-11-25 Fixed bug#[12450](http://bugs.otrs.org/show_bug.cgi?id=12450) - Error handling with ???. Thanks to Dorothea Doerffel.
+ - 2016-11-25 Fixed bug#[12461](https://bugs.otrs.org/show_bug.cgi?id=12461) - Chrome can not display attached PDF files since 5.0.14.
+ - 2016-11-18 Removed superfluous colons in table heading, thanks to Balázs Úr (PR#1566).
+ - 2016-11-18 Fixed error when importing emails without valid address in From field, thanks to Paweł Bogusławski (PR#1559).
+ - 2016-11-18 Fixed warnings when saving permissions for users and roles, thanks to Paweł Bogusławski (PR#1557).
+ - 2016-11-18 Fixed bug#[12438](https://bugs.otrs.org/show_bug.cgi?id=12438) - Race condition in ArticleCreate.
+ - 2016-11-18 Fixed bug#[12353](http://bugs.otrs.org/show_bug.cgi?id=12353) - DynamicField Multiselect default value is not correct on creation. Thanks to S7!
+ - 2016-11-18 Fixed bug#[12418](https://bugs.otrs.org/show_bug.cgi?id=12418) - Blinking mechanism not working.
+ - 2016-11-11 Fixed bug#[12415](https://bugs.otrs.org/show_bug.cgi?id=12415) - Problems with malformed utf8 chars in emails.
+ - 2016-11-11 Fixed bug#[12403](https://bugs.otrs.org/show_bug.cgi?id=12403) - Ticketview M or L actionline in ie11 not working.
+ - 2016-11-11 Fixed bug#[12410](https://bugs.otrs.org/show_bug.cgi?id=12410) - ACL GUI doesn not contain AgentTicketSearch.
+ - 2016-11-11 Fixed bug#[12395](https://bugs.otrs.org/show_bug.cgi?id=12395) - Support Data Collector Plugin Table Charset incorrectly reports utf8 Problem for a Table View.
+ - 2016-11-11 Fixed bug#[12408](https://bugs.otrs.org/show_bug.cgi?id=12408) - Missing SecretConfigOptions in TemplateGenerator.
+ - 2016-11-07 Fixed bug#[12400](https://bugs.otrs.org/show_bug.cgi?id=12400) - Package manager does not list freely selectable features via cloud service.
+ - 2016-11-04 Fixed bug#[12384](http://bugs.otrs.org/show_bug.cgi?id=12384) - Stats translates ticket type values.
+ - 2016-11-04 Fixed bug#[12316](http://bugs.otrs.org/show_bug.cgi?id=12316) - No tickets found, empty lines in customer user management on () in uid. Thanks to Paweł Bogusławski (PR#1510).
+ - 2016-11-04 Fixed bug#[12397](https://bugs.otrs.org/show_bug.cgi?id=12397) - backup.pl doesn't backup articles in special case. Thanks to Jens Pfeifer.
+ - 2016-11-04 Fixed bug#[12285](http://bugs.otrs.org/show_bug.cgi?id=12285) - Invalid customer user still receive admin notification.
+ - 2016-11-04 Fixed bug#[12391](http://bugs.otrs.org/show_bug.cgi?id=12391) - Base64 encoded image does not display in article.
+ - 2016-11-04 Fixed bug#[12369](http://bugs.otrs.org/show_bug.cgi?id=12369) - Errors in deleting tickets. Thanks to S7.
+ - 2016-11-04 Fixed bug#[12367](https://bugs.otrs.org/show_bug.cgi?id=12367) - * in CustomerID breaks all CustomerUser.CustomerIDs.
+ - 2016-11-04 Follow-up fix for bug#[9460](https://bugs.otrs.org/show_bug.cgi?id=9460) - Under some circumstances OTRS does not join Tickets to the Customernumber.
+ - 2016-11-03 Updated Hungarian translation, thanks to Ur Balazs.
+ - 2016-10-28 Fixed bug#[11073](http://bugs.otrs.org/show_bug.cgi?id=11073) - Default expanded article in queue view (preview mode) should not be an autoreply.
+ - 2016-10-28 Fixed bug#[12334](https://bugs.otrs.org/show_bug.cgi?id=12334) - Net::SSLGlue issues warnings on modern systems.
+
+#4.0.19 2016-11-01
+ - 2016-10-26 Added a new agent session limit prior warning notification (SysConfig setting 'AgentSessionLimitPriorWarning') and added the concurrent agent management for the OTRS Business Solution™.
+ - 2016-10-23 Fixed bug#[11766](http://bugs.otrs.org/show_bug.cgi?id=11766) - Ticket unlock via Generic Interface not possible.
+ - 2016-10-21 Fixed bug#[12311](http://bugs.otrs.org/show_bug.cgi?id=12311) - Process names are listed by ID instead of by name.
+ - 2016-10-21 Fixed bug#[666](http://bugs.otrs.org/show_bug.cgi?id=666) - INSERTs into 'ticket_history' fail sometimes.
+ - 2016-10-18 Fixed bug#[12284](http://bugs.otrs.org/show_bug.cgi?id=12284) - Precious little information regarding SMIME signatures.
+ - 2016-10-09 Fixed bug#[12343](http://bugs.otrs.org/show_bug.cgi?id=12343) - Cache kept for ViewableLocks.
+ - 2016-10-09 Fixed bug#[12351](http://bugs.otrs.org/show_bug.cgi?id=12351) - Multiple sort / order parameters for Ticket::Frontend::Agent::Dashboard.
+ - 2016-10-06 Improved sandboxing of displayed attachments.
+ - 2016-09-30 Fixed bug#[12341](http://bugs.otrs.org/show_bug.cgi?id=12341) - Wrong <OTRS_TICKET_DynamicField_NameX_Value> in ProcessManagement  Transition Actions.
+ - 2016-09-30 Fixed bug#[12272](http://bugs.otrs.org/show_bug.cgi?id=12272) - Tickets in status "removed" get reopened from Junk Queue.
+ - 2016-09-30 Fixed bug#[10117](http://bugs.otrs.org/show_bug.cgi?id=10117) - Filter in queue view for customer userID shows only customers from given backend. Thanks to S7.
+ - 2016-09-28 Fixed bug#[12331](http://bugs.otrs.org/show_bug.cgi?id=12331) - pdf generation runs in to errors on spllited pages because of many columns.
+ - 2016-09-23 Fixed bug#[12306](http://bugs.otrs.org/show_bug.cgi?id=12306)(PR#1474) - SOAP won't use certificates, thanks to Thorsten Eckel.
+ - 2016-09-22 Fixed bug#[12283](http://bugs.otrs.org/show_bug.cgi?id=12283) - If Customer users <-> Groups is activated, some queues are not available in the customer interface, when starting a process ticket.
+ - 2016-09-21 Added possibility to define Minimum and Maximum framework version in opm files (e.g. <Framework Minimum="4.0.19">4.0.x</Framework>).
+ - 2016-09-16 Fixed bug#[12305](http://bugs.otrs.org/show_bug.cgi?id=12305) - Incorrect charset handling in content type of SOAP messages.
+ - 2016-09-15 Fixed bug#[12301](http://bugs.otrs.org/show_bug.cgi?id=12301) - CSV reading code is broken, thanks to Pawel Boguslawski.
+ - 2016-09-14 Fixed bug#[12134](http://bugs.otrs.org/show_bug.cgi?id=12134) - Tag <OTRS_CUSTOMER_REALNAME> wrongly documented.
+ - 2016-09-13 Fixed bug#[11922](http://bugs.otrs.org/show_bug.cgi?id=11922) - Notification to non RealCustomer.
+ - 2016-09-12 Fixed bug#[11365](http://bugs.otrs.org/show_bug.cgi?id=11365) - ACLs editor shows actions where ACLs does not apply.
+ - 2016-09-09 Fixed bug#[5149](http://bugs.otrs.org/show_bug.cgi?id=5149) - Incomplete multipart/mixed processing causes incomplete display of e-mails.
+ - 2016-09-09 Fixed bug#[11250](http://bugs.otrs.org/show_bug.cgi?id=11250) - Kernel\Output\HTML\PreferencesCustomService.pm Param() sub calls Service.pm ServiceList() without KeepChildren param.
+ - 2016-09-02 Fixed bug#[12199](http://bugs.otrs.org/show_bug.cgi?id=12199) - ProcessManagement: Comma separated Lastnames are not shown correctly on article creation.
+ - 2016-09-02 Fixed bug#[12079](http://bugs.otrs.org/show_bug.cgi?id=12079) - Regex in transition condition not working for empty match.
+ - 2016-09-02 Added additional positive ResponseCodes for Generic Interface transport module REST, thanks to Robert Ullrich.
+ - 2016-09-02 Fixed bug#[12280](http://bugs.otrs.org/show_bug.cgi?id=12280) - GenericAgent job does not send out notifications, even when the option is set to Yes. Thanks to Johannes Hoerburger.
+ - 2016-09-02 Fixed bug#[7288](http://bugs.otrs.org/show_bug.cgi?id=7288) - Hyperlink creation cuts URLs after a closing square bracket.
+ - 2016-09-02 Fixed bug#[12257](http://bugs.otrs.org/show_bug.cgi?id=12257) - Ticketnotification: Ticketfilter of a uncheck checkbox doesn't work.
+ - 2016-09-01 Fixed bug#[12106](http://bugs.otrs.org/show_bug.cgi?id=12106) - Use of uninitialized value in splice.
+ - 2016-08-26 Fixed bug#[12233](http://bugs.otrs.org/show_bug.cgi?id=12233) - ACL for restricting services depending on queue does not work as exspected.
+ - 2016-08-26 Fixed bug#[12263](http://bugs.otrs.org/show_bug.cgi?id=12263) - Time-related search attributes only cover last 10 years.
+ - 2016-08-19 Fixed bug#[12236](http://bugs.otrs.org/show_bug.cgi?id=12236) - ACL - negate a role.
+ - 2016-08-19 Fixed bug#[12242](http://bugs.otrs.org/show_bug.cgi?id=12242) - GenericInterface Dynamic Fields with multiple values not possible (TicketCreate).
+ - 2016-08-19 Fixed bug#[12258](http://bugs.otrs.org/show_bug.cgi?id=12258) - restore.pl doesn't work with crypted passwords.
+ - 2016-08-19 Fixed bug#[12212](http://bugs.otrs.org/show_bug.cgi?id=12212) - otrs.PendingJobs.pl: Pending Reminder notification not sent if pending auto states are deactivated.
+ - 2016-08-19 Fixed bug#[12222](http://bugs.otrs.org/show_bug.cgi?id=12222) - closing curly bracket in hyperlink.
+ - 2016-08-19 Fixed bug#[9460](http://bugs.otrs.org/show_bug.cgi?id=9460) - Under some circumstances OTRS does not join Tickets to the Customernumber.
+ - 2016-08-18 Fixed bug#[12246](http://bugs.otrs.org/show_bug.cgi?id=12246) - HTML mail not displayed correctly.
+ - 2016-08-15 Fixed bug#[12245](http://bugs.otrs.org/show_bug.cgi?id=12245) - Missing information for Article Dynamic Fields update event thanks to Rene (rwese).
+ - 2016-08-15 Fixed bug#[12229](http://bugs.otrs.org/show_bug.cgi?id=12229) - Queue is not selectable if the name contains "<" or ">" characters.
+ - 2016-08-12 Fixed bug#[12224](http://bugs.otrs.org/show_bug.cgi?id=12224) - Plain password stored in database temporarily when adding new users.
+ - 2016-08-08 Fixed bug#[11981](http://bugs.otrs.org/show_bug.cgi?id=11981) - GenericTicketConnector ignoring "<ContentSearch>OR</ContentSearch>" in full text search.
+ - 2016-08-08 Fixed bug#[12205](http://bugs.otrs.org/show_bug.cgi?id=12205) - Default setting for Ticket::Frontend::CustomerTicketMessage###TicketTypeDefault incorrect.
+
+#4.0.18 2016-08-09
+ - 2016-08-01 Fixed bug#[8671](http://bugs.otrs.org/show_bug.cgi?id=8671) - Can not link to archived ticket.
+ - 2016-07-24 Followup for bug#[12090](http://bugs.otrs.org/show_bug.cgi?id=12090) - 2 second sleep between email fetching causes bad performance on systems with high email traffic.
+ - 2016-07-21 Fixed bug#[11757](http://bugs.otrs.org/show_bug.cgi?id=11757) - otrs.Console.pl Maint::Stats::Generate - language option not working.
+ - 2016-07-20 Fixed bug#[12105](http://bugs.otrs.org/show_bug.cgi?id=12105) - "Create summation row" and "Create summation column" are transposed.
+ - 2016-07-13 Fixed bug#[12118](http://bugs.otrs.org/show_bug.cgi?id=12118) - Text Area filter doesn't work for Statistic.
+ - 2016-07-13 Fixed bug#[12189](http://bugs.otrs.org/show_bug.cgi?id=12189) - ACL beginning with @ results in 500 internal server error.
+ - 2016-07-12 Fixed bug#[12182](http://bugs.otrs.org/show_bug.cgi?id=12182) - CIC - Customer Login still shows merged tickets as closes tickets.
+ - 2016-07-12 Fixed bug#[12181](http://bugs.otrs.org/show_bug.cgi?id=12181) - Object StateAction -> Names are not readable.
+ - 2016-07-11 Fixed bug#[11934](http://bugs.otrs.org/show_bug.cgi?id=11934) - GenericAgent - not possible to uncheck a checkbox.
+ - 2016-07-08 Fixed bug#[12179](http://bugs.otrs.org/show_bug.cgi?id=12179) - Wrong OTRS tags conversion in transition actions called by Generic Agent over multiple tickets.
+ - 2016-07-01 Fixed bug#[8640](http://bugs.otrs.org/show_bug.cgi?id=8640) - Article bounce does not conform to rfc 2822.
+ - 2016-07-01 Fixed bug#[12141](http://bugs.otrs.org/show_bug.cgi?id=12141) - Wrong check for needed objects.
+ - 2016-07-04 Fixed bug#[12147](http://bugs.otrs.org/show_bug.cgi?id=12147) - Transition Action - to set Service and SLA.
+ - 2016-06-27 Fixed bug#[11986](http://bugs.otrs.org/show_bug.cgi?id=11986) - Wrong class paramenter for Admin Menu in Navbar.
+ - 2016-06-27 Fixed bug#[12097](http://bugs.otrs.org/show_bug.cgi?id=12097) - Ticket responses with non-breaking whitespace cause PostgreSQL database error.
+ - 2016-06-27 Fixed bug#[11596](http://bugs.otrs.org/show_bug.cgi?id=11596) - Invalid byte sequence for encoding "UTF8": 0xa0 PostgreSQL.
+ - 2016-06-27 Fixed bug#[10970](http://bugs.otrs.org/show_bug.cgi?id=10970) - byte sequence errors on notifications.
+ - 2016-06-24 Updated Hungarian translation, thanks to Ur Balazs.
+ - 2016-06-21 Fixed bug#[12100](http://bugs.otrs.org/show_bug.cgi?id=12100) - Error Premature end of script headers: index.pl when using long URL.
+ - 2016-06-17 Fixed bug#[12132](http://bugs.otrs.org/show_bug.cgi?id=12132) - Order of columns in Queue view broken when more than 9 columns are selected.
+ - 2016-06-09 Fixed bug#[12129](http://bugs.otrs.org/show_bug.cgi?id=12129) - Process Management: Ticket locks even when is not needed, thanks to Thorsten Eckel.
+ - 2016-06-09 Fixed bug#[12128](http://bugs.otrs.org/show_bug.cgi?id=12128) - Can not store 0 in Admin Customer screen, thanks to Renée Bäcker.
+ - 2016-06-09 Fixed bug#[11990](http://bugs.otrs.org/show_bug.cgi?id=11990) - Kernel/Config/ files matching regex .pm may throw an error while loading.
+ - 2016-06-06 Fixed bug#[12122](http://bugs.otrs.org/show_bug.cgi?id=12122) - Wrong offset in substr function, ForeignKeyCreate function.
+ - 2016-06-06 Fixed bug#[12020](http://bugs.otrs.org/show_bug.cgi?id=12020) - Option CaseSensitive has no impact on external customer database.
+ - 2016-06-03 Fixed bug#[12110](http://bugs.otrs.org/show_bug.cgi?id=12110) - ACL Queue limitation not working in CustomerTicketProcess, thanks to Thorsten Eckel.
+ - 2016-06-03 Fixed bug#[12085](http://bugs.otrs.org/show_bug.cgi?id=12085) - CIC search links don't work when customer login contains parentheses.
+ - 2016-05-27 Fixed bug#[12074](http://bugs.otrs.org/show_bug.cgi?id=12074) - Redundant and confusing code in Kernel/System/TemplateGenerator.pm.
+ - 2016-05-27 Fixed bug#[12018](http://bugs.otrs.org/show_bug.cgi?id=12018) - HTML body not retrieved on by GI operation TicketGet (Added HTMLBodyAsAttachment parameter to retrieve is as an attachment).
+ - 2016-05-27 Fixed dynamic field backend POD, Thanks to Thorsten Eckel.
+ - 2016-05-27 Fixed bug#[12090](http://bugs.otrs.org/show_bug.cgi?id=12090) - 2 second sleep between email fetching causes bad performance on systems with high email traffic.
+ - 2016-05-21 Fixed bug#[12012](http://bugs.otrs.org/show_bug.cgi?id=12012) - JSON Response contains all Dynamic Fields in Article response.
+ - 2016-05-20 Fixed bug#[12069](http://bugs.otrs.org/show_bug.cgi?id=12069) - enabling/disabling Article Filter show wrong article.
+ - 2016-05-20 Fixed bug#[8153](http://bugs.otrs.org/show_bug.cgi?id=8153) - When configuration area is not activated, it is still editable.
+ - 2016-05-19 Followup for bug#[9950](http://bugs.otrs.org/show_bug.cgi?id=9950) - Ticket Split takes uses system address as the customer.
+ - 2016-05-13 Fixed bug#[12045](http://bugs.otrs.org/show_bug.cgi?id=12045) - Not possible to create a Ticket using TransitionAction::TicketCreate with Owner instead of OwnerID.
+ - 2016-05-12 Fixed bug#[9345](http://bugs.otrs.org/show_bug.cgi?id=9345) - OTRS exceeds 998 character limit in References Line of E-Mail Header.
+
+#4.0.17 2016-05-17
+ - 2016-05-11 Updated translations, thanks to all translators.
+ - 2016-05-06 Fixed bug#[11835](http://bugs.otrs.org/show_bug.cgi?id=11835) - Events Ticket Calendar disappears when EndTime before StartTime.
+ - 2016-05-04 Fixed bug#[12031](http://bugs.otrs.org/show_bug.cgi?id=12031) - SubSelected class not applied to My Tickets in CustomerTicketOverview Navigation.
+ - 2016-05-04 Fixed bug#[12049](http://bugs.otrs.org/show_bug.cgi?id=12049) - Encoding problems in REST transport.
+ - 2016-04-29 Fixed bug#[12033](http://bugs.otrs.org/show_bug.cgi?id=12033) - Wrong value selected automatically for Responsible in Bulk action..
+ - 2016-04-21 Added package verification information to otrs.PackageManager.pl, use bin/otrs.PackageManager.pl -a list -e (to show package verification information) or bin/otrs.PackageManager.pl -a list -e -c (to show package verification information deleting the cache before).
+ - 2016-04-15 Fixed bug#[11430](http://bugs.otrs.org/show_bug.cgi?id=11430) - (Ticket )Cache won't get updated on DynamicField ValueDelete.
+ - 2016-04-08 Fixed bug#[11921](http://bugs.otrs.org/show_bug.cgi?id=11921) - Wrong attachment is deleted if deleting from multiple attachments from template in new ticket.
+ - 2016-04-08 Fixed bug#[11917](http://bugs.otrs.org/show_bug.cgi?id=11917) - Generic Interface does show empty/wrong results when a space (+) is used with in the name.
+ - 2016-04-06 Fixed bug#[11975](http://bugs.otrs.org/show_bug.cgi?id=11975) - Use of uninitialized value $NotUseTag in /opt/otrs/Kernel/System/Package.pm.
+ - 2016-04-05 Fixed bug#[11918](http://bugs.otrs.org/show_bug.cgi?id=11918) - Placement of activities and other elements shifted.
+ - 2016-04-04 Fixed bug#[11973](http://bugs.otrs.org/show_bug.cgi?id=11973) - Mapping backend "Simple" can't get initialized multiple times. Thanks to Thorsten Eckel.
+ - 2016-04-04 Fixed bug#[11353](http://bugs.otrs.org/show_bug.cgi?id=11353) - Not able to filter for CustomerID with brackets () at TicketViews.
+ - 2016-03-22 Fixed bug#[11836](http://bugs.otrs.org/show_bug.cgi?id=11836) - Pending date selection impossible due ACL limitation.
+ - 2016-03-22 Fixed bug#[11956](http://bugs.otrs.org/show_bug.cgi?id=11956) - locked tickets for invalid users are not shown in support data collector.
+ - 2016-03-18 Fixed bug#[11952](http://bugs.otrs.org/show_bug.cgi?id=11952) - Generic Interface - TicketUpdate operation - DynamicFields not possible empty value.
+ - 2016-03-18 Fixed bug#[11811](http://bugs.otrs.org/show_bug.cgi?id=11811) - Error processing mail with incorrectly encoded emoticons.
+ - 2016-03-18 Fixed bug#[11930](http://bugs.otrs.org/show_bug.cgi?id=11930) - Error 500 when searching string that ends with "\" in AdminCustomerUser.
+ - 2016-03-14 Fixed bug#[11528](http://bugs.otrs.org/show_bug.cgi?id=11528) - Group Name like 'test::Support::1st Line' is not possible to use for group restrictions.
+ - 2016-03-14 Fixed bug#[11899](http://bugs.otrs.org/show_bug.cgi?id=11899) - Columns are stored multiple times in preferences.
+ - 2016-03-11 Fixed bug#[11324](http://bugs.otrs.org/show_bug.cgi?id=11324) - OTRS webservices TicketGet operation returns always all articles.
+ - 2016-03-08 Fixed bug#[11840](http://bugs.otrs.org/show_bug.cgi?id=11840) - Inline images not displayed after ticket create via ProcessManagement.
+ - 2016-03-04 Fixed bug#[11913](http://bugs.otrs.org/show_bug.cgi?id=11913) - Description in SysConfig breakes when you click 'more'.
+ - 2016-03-04 Fixed bug#[11791](http://bugs.otrs.org/show_bug.cgi?id=11791) - Can't use FullTextSearch with Russian words.
+ - 2016-03-03 Fixed bug#[11754](http://bugs.otrs.org/show_bug.cgi?id=11754) - OwnerOnly is not respected in Dashboard Widget for Upcoming Events.
+ - 2016-03-03 Fixed bug#[6795](http://bugs.otrs.org/show_bug.cgi?id=6795) - Useless/confusing message "ERROR: Need write permission in OTRS home"
+ - 2016-03-03 Fixed bug#[8188](http://bugs.otrs.org/show_bug.cgi?id=8188) - Disabled skins are still used.
+ - 2016-03-03 Fixed bug#[6492](http://bugs.otrs.org/show_bug.cgi?id=6492) - Saving Search Templates.
+ - 2016-03-03 Fixed bug#[7542](http://bugs.otrs.org/show_bug.cgi?id=7542) - Results of HistoryTicketStatusGet() are slightly wrong (and don't take time zones into account)
+ - 2016-03-03 Fixed bug#[11249](http://bugs.otrs.org/show_bug.cgi?id=11249) - EventsTicketCalendar: dynamic fields' value isn't translated for dropdown dynamic field type.
+ - 2016-03-03 Fixed bug#[11810](http://bugs.otrs.org/show_bug.cgi?id=11810) - <OTRS_TICKET_State> not translated to spanish when answering from AgentTicketZoom screen.
+ - 2016-03-02 Fixed bug#[11839](http://bugs.otrs.org/show_bug.cgi?id=11839) - Generic Agent does not filter a value int text DF.
+ - 2016-03-02 Fixed bug#[11745](http://bugs.otrs.org/show_bug.cgi?id=11745) - apostrophe in email can't be searched.
+ - 2016-03-02 Fixed bug#[8154](http://bugs.otrs.org/show_bug.cgi?id=8154) - Uninstall button can be pressed twice.
+ - 2016-03-02 Fixed bug#[11866](http://bugs.otrs.org/show_bug.cgi?id=11866) - Customer history destroys the customer information.
+ - 2016-03-02 Fixed bug#[11168](http://bugs.otrs.org/show_bug.cgi?id=11168) - Lost condition in AgentTicketSearch.
+ - 2016-03-01 Fixed bug#[11886](http://bugs.otrs.org/show_bug.cgi?id=11886) - ACL Action missing.
+ - 2016-03-01 Fixed bug#[11888](http://bugs.otrs.org/show_bug.cgi?id=11888) - Customer Information center closed ticket counter includes merged and removed.
+ - 2016-03-01 Fixed bug#[11897](http://bugs.otrs.org/show_bug.cgi?id=11897) - Text in the Queue View is not translateable.
+ - 2016-03-01 Fixed bug#[11901](http://bugs.otrs.org/show_bug.cgi?id=11901) - Process Configuration ist destroyed in IE11 if changing data in e.g. Activity popup.
+ - 2016-03-01 Fixed bug#[11116](http://bugs.otrs.org/show_bug.cgi?id=11116) - No Loading symbol while searching for customer.
+ - 2016-03-01 Fixed bug#[11220](http://bugs.otrs.org/show_bug.cgi?id=11220) - Highlighting broken for holiday dates in Calendar Datepicker.
+ - 2016-03-01 Fixed bug#[11858](http://bugs.otrs.org/show_bug.cgi?id=11858) - Queues can just choose between 50 Calendar.
+ - 2016-03-01 Fixed bug#[11875](http://bugs.otrs.org/show_bug.cgi?id=11875) - Printed timestamp is shown with GMT, thanks to S7.
+ - 2016-02-29 Fixed bug#[11874](http://bugs.otrs.org/show_bug.cgi?id=11874) - Restrict service based on state when posting a note.
+ - 2016-02-29 Fixed bug#[11821](http://bugs.otrs.org/show_bug.cgi?id=11821) - Invisible fields are validated in ActivityDialogs.
+ - 2016-02-26 Fixed bug#[10303](http://bugs.otrs.org/show_bug.cgi?id=10303) - Created Date Not Available as a Dashboard Column.
+ - 2016-02-26 Fixed bug#[11891](http://bugs.otrs.org/show_bug.cgi?id=11891) - Unit Tests fail if MIME::EncWords is installed.
+ - 2016-02-23 Fixed bug#[11882](http://bugs.otrs.org/show_bug.cgi?id=11882) - Untraslatable string.
+ - 2016-02-23 Fixed bug#[11179](http://bugs.otrs.org/show_bug.cgi?id=11179) - InformUser and InvolvedUser can be injected even if they are disabled in SysConfig.
+ - 2016-02-15 Fixed bug#[11870](http://bugs.otrs.org/show_bug.cgi?id=11870) - Missing quoting in Layout::AgentQueueListOption().
+
+#4.0.16 2016-02-16
+ - 2016-02-01 Fixed bug#[11820](http://bugs.otrs.org/show_bug.cgi?id=11820) - Match on !~ "int" for external articles not enough.
+ - 2016-02-01 Fixed bug#[11838](http://bugs.otrs.org/show_bug.cgi?id=11838) - New tabs opened from links in a sandboxed Iframe cannot execute JavaScript.
+ - 2016-02-01 Fixed bug#[11829](http://bugs.otrs.org/show_bug.cgi?id=11829) - Main and ticket menu subentries disappear.
+ - 2016-01-28 Reverted fix for bug#[11709](http://bugs.otrs.org/show_bug.cgi?id=11709) - In move notification <OTRS_CUSTOMER_BODY> is replaced with ticket comment, not last customer body, since it broke the expected behavior.
+ - 2016-01-25 Fixed bug#[11814](http://bugs.otrs.org/show_bug.cgi?id=11814) - Labels in AgentTicketCompose and AgentTicketEmailOutbound are misaligned.
+ - 2016-01-21 Fixed bug#[11817](http://bugs.otrs.org/show_bug.cgi?id=11817) - SLAID from TicketGet response Article has wrong cardinality in WSDL.
+ - 2016-01-21 Fixed bug#[11803](http://bugs.otrs.org/show_bug.cgi?id=11803) - Got no ProcessEntityID or TicketID and ActivityDialogEntityID!.
+ - 2016-01-21 Fixed bug#[11802](http://bugs.otrs.org/show_bug.cgi?id=11802) - Customer user can get access to all ticket data.
+
+#4.0.15 2016-01-19
+ - 2016-01-12 Fixed bug#[11793](http://bugs.otrs.org/show_bug.cgi?id=11793) - Wrong subgroup for agent preference settings.
+ - 2016-01-12 Fixed bug#[11728](http://bugs.otrs.org/show_bug.cgi?id=11728) - Dashboard Widget: Attributes OwnerIDs is not working.
+ - 2016-01-07 Fixed bug#[11755](http://bugs.otrs.org/show_bug.cgi?id=11755) - PGP MIME signed email with long lines does not verify signature correctly.
+ - 2015-12-22 Fixed bug#[10969](http://bugs.otrs.org/show_bug.cgi?id=10969) - Problem whith SMIME-Cert that is valid for more than one E-Mail-Address.
+ - 2015-12-22 Improved support for Hungarian, thanks to Balazs Ur.
+ - 2015-12-16 Fixed bug#[11628](http://bugs.otrs.org/show_bug.cgi?id=11628) - DynamicField - BaseSelect.pm - missing check of DF in parameter Template in method "EditFieldValueGet".
+ - 2015-12-16 Fixed bug#[11695](http://bugs.otrs.org/show_bug.cgi?id=11695) - Inconsistency with the sorting icon.
+ - 2015-12-16 Fixed bug#[8760](http://bugs.otrs.org/show_bug.cgi?id=8760) - digest algorithm SHA1 is hardcoded in PGP/MIME signed messages.
+ - 2015-12-15 Fixed bug#[3785](http://bugs.otrs.org/show_bug.cgi?id=3785) - issuing cron jobs include backup files from them.
+ - 2015-12-15 Fixed bug#[10883](http://bugs.otrs.org/show_bug.cgi?id=10883) - Do not hardcode X-Frame-Options: SAMEORIGIN.
+ - 2015-12-15 Fixed bug#[8828](http://bugs.otrs.org/show_bug.cgi?id=8828) - No embedded images in autoresponses.
+ - 2015-12-15 Fixed bug#[7730](http://bugs.otrs.org/show_bug.cgi?id=7730) - Security: Notification Tags can be used to display critical data in Answers.
+ - 2015-12-15 Fixed bug#[11373](http://bugs.otrs.org/show_bug.cgi?id=11373) - CustomerID in AgentTicketPhone accepts any value, thanks to S7.
+ - 2015-12-15 Fixed bug#[11182](http://bugs.otrs.org/show_bug.cgi?id=11182) - otrs.SyncLDAP2DB.pl produces invalid SQL statements.
+ - 2015-12-15 Fixed bug#[11705](http://bugs.otrs.org/show_bug.cgi?id=11705) - Ticket filters are displayed incorrectly.
+ - 2015-12-14 Fixed bug#[11286](http://bugs.otrs.org/show_bug.cgi?id=11286) - Default-Value "X-Envelope-To" instead of "Envelope-To" in PostmasterX-Header.
+ - 2015-12-14 Fixed bug#[11738](http://bugs.otrs.org/show_bug.cgi?id=11738) - Generate Support Bundle throws errors when HTTPS is used as HTTPTYPE.
+ - 2015-12-14 Fixed bug#[10510](http://bugs.otrs.org/show_bug.cgi?id=10510) - Problem sending attachments with wrong mime type.
+ - 2015-12-14 Fixed bug#[11406](http://bugs.otrs.org/show_bug.cgi?id=11406) - Values of a dynamic field of type multiselect are not shown in dashoard ticket calendar.
+ - 2015-12-14 Fixed bug#[11722](http://bugs.otrs.org/show_bug.cgi?id=11722) - Undefined for undefined variable at requesting LostPasswordToken, thanks to Norihiro Tanaka.
+ - 2015-12-14 Fixed bug#[11733](http://bugs.otrs.org/show_bug.cgi?id=11733) - Field details in activity dialogs are not correctly loaded if they contain single quotes.
+ - 2015-12-07 Fixed bug#[10266](http://bugs.otrs.org/show_bug.cgi?id=10266) - Time Units can not be displayed and used in process Activity Dialogues.
+ - 2015-12-04 Fixed bug#[11652](http://bugs.otrs.org/show_bug.cgi?id=11652) - Jobs from the GenericAgent Config file use wrong ticket limit.
+ - 2015-12-04 Fixed bug#[11680](http://bugs.otrs.org/show_bug.cgi?id=11680) - Error in support data collector.
+ - 2015-12-03 Fixed bug#[11666](http://bugs.otrs.org/show_bug.cgi?id=11666) - Problem Creating DynamicField For Article and Including It on an Activity Window.
+ - 2015-12-03 Fixed bug#[8511](http://bugs.otrs.org/show_bug.cgi?id=8511) - TemplateGenerator.pm - Use of uninitialized value in substitution iterator at 1028.
+ - 2015-12-02 Fixed bug#[11096](http://bugs.otrs.org/show_bug.cgi?id=11096) - action URL overwrites permission settings, thanks to S7.
+ - 2015-12-02 Fixed bug#[11709](http://bugs.otrs.org/show_bug.cgi?id=11709) - In move notification <OTRS_CUSTOMER_BODY> is replaced with ticket comment, not last customer body, thanks to S7.
+ - 2015-11-30 Fixed bug#[11700](http://bugs.otrs.org/show_bug.cgi?id=11700) - IE is closing popup directly after opening it.
+ - 2015-11-30 Fixed bug#[11659](http://bugs.otrs.org/show_bug.cgi?id=11659) - Links in admin interface are clickable through overlays.
+ - 2015-11-27 Fixed bug#[9074](http://bugs.otrs.org/show_bug.cgi?id=9074) - No owner restriction via ACL using Frontend -> Action.
+ - 2015-11-27 Fixed bug#[11694](http://bugs.otrs.org/show_bug.cgi?id=11694) - Various errors in GenericTicketConnectorSOAP.wsdl file, thanks to Cyrille Bollu.
+ - 2015-11-26 Fixed bug#[11393](http://bugs.otrs.org/show_bug.cgi?id=11393) - ACL not hiding Process NavBar link when Type is Menu.
+ - 2015-11-26 Fixed bug#[11574](http://bugs.otrs.org/show_bug.cgi?id=11574) - Dashboard - Queue - Attributes of the Widget are not used in the  'Tickets in my Service' view.
+ - 2015-11-25 Fixed bug#[9152](http://bugs.otrs.org/show_bug.cgi?id=9152) - Event based notification with attachments does not quote article content.
+ - 2015-11-24 Fixed bug where some special unicode characters (line terminators) were not correctly encoded to JSON.
+ - 2015-11-17 Fixed bug#[7987](http://bugs.otrs.org/show_bug.cgi?id=7987) - Ticket dashboard modules not working with unlocked tickets attributes, thanks to S7.
+ - 2015-11-16 Fixed bug#[11205](http://bugs.otrs.org/show_bug.cgi?id=11205) - Popup window height does not check for actual screen height.
+ - 2015-11-13 Fixed bug#[11351](http://bugs.otrs.org/show_bug.cgi?id=11351) - S/Mime signed mails always show "Signature verified before!".
+ - 2015-11-13 Fixed bug#[11612](http://bugs.otrs.org/show_bug.cgi?id=11612) - Wrong order in the notification procedure, thanks to S7.
+ - 2015-11-06 Fixed bug#[11348](http://bugs.otrs.org/show_bug.cgi?id=11348) - Error handling in AgentTicketForward.
+ - 2015-11-09 Fixed bug#[11320](http://bugs.otrs.org/show_bug.cgi?id=11320) - Invalid customer user can update password.
+ - 2015-11-09 Fixed bug#[5509](http://bugs.otrs.org/show_bug.cgi?id=5509) - Wrong umlauts if bounce function is used.
+ - 2015-11-09 Fixed bug#[11475](http://bugs.otrs.org/show_bug.cgi?id=11475) - Kernel::System::MailAccount::IMAP->Fetch() could delete unprocessed mails from server.
+ - 2015-11-06 Fixed bug#[9884](http://bugs.otrs.org/show_bug.cgi?id=9884) - Solution Time counts wrong on daylight time changes.
+ - 2015-11-05 Fixed bug#[11600](http://bugs.otrs.org/show_bug.cgi?id=11600) - Dynamic Field of type multiselect is not substituted correctly.
+ - 2015-11-05 Fixed bug#[11340](http://bugs.otrs.org/show_bug.cgi?id=11340) - Broken value after copying values from DynamicField multiselect to multiselect during process transition action TicketCreate.
+ - 2015-11-05 Fixed bug#[11492](http://bugs.otrs.org/show_bug.cgi?id=11492) - Stats do not honor the Ticket::Service::KeepChildren parameter.
+ - 2015-11-05 Fixed bug#[11595](http://bugs.otrs.org/show_bug.cgi?id=11595) - Infinite notification loop caused by ArticleCustomerNotification.
+ - 2015-11-03 Fixed bug#[11565](http://bugs.otrs.org/show_bug.cgi?id=11565) - New article notification(star) and entry created for agent that creates the ticket.
+
+#4.0.14 2015-11-03
+ - 2015-10-13 Fixed bug#[11431](http://bugs.otrs.org/show_bug.cgi?id=11431) -  Agent notification on follow up doesn't work for Ticket Owner if PostmasterFollowUpOnUnlockAgentNotifyOnlyToOwner is enabled.
+ - 2015-10-13 Fix missing ticket cache clear after ticket merge, fixes Ticket#2015092442000716.
+ - 2015-10-12 Fixed bug#[11510](http://bugs.otrs.org/show_bug.cgi?id=11510) - AgentTicketMove empty by sysconfig changes.
+ - 2015-10-12 Fixed bug#[11255](http://bugs.otrs.org/show_bug.cgi?id=11255) - Forwarding Templates do not work with rich text disabled.
+ - 2015-10-10 Fixed bug#[11260](http://bugs.otrs.org/show_bug.cgi?id=11260) - Missing translation escalation, thanks to S7.
+ - 2015-10-09 Fixed bug#[11467](http://bugs.otrs.org/show_bug.cgi?id=11467) - ACL does not work with Dest Link in Customer::ModuleRegistration, thanks to S7.
+ - 2015-10-09 Fixed bug#[11513](http://bugs.otrs.org/show_bug.cgi?id=11513) - Out of Office is missing in owner dropdown.
+ - 2015-10-09 Fixed bug#[11544](http://bugs.otrs.org/show_bug.cgi?id=11544) - Missing Dynamic Field Name in container div class in Customer Interface..
+ - 2015-10-06 Updated CKEditor to version 4.4.8.
+ - 2015-10-01 Fixed bug#[11486](http://bugs.otrs.org/show_bug.cgi?id=11486) - endless recursion if sub module of Layout is buggy.
+ - 2015-09-25 Fixed bug#[11078](http://bugs.otrs.org/show_bug.cgi?id=11078) - Extra newline is inserted in the text wrapping.
+ - 2015-09-25 Fixed bug#[11315](http://bugs.otrs.org/show_bug.cgi?id=11315) - subservice not apparent in overview when many services are in the list.
+ - 2015-09-25 Fixed bug#[11317](http://bugs.otrs.org/show_bug.cgi?id=11317) - When service is mandatory in customerfrontend -  error occurred!.
+ - 2015-09-25 Fixed bug#[11196](http://bugs.otrs.org/show_bug.cgi?id=11196) - "Created by" detail missing in PDF print.
+ - 2015-09-25 Fixed bug#[11352](http://bugs.otrs.org/show_bug.cgi?id=11352) - Wrong behaviour of AdminCustomerUser::RunInitialWildcardSearch.
+ - 2015-09-25 Fixed bug#[11152](http://bugs.otrs.org/show_bug.cgi?id=11152) - Ending of daylight saving time caused system collapse.
+
+#4.0.13 2015-09-29
+ - 2015-09-23 Fixed bug#[10530](http://bugs.otrs.org/show_bug.cgi?id=10530) - HTML emails not properly displayed (parts missing).
+ - 2015-09-21 Fixed bug#[11470](http://bugs.otrs.org/show_bug.cgi?id=11470) - AgentPreferences shows "My Services" even when Ticket::Service is disabled.
+ - 2015-09-18 Fixed bug#[11441](http://bugs.otrs.org/show_bug.cgi?id=11441) - It is not possible to sort by Owner.
+ - 2015-09-18 Fixed bug#[10878](http://bugs.otrs.org/show_bug.cgi?id=10878) - bulk action for owner change: tickets are not locked.
+ - 2015-09-18 Fixed bug#[11283](http://bugs.otrs.org/show_bug.cgi?id=11283) - Cropped upper part of the column filters.
+ - 2015-09-18 Fixed bug#[11112](http://bugs.otrs.org/show_bug.cgi?id=11112) - Number of affected tickets of GenericAgent job via web interface is limited hardcoded.
+ - 2015-09-18 Fixed bug#[11307](http://bugs.otrs.org/show_bug.cgi?id=11307) - Reference to uninitialized value at change of sort order of search result in AgentTicketSearch.
+ - 2015-09-18 Fixed bug#[11330](http://bugs.otrs.org/show_bug.cgi?id=11330) - LogModule::LogFile::Date creates log files ending in single digit.
+ - 2015-09-16 Fixed a nasty JSON::XS crash on some platforms.
+ - 2015-09-15 Updated CPAN module Proc::Daemon to version 0.21.
+ - 2015-09-11 Fixed bug#[11462](http://bugs.otrs.org/show_bug.cgi?id=11462) - Article sort order not respected in Print.
+
+#4.0.12 2015-09-15
+ - 2015-09-03 Updated translations, thanks to all translators.
+ - 2015-08-19 Followup for bug#[11367](http://bugs.otrs.org/show_bug.cgi?id=11367) - timezone in time stamps of outgoing mails is always UTC.
+ - 2015-09-02 Fixed bug#[11321](http://bugs.otrs.org/show_bug.cgi?id=11321) - Translate is called twice on Months of Year.
+ - 2015-08-31 Fixed bug#[11264](http://bugs.otrs.org/show_bug.cgi?id=11264) - Reducing article dropdown dynamic fields via ACL does not work.
+ - 2015-08-31 Fixed bug#[11398](http://bugs.otrs.org/show_bug.cgi?id=11398) - Selecting a template in AgentTicketPhone (and likely other components) silently overrides existing content, losing data.
+ - 2015-08-31 Fixed bug#[11216](http://bugs.otrs.org/show_bug.cgi?id=11216) - Links in Admin Overview not always clickable in IE8.
+ - 2015-08-31 Fixed bug#[11460](http://bugs.otrs.org/show_bug.cgi?id=11460) - CustomerSearch fails for searches containing '_'.
+ - 2015-08-28 Fixed bug#[8146](http://bugs.otrs.org/show_bug.cgi?id=8146) - Generate report in Chinese from command line.
+ - 2015-08-25 Followup for bug#[9460](http://bugs.otrs.org/show_bug.cgi?id=9460) - Under some circumstances OTRS does not join Tickets to the Customernumber.
+ - 2015-08-25 Added new Galician translation, thanks to ARTURO MONDELO RUIZ-FALCO.
+ - 2015-08-21 Fixed bug#[11302](http://bugs.otrs.org/show_bug.cgi?id=11302) - Out of office data incorrect.
+ - 2015-08-20 Fixed bug#[11405](http://bugs.otrs.org/show_bug.cgi?id=11405) - AgentTicketForward not possible to hide by ACL.
+ - 2015-08-19 Fixed bug#[11440](http://bugs.otrs.org/show_bug.cgi?id=11440) - TransitionAction TicketLockSet typo, thanks to Torsten Thau (c.a.p.e. IT).
+ - 2015-08-19 Followup for bug#[11367](http://bugs.otrs.org/show_bug.cgi?id=11367) - timezone in time stamps of outgoing mails is always UTC.
+ - 2015-08-18 Fixed bug#[11279](http://bugs.otrs.org/show_bug.cgi?id=11279) - auto reply with DynamicFields from webservice.
+ - 2015-08-18 Fixed bug#[11416](http://bugs.otrs.org/show_bug.cgi?id=11416) - incoming tickets might be assigned to wrong customer due to fuzzy e-mail address matching.
+
+#4.0.11 2015-08-04
+ - 2015-07-29 Updated translations, thanks to all translators.
+ - 2015-07-13 Fixed bug#[11386](http://bugs.otrs.org/show_bug.cgi?id=11386) - Wrong behavior for the relative period 'the last week(s)' in the stats time field.
+ - 2015-07-10 Fixed bug#[11295](http://bugs.otrs.org/show_bug.cgi?id=11295) - 'No such user' notification while otrs automatically responses to client ticket.
+ - 2015-07-09 Fixed bug#[11191](http://bugs.otrs.org/show_bug.cgi?id=11191) - Dashboard ticket filter TYPE.
+ - 2015-07-09 Fixed syntax error in generated SQL of Kernel::System::Group::GroupGroupMemberList when called with parameter UserIDs.
+
+#4.0.10 2015-07-14
+ - 2015-07-08 Updated translations, thanks to all translators.
+ - 2015-07-07 Fixed bug#[11367](http://bugs.otrs.org/show_bug.cgi?id=11367) - timezone in time stamps of outgoing mails is always UTC.
+ - 2015-07-03 Fixed bug#[11337](http://bugs.otrs.org/show_bug.cgi?id=11337) - Customer Information Center does not show CustomerUsers.
+ - 2015-07-02 Fixed bug#[11334](http://bugs.otrs.org/show_bug.cgi?id=11334) - If you don't have permission in a queue, you get an eMail Notification.
+ - 2015-06-30 Fixed bug#[11325](http://bugs.otrs.org/show_bug.cgi?id=11325) - Dashboard TicketList: Queuefilter in an empty list shows inactive queues, too.
+
+#4.0.9 2015-06-23
+ - 2015-06-22 Fixed bug#[11347](http://bugs.otrs.org/show_bug.cgi?id=11347) - BuildSelection() + TreeView loose selected ID if ARRAY-HASH data is used.
+ - 2015-06-19 Added option to package manager list action, to show deployment info of installed packages.
+ - 2015-06-17 Updated translations, thanks to all translators.
+ - 2015-05-21 Fixed bug#[11287](http://bugs.otrs.org/show_bug.cgi?id=11287) - Scheduler warning links to non-existent module.
+ - 2015-05-21 Followup for bug#[10837](http://bugs.otrs.org/show_bug.cgi?id=10837) - Reply in process ticket on webrequest article  fills customer mail into "cc" instead of "to".
+ - 2015-05-21 Followup for bug#[11199](http://bugs.otrs.org/show_bug.cgi?id=11199) - GI MappingSinple screen is not consistent.
+ - 2015-05-20 Extended the support data collector with an asynchronous mechanism with the possibility to collect data asynchronously (offline).
+ - 2015-05-13 Fixed bug#[11290](http://bugs.otrs.org/show_bug.cgi?id=11290) - Lang parameter not correctly validated.
+ - 2015-05-11 Fixed bug#[11277](http://bugs.otrs.org/show_bug.cgi?id=11277) - Search for multiple ticket numbers with GenericInterface.
+
+#4.0.8 2015-05-12
+ - 2015-05-15 Fixed bug#[11241](http://bugs.otrs.org/show_bug.cgi?id=11241) - Queue Filter: only the subqueue Name is displayed.
+ - 2015-05-06 Updated translations, thanks to all translators.
+ - 2015-05-04 Fixed preselecting CustomerID when creating a new customer user from CIC, thanks to Elias Probst.
+ - 2015-04-30 Fixed bug#[11102](http://bugs.otrs.org/show_bug.cgi?id=11102) - Refresh bug on process client interface using ie8
+ - 2015-04-28 Added new package manager command to list all installed package files.
+ - 2015-04-28 Fixed bug#[11262](http://bugs.otrs.org/show_bug.cgi?id=11262) - AJAX calls keep session alive.
+ - 2015-04-27 Added new support data check for prefork MPM.
+ - 2015-04-24 Fixed bug#[11246](http://bugs.otrs.org/show_bug.cgi?id=11246) - Information Disclosure on "Outbound E-Mail".
+ - 2015-04-24 Fixed bug#[10534](http://bugs.otrs.org/show_bug.cgi?id=10534) - Wildcard hacking the customer information center.
+ - 2015-04-24 Fixed bug#[10988](http://bugs.otrs.org/show_bug.cgi?id=10988) - Queues will not be visible in CustomerTicketMessage, if they are using a group which was newly created.
+ - 2015-04-23 Fixed bug#[11139](http://bugs.otrs.org/show_bug.cgi?id=11139) - StaticDB - Search incorrect.
+ - 2015-04-21 Activated customer company support for the default customer user configuration.
+ - 2015-04-17 Fixed bug#[11244](http://bugs.otrs.org/show_bug.cgi?id=11244) - Slave database not used in OTRS 4.
+ - 2015-04-16 Fixed bug#[11123](http://bugs.otrs.org/show_bug.cgi?id=11123) - DynamicFieldText RegEx message problem on create and edit.
+ - 2015-04-14 Fixed bug#[11226](http://bugs.otrs.org/show_bug.cgi?id=11226) - Tags in transition actions work only if there is only a tag in the field.
+ - 2015-04-13 Addition to fix of bug#[10712](http://bugs.otrs.org/show_bug.cgi?id=10712) - Incorrect utf8 in ZZZAuto.pm (via SysConfig) also for hash keys.
+ - 2015-04-13 Fixed bug#[10961](http://bugs.otrs.org/show_bug.cgi?id=10961) - Adding email recipients via addressbook does not update customer information.
+ - 2015-04-10 Fixed bug#[11237](http://bugs.otrs.org/show_bug.cgi?id=11237) - SpellChecker logs an error if text is empty or '0'.
+ - 2015-04-10 Fixed issue with double SessionID parameter in some links.
+ - 2015-04-10 Fixed bug#[11167](http://bugs.otrs.org/show_bug.cgi?id=11167) - DashboardEventsTicketCalendar week starting day should be configurable.
+ - 2015-04-10 Fixed bug#[11185](http://bugs.otrs.org/show_bug.cgi?id=11185) - Mismatch between shown columns order and default columns order and in DashboardTicketGeneric.
+ - 2015-04-10 Fixed bug#[11163](http://bugs.otrs.org/show_bug.cgi?id=11163) - Uninitialized value warning in Excel output in AgentTicketSearch.
+ - 2015-04-09 Fixed bug#[11156](http://bugs.otrs.org/show_bug.cgi?id=11156) - No translated headers in Excel output in AgentTicketSearch.
+ - 2015-04-09 Fixed bug#[11219](http://bugs.otrs.org/show_bug.cgi?id=11219) - Uninitialized warning in Kernel::Output::HTML::DashboardCalendar.
+ - 2015-04-09 Fixed bug#[11232](http://bugs.otrs.org/show_bug.cgi?id=11232) - OTRS does not recognize language "vi" as it only provides "vi_VI".
  - 2015-04-07 Fixed display bug in IE when showing ticket list tables with only one entry (Ticket#2015031842001505).
  - 2015-04-02 Fixed bug#[11161](http://bugs.otrs.org/show_bug.cgi?id=11161) - ticket_history table is always joined in TicketSearch.
  - 2015-04-01 Fixed bug#[11214](http://bugs.otrs.org/show_bug.cgi?id=11214) - Ticket Zoom JS breaks on French language.
@@ -10,7 +447,6 @@
  - 2015-03-27 Fixed bug#[11201](http://bugs.otrs.org/show_bug.cgi?id=11201) - GI: Use of uninitialized value in string ne at AdminGenericInterfaceWebservice.pm.
  - 2015-03-26 Fixed bug#[11199](http://bugs.otrs.org/show_bug.cgi?id=11199) - GI MappingSinple screen is not consistent.
  - 2015-03-26 Fixed bug#[10837](http://bugs.otrs.org/show_bug.cgi?id=10837) - Reply in process ticket on webrequest article  fills customer mail into "cc" instead of "to".
- - 2015-03-26 Fixed bug#[10978](http://bugs.otrs.org/show_bug.cgi?id=10978) - AgentTicketCompose: Deactivate ArticleTypes isn't possible.
  - 2015-03-26 Improved ServiceList() cache, tanks to Norihiro Tanaka.
  - 2015-03-26 Fixed bug#[11117](http://bugs.otrs.org/show_bug.cgi?id=11117) - AutoResponse messages not "comply" Customer Language.
  - 2015-03-26 Fixed bug#[10995](http://bugs.otrs.org/show_bug.cgi?id=10995) - Characters not correctly managed by OTRS scripts..

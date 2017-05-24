@@ -1,6 +1,5 @@
 # --
-# Kernel/Language/et.pm - provides Estonian language translation
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012 Margus Värton <margusvarton@gmail.com>
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -45,12 +44,12 @@ sub Data {
         'Done' => 'Tehtud',
         'Cancel' => 'Katkesta',
         'Reset' => 'Reset',
-        'more than ... ago' => '',
+        'more than ... ago' => 'enam kui ... tagasi',
         'in more than ...' => '',
-        'within the last ...' => '',
-        'within the next ...' => '',
+        'within the last ...' => 'viimase ... jooksul',
+        'within the next ...' => 'järgmise ... jooksul',
         'Created within the last' => '',
-        'Created more than ... ago' => '',
+        'Created more than ... ago' => 'Loodud enam kui ... tagasi',
         'Today' => 'Täna',
         'Tomorrow' => 'Homme',
         'Next week' => 'Järgmine nädal',
@@ -128,7 +127,7 @@ sub Data {
         'Normal' => 'Tavaline',
         'Parent' => 'Ülem',
         'Child' => 'Alam',
-        'Hit' => 'Hit',
+        'Hit' => 'Tabamus',
         'Hits' => 'Hits',
         'Text' => 'Tekst',
         'Standard' => '',
@@ -185,7 +184,7 @@ sub Data {
         'Search' => 'Otsi',
         'and' => 'ja',
         'between' => 'vahel',
-        'before/after' => '',
+        'before/after' => 'enne/pärast',
         'Fulltext Search' => 'Täistekstiotsing',
         'Data' => 'Andmed',
         'Options' => 'Valikud',
@@ -231,13 +230,13 @@ sub Data {
         'Login failed! Your user name or password was entered incorrectly.' =>
             '',
         'There is no acount with that user name.' => '',
-        'Please contact your administrator' => '',
+        'Please contact your administrator' => 'Palun võta ühendust halduriga',
         'Authentication succeeded, but no customer record is found in the customer backend. Please contact your administrator.' =>
             '',
         'This e-mail address already exists. Please log in or reset your password.' =>
             '',
-        'Logout' => 'Lahku',
-        'Logout successful. Thank you for using %s!' => '',
+        'Logout' => 'logi välja',
+        'Logout successful. Thank you for using %s!' => 'Väljalogimine õnnestus. Täname kasutamast!',
         'Feature not active!' => 'Omadus ei ole aktiveeritud!',
         'Agent updated!' => 'Agent uuendatud!',
         'Database Selection' => '',
@@ -245,7 +244,7 @@ sub Data {
         'System Settings' => 'Süsteemi seaded',
         'Mail Configuration' => '',
         'Finished' => 'Valmis',
-        'Install OTRS' => '',
+        'Install OTRS' => 'Paigalda OTRS',
         'Intro' => '',
         'License' => 'Litsents',
         'Database' => 'Andmebaas',
@@ -273,9 +272,14 @@ sub Data {
         'Dispatching by email To: field.' => 'Jaotamine To: päiserea järgi.',
         'Dispatching by selected Queue.' => 'Jaotamine valitud järjekorra järgi.',
         'No entry found!' => 'Ei leidnud kirjet!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => '',
         'Session has timed out. Please log in again.' => 'Sesesioon aegus. Palun logi uuesti sisse.',
         'Session limit reached! Please try again later.' => '',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => 'Õigust ei ole!',
         '(Click here to add)' => '(Lisamiseks kliki siia)',
         'Preview' => 'Eelvaade',
@@ -287,11 +291,12 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             '',
         'News about OTRS releases!' => '',
+        'Go to dashboard!' => '',
         'Customer %s added' => '',
         'Role added!' => '',
         'Role updated!' => '',
-        'Attachment added!' => '',
-        'Attachment updated!' => '',
+        'Attachment added!' => 'Manus lisatud!',
+        'Attachment updated!' => 'Manus uuendatud!',
         'Response added!' => '',
         'Response updated!' => '',
         'Group updated!' => '',
@@ -424,7 +429,7 @@ sub Data {
         'There was a problem during the upgrade to %s.' => '',
         '%s was correctly reinstalled.' => '',
         'There was a problem reinstalling %s.' => '',
-        'Your %s was successfully updated.' => '',
+        'Your %s was successfully updated.' => 'Teie %s uuendamine õnnestus.',
         'There was a problem during the upgrade of %s.' => '',
         '%s was correctly uninstalled.' => '',
         'There was a problem uninstalling %s.' => '',
@@ -500,8 +505,8 @@ sub Data {
 
         # Template: AAAStats
         'Stat' => 'Statistika',
-        'Sum' => '',
-        'No (not supported)' => '',
+        'Sum' => 'summa',
+        'No (not supported)' => 'Ei (pole toetatud)',
         'Days' => '',
         'Please fill out the required fields!' => 'Palun täida nõutud väljad!',
         'Please select a file!' => 'Vali fail!',
@@ -565,7 +570,7 @@ sub Data {
         'Article Average' => '',
         'Article Min Time' => '',
         'Article Max Time' => '',
-        'Number of Articles' => '',
+        'Number of Articles' => 'Artiklite arv',
         'Accounted time by Agent' => '',
         'Ticket/Article Accounted Time' => '',
         'TicketAccountedTime' => '',
@@ -615,25 +620,25 @@ sub Data {
         'NLS_DATE_FORMAT Setting SQL Check' => '',
         'Setting client_encoding needs to be UNICODE or UTF8.' => '',
         'Setting server_encoding needs to be UNICODE or UTF8.' => '',
-        'Date Format' => '',
+        'Date Format' => 'kuupäevavorming',
         'Setting DateStyle needs to be ISO.' => '',
         'PostgreSQL 8.x or higher is required.' => '',
         'OTRS Disk Partition' => '',
-        'Disk Usage' => '',
+        'Disk Usage' => 'kettakasutus',
         'The partition where OTRS is located is almost full.' => '',
         'The partition where OTRS is located has no disk space problems.' =>
             '',
-        'Disk Partitions Usage' => '',
+        'Disk Partitions Usage' => 'ketta partitsioonide kasutus',
         'Distribution' => '',
         'Could not determine distribution.' => '',
-        'Kernel Version' => '',
+        'Kernel Version' => 'kerneli versioon',
         'Could not determine kernel version.' => '',
-        'System Load' => '',
+        'System Load' => 'süsteemi koormus',
         'The system load should be at maximum the number of CPUs the system has (e.g. a load of 8 or less on a system with 8 CPUs is OK).' =>
             '',
-        'Perl Modules' => '',
+        'Perl Modules' => 'Perli moodulid',
         'Not all required Perl modules are correctly installed.' => '',
-        'Perl Version' => '',
+        'Perl Version' => 'Perli versioon',
         'Free Swap Space (%)' => '',
         'No Swap Enabled.' => '',
         'Used Swap Space (MB)' => '',
@@ -696,20 +701,23 @@ sub Data {
         'Environment Variables' => '',
         'Webserver Version' => '',
         'Could not determine webserver version.' => '',
-        'Loaded Apache Modules' => '',
+        'Loaded Apache Modules' => 'Apache\'i laaditud moodulid',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => '',
         'You should use FastCGI or mod_perl to increase your performance.' =>
-            '',
-        'mod_deflate Usage' => '',
+            'Jõudluse suurendamiseks kasuta FastCGI\'d või mod_perl\'i',
+        'mod_deflate Usage' => 'mooduli mod_deflate kasutus',
         'Please install mod_deflate to improve GUI speed.' => '',
-        'mod_filter Usage' => '',
+        'mod_filter Usage' => 'mooduli mod_filter kasutus',
         'Please install mod_filter if mod_deflate is used.' => '',
-        'mod_headers Usage' => '',
+        'mod_headers Usage' => 'mooduli mod_headers kasutus',
         'Please install mod_headers to improve GUI speed.' => '',
-        'Apache::Reload Usage' => '',
+        'Apache::Reload Usage' => 'Apache::Reload kasutus',
         'Apache::Reload or Apache2::Reload should be used as PerlModule and PerlInitHandler to prevent web server restarts when installing and upgrading modules.' =>
             '',
-        'Apache::DBI Usage' => '',
+        'Apache::DBI Usage' => 'Apache::DBI kasutus',
         'Apache::DBI should be used to get a better performance  with pre-established database connections.' =>
             '',
         'You should use PerlEx to increase your performance.' => '',
@@ -757,7 +765,7 @@ sub Data {
         'Responsible' => 'Vastutaja',
         'Responsible Update' => 'Muuda vastutajat',
         'Sender' => 'Saatja',
-        'Article' => 'Intsident',
+        'Article' => 'artikkel',
         'Ticket' => 'Intsidendid',
         'Createtime' => 'Loomisaeg',
         'plain' => 'lähtetekst',
@@ -795,7 +803,7 @@ sub Data {
         'Ticket Escalation View' => '',
         'Message from' => 'Teade kasutajalt',
         'End message' => 'Teate lõpp',
-        'Forwarded message from' => 'Teade edastatud kasutajalt',
+        'Forwarded message from' => 'Edastatud teade kasutajalt',
         'End forwarded message' => 'Edastatud teate lõpp',
         'Bounce Article to a different mail address' => '',
         'Reply to note' => '',
@@ -811,10 +819,10 @@ sub Data {
         'pending auto' => 'sulgub ise',
         'pending auto close+' => 'sulgub ise edukalt',
         'pending auto close-' => 'sulgub ise ebaedukalt',
-        'email-external' => 'sisemine ekiri',
-        'email-internal' => 'avalik ekiri',
-        'note-external' => 'sisemine märkus',
-        'note-internal' => 'avalik märkus',
+        'email-external' => 'avalik ekiri',
+        'email-internal' => 'sisemine ekiri',
+        'note-external' => 'avalik märkus',
+        'note-internal' => 'sisemine märkus',
         'note-report' => 'märkus raportisse',
         'phone' => 'telefon',
         'sms' => 'sms',
@@ -852,14 +860,15 @@ sub Data {
         'Ticket locked.' => '',
         'Don\'t show closed Tickets' => 'Mitte näidata suletud intsidente',
         'Show closed Tickets' => 'Näidata suletud intsidente',
-        'New Article' => 'Uus intsident',
+        'New Article' => 'Uus artikkel',
         'Unread article(s) available' => '',
-        'Remove from list of watched tickets' => '',
+        'Remove from list of watched tickets' => 'Eemalda vaadatud piletite nimekirjast',
         'Add to list of watched tickets' => '',
         'Email-Ticket' => 'E-postist',
         'Create new Email Ticket' => 'Uus e-posti intsident',
         'Phone-Ticket' => 'Telefonist',
         'Search Tickets' => 'Otsi intsidente',
+        'Customer Realname' => 'Kliendi pärisnimi',
         'Customer History' => '',
         'Edit Customer Users' => 'Klientkasutajate muutmine',
         'Edit Customer' => 'Kliendi muutmine',
@@ -920,7 +929,7 @@ sub Data {
         'New ticket notification' => 'Teavitus uuest intsidendist',
         'Send me a notification if there is a new ticket in "My Queues".' =>
             'Saada mulle teavitus, kui "Minu järjekordades" on uusi intsidente.',
-        'Send new ticket notifications' => '',
+        'Send new ticket notifications' => 'Saada uue pileti teavitus',
         'Ticket follow up notification' => '',
         'Send me a notification if a customer sends a follow up and I\'m the owner of the ticket or the ticket is unlocked and is in one of my subscribed queues.' =>
             'Saada mulle teavitus, kui klient vastab ja mina olen intsidendi omanik.',
@@ -987,19 +996,19 @@ sub Data {
         'Sat' => 'L',
 
         # Template: AdminACL
-        'ACL Management' => '',
-        'Filter for ACLs' => '',
+        'ACL Management' => 'Pääsuloendi haldus',
+        'Filter for ACLs' => 'Pääsuloendi filter',
         'Filter' => 'Filter',
-        'ACL Name' => '',
+        'ACL Name' => 'Pääsuloendi nimi',
         'Actions' => 'Tegevused',
-        'Create New ACL' => '',
-        'Deploy ACLs' => '',
-        'Export ACLs' => '',
+        'Create New ACL' => 'Loo uus pääsuloend',
+        'Deploy ACLs' => 'Kehtesta pääsuloend',
+        'Export ACLs' => 'Ekspordi pääsuloend',
         'Configuration import' => '',
         'Here you can upload a configuration file to import ACLs to your system. The file needs to be in .yml format as exported by the ACL editor module.' =>
             '',
         'This field is required.' => 'See väli on nõutav',
-        'Overwrite existing ACLs?' => '',
+        'Overwrite existing ACLs?' => 'Kirjutada olemasolev pääsuloend üle?',
         'Upload ACL configuration' => '',
         'Import ACL configuration(s)' => '',
         'To create a new ACL you can either import ACLs which were exported from another system or create a complete new one.' =>
@@ -1009,16 +1018,16 @@ sub Data {
         'ACLs' => '',
         'Please note: This table represents the execution order of the ACLs. If you need to change the order in which ACLs are executed, please change the names of the affected ACLs.' =>
             '',
-        'ACL name' => '',
+        'ACL name' => 'Pääsuloendi nimi',
         'Validity' => 'Kehtivus',
         'Copy' => '',
         'No data found.' => 'Andmeid ei leitud.',
 
         # Template: AdminACLEdit
-        'Edit ACL %s' => '',
+        'Edit ACL %s' => 'Muuda pääsuloendit %s',
         'Go to overview' => 'Mine ülevaatesse',
-        'Delete ACL' => '',
-        'Delete Invalid ACL' => '',
+        'Delete ACL' => 'Kustuta pääsuloend',
+        'Delete Invalid ACL' => 'Kustuta vigane pääsuloend',
         'Match settings' => '',
         'Set up matching criteria for this ACL. Use \'Properties\' to match the current screen or \'PropertiesDatabase\' to match attributes of the current ticket that are in the database.' =>
             '',
@@ -1028,9 +1037,9 @@ sub Data {
         'Check the official' => '',
         'documentation' => '',
         'Show or hide the content' => '',
-        'Edit ACL information' => '',
+        'Edit ACL information' => 'Muuda pääsuloendi teavet',
         'Stop after match' => '',
-        'Edit ACL structure' => '',
+        'Edit ACL structure' => 'Muuda pääsuloendi struktuuri',
         'Save' => 'Salvesta',
         'or' => 'või',
         'Save and finish' => '',
@@ -1065,7 +1074,8 @@ sub Data {
         'You can use the following tags' => '',
         'To get the first 20 character of the subject.' => 'Esimesed 20 märki teemareast.',
         'To get the first 5 lines of the email.' => 'Kirja esimesed 5 rida. ',
-        'To get the realname of the sender (if given).' => 'Saatja nimi (kui on)',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => '',
         ' e. g.' => '',
         'Options of the current customer user data' => '',
@@ -1151,7 +1161,7 @@ sub Data {
 
         # Template: AdminDynamicField
         'Dynamic Fields Management' => 'Dünaamiliste väljade haldamine',
-        'Add new field for object' => '',
+        'Add new field for object' => 'Lisa uus väli objektile',
         'To add a new field, select the field type from one of the object\'s list, the object defines the boundary of the field and it can\'t be changed after the field creation.' =>
             '',
         'Dynamic Fields List' => '',
@@ -1290,6 +1300,7 @@ sub Data {
         'This event is already attached to the job, Please use a different one.' =>
             '',
         'Delete this Event Trigger' => '',
+        'Remove selection' => '',
         'Select Tickets' => '',
         '(e. g. 10*5155 or 105658*)' => 'näiteks 10*5144 või 105658*',
         '(e. g. 234321)' => 'näiteks 234321',
@@ -1366,6 +1377,8 @@ sub Data {
         'Results' => 'Tulemused',
         '%s Tickets affected! What do you want to do?' => '',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
+            '',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
             '',
         'Edit job' => '',
         'Run job' => '',
@@ -1678,9 +1691,9 @@ sub Data {
         'Delete this notification' => '',
         'Add Notification' => '',
         'Ticket Filter' => '',
-        'Article Filter' => '',
+        'Article Filter' => 'Artikli filter',
         'Only for ArticleCreate and ArticleSend event' => '',
-        'Article type' => 'Intsidendi tüüp',
+        'Article type' => 'Artikli tüüp',
         'If ArticleCreate or ArticleSend is used as a trigger event, you need to specify an article filter as well. Please select at least one of the article filter fields.' =>
             '',
         'Article sender type' => '',
@@ -1773,7 +1786,7 @@ sub Data {
         'In this way you can directly edit the keyring configured in SysConfig.' =>
             'Nii saad otse muuta SysConfig-is seadistatud võtmeid.',
         'Introduction to PGP' => '',
-        'Result' => 'Vastus',
+        'Result' => 'Tulemus',
         'Identifier' => 'Identifikaator',
         'Bit' => 'Bit',
         'Fingerprint' => 'Sõrmejälg',
@@ -1796,7 +1809,7 @@ sub Data {
         'Install Package' => '',
         'Update repository information' => '',
         'Online Repository' => 'Võrguallikas',
-        'Module documentation' => '',
+        'Module documentation' => 'Mooduli dokumentatsioon',
         'Upgrade' => 'Uuenda',
         'Local Repository' => 'Kohalik allikas',
         'This package is verified by OTRSverify (tm)' => '',
@@ -1815,8 +1828,8 @@ sub Data {
         'Download' => 'Lae alla',
         'Download file from package!' => 'Lae alla fail paketist!',
         'Required' => 'Vajalik',
-        'PrimaryKey' => 'PrimaryKey',
-        'AutoIncrement' => 'AutoIncrement',
+        'Primary Key' => '',
+        'Auto Increment' => '',
         'SQL' => 'SQL',
         'File differences for file %s' => '',
 
@@ -2031,7 +2044,7 @@ sub Data {
         'Conditions' => '',
         'Condition' => '',
         'Transitions are not being used in this process.' => '',
-        'Module name' => '',
+        'Module name' => 'Mooduli nimi',
         'Configuration' => '',
         'Transition actions are not being used in this process.' => '',
 
@@ -2040,10 +2053,11 @@ sub Data {
             '',
         'Transition' => '',
         'Transition Name' => '',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => '',
-        'Remove this Condition' => '',
+        'Remove this Condition' => 'Eemalda see tingimus',
         'Type of Linking' => '',
-        'Remove this Field' => '',
+        'Remove this Field' => 'Eemalda see väli',
         'And can\'t be repeated on the same condition.' => '',
         'Add a new Field' => '',
         'Add New Condition' => '',
@@ -2055,7 +2069,7 @@ sub Data {
         'Transition Action Name' => '',
         'Transition Action Module' => '',
         'Config Parameters' => '',
-        'Remove this Parameter' => '',
+        'Remove this Parameter' => 'Eemalda see parameeter',
         'Add a new Parameter' => '',
 
         # Template: AdminQueue
@@ -2098,9 +2112,9 @@ sub Data {
         'Change Auto Response Relations for Queue' => '',
 
         # Template: AdminQueueTemplates
-        'Manage Template-Queue Relations' => '',
-        'Filter for Templates' => '',
-        'Templates' => '',
+        'Manage Template-Queue Relations' => 'Halda mallide <-> järjekordade seoseid',
+        'Filter for Templates' => 'Mallide filter',
+        'Templates' => 'Mallid',
         'Change Queue Relations for Template' => '',
         'Change Template Relations for Queue' => '',
 
@@ -2126,7 +2140,7 @@ sub Data {
         'OTRS-ID Login' => '',
         'System registration is a service of OTRS Group, which provides a lot of advantages!' =>
             '',
-        'Read more' => '',
+        'Read more' => 'Loe lisaks',
         'You need to log in with your OTRS-ID to register your system.' =>
             '',
         'Your OTRS-ID is the email address you used to sign up on the OTRS.com webpage.' =>
@@ -2257,7 +2271,7 @@ sub Data {
         'Permissions to move tickets into this group/queue.' => 'Õigus liigutada intsidente siia rühma/järjekorda.',
         'create' => 'tekita',
         'Permissions to create tickets in this group/queue.' => 'Õigus tekitada sellesse rühma/järjekorda intsidente.',
-        'note' => '',
+        'note' => 'Märkus',
         'Permissions to add notes to tickets in this group/queue.' => '',
         'owner' => 'omanik',
         'Permissions to change the owner of tickets in this group/queue.' =>
@@ -2354,7 +2368,7 @@ sub Data {
         'Sending Update...' => '',
         'Support Data information was successfully sent.' => '',
         'Was not possible to send Support Data information.' => '',
-        'Update Result' => '',
+        'Update Result' => 'Uuendamise tulemus',
         'Currently this data is only shown in this system.' => '',
         'It is highly recommended to send this data to OTRS Group in order to get better support.' =>
             '',
@@ -2375,7 +2389,7 @@ sub Data {
             '',
         'The email address for this user is invalid, this option has been disabled.' =>
             '',
-        'Sending' => '',
+        'Sending' => 'Saatja',
         'The support bundle will be sent to OTRS Group via email automatically.' =>
             '',
         'Download File' => '',
@@ -2386,15 +2400,15 @@ sub Data {
 
         # Template: AdminSession
         'Session Management' => 'Sessioonihaldus',
-        'All sessions' => '',
-        'Agent sessions' => '',
+        'All sessions' => 'Kõik seansid',
+        'Agent sessions' => 'Töötaja seansid',
         'Customer sessions' => '',
         'Unique agents' => '',
         'Unique customers' => '',
-        'Kill all sessions' => 'Hävita kõik sessioonid',
-        'Kill this session' => '',
-        'Session' => 'Sessioon',
-        'Kill' => '',
+        'Kill all sessions' => 'Tapa kõik seansid',
+        'Kill this session' => 'Tapa see seanss',
+        'Session' => 'Seanss',
+        'Kill' => 'Tapa',
         'Detail View for SessionID' => '',
 
         # Template: AdminSignature
@@ -2449,7 +2463,7 @@ sub Data {
         'New Loader File' => '',
         'NavBarName' => 'NavBarName',
         'NavBar' => 'NavBar',
-        'LinkOption' => '',
+        'LinkOption' => 'Viide',
         'Block' => 'Block',
         'AccessKey' => 'AccessKey',
         'Add NavBar entry' => '',
@@ -2457,8 +2471,8 @@ sub Data {
         'Month' => 'Kuu',
         'Day' => 'päev',
         'Invalid year' => '',
-        'Invalid month' => '',
-        'Invalid day' => '',
+        'Invalid month' => 'Vigane kuu',
+        'Invalid day' => 'Vigane päev',
         'Show more' => '',
 
         # Template: AdminSystemAddress
@@ -2489,33 +2503,33 @@ sub Data {
         # Template: AdminSystemMaintenanceEdit
         'Edit System Maintenance %s' => '',
         'Edit System Maintenance information' => '',
-        'Date invalid!' => 'Kuupäev ebasobiv!',
+        'Date invalid!' => 'Vigane kuupäev!',
         'Login message' => '',
         'Show login message' => '',
         'Notify message' => '',
-        'Manage Sessions' => '',
-        'All Sessions' => '',
-        'Agent Sessions' => '',
-        'Customer Sessions' => '',
+        'Manage Sessions' => 'Halda seansse',
+        'All Sessions' => 'Kõik seansid',
+        'Agent Sessions' => 'Töötaja seansid',
+        'Customer Sessions' => 'Kliendi seansid',
         'Kill all Sessions, except for your own' => '',
 
         # Template: AdminTemplate
-        'Manage Templates' => '',
-        'Add template' => '',
+        'Manage Templates' => 'Halda malle',
+        'Add template' => 'Lisa mall',
         'A template is a default text which helps your agents to write faster tickets, answers or forwards.' =>
             '',
         'Don\'t forget to add new templates to queues.' => '',
-        'Add Template' => '',
-        'Edit Template' => '',
+        'Add Template' => 'Lisa mall',
+        'Edit Template' => 'Muuda malli',
         'A standard template with this name already exists!' => '',
-        'Template' => '',
+        'Template' => 'Mall',
         'Create type templates only supports this smart tags' => '',
-        'Example template' => '',
+        'Example template' => 'Näidismall',
         'The current ticket state is' => 'Intsidendi olek on',
         'Your email address is' => 'Teie e-posti aadress on',
 
         # Template: AdminTemplateAttachment
-        'Manage Templates <-> Attachments Relations' => '',
+        'Manage Templates <-> Attachments Relations' => 'Halda mallide <-> manuste seoseid',
         'Filter for Attachments' => 'Manuste filter',
         'Change Template Relations for Attachment' => '',
         'Change Attachment Relations for Template' => '',
@@ -2628,10 +2642,10 @@ sub Data {
         'Totals' => '',
 
         # Template: AgentDashboardUserOnline
-        'out of office' => '',
+        'out of office' => 'töölt eemal',
 
         # Template: AgentDashboardUserOutOfOffice
-        'until' => '',
+        'until' => 'kuni',
 
         # Template: AgentHTMLReferencePageLayout
         'The ticket has been locked' => 'Intsident on lukustatud',
@@ -2661,7 +2675,7 @@ sub Data {
         'It is necessary to have the Scheduler running to make the system work correctly!' =>
             '',
         'Starting Scheduler' => '',
-        'Make sure that %s exists (without .dist extension)' => '',
+        'Make sure that %s exists (without .dist extension)' => 'Veendu, et %s on olemas (.dist laiendita)',
         'Check that cron deamon is running in the system' => '',
         'Confirm that OTRS cron jobs are running, execute %s start' => '',
 
@@ -2702,8 +2716,8 @@ sub Data {
         'Graph size' => '',
         'If you use a graph as output format you have to select at least one graph size.' =>
             'If you use a graph as output format you have to select at least one graph size.',
-        'Sum rows' => 'Summaread',
-        'Sum columns' => 'Summaveerud',
+        'Sum rows' => 'Ridade summa',
+        'Sum columns' => 'Veergude summa',
         'Use cache' => 'Puhverda',
         'Most of the stats can be cached. This will speed up the presentation of this stat.' =>
             'Enamikku statistikaaruannetest saab puhverdada. See kiirendab aruande loomist.',
@@ -2779,7 +2793,7 @@ sub Data {
         'Set Pending' => 'Pane ootele',
         'Change Priority of Ticket' => 'Intsidendi prioriteedi muutmine',
         'Change Responsible of Ticket' => 'Intsidendi vastutaja muutmine',
-        'All fields marked with an asterisk (*) are mandatory.' => '',
+        'All fields marked with an asterisk (*) are mandatory.' => 'Kõik tärniga (*) märgitud väljad peavad olema täidetud.',
         'Service invalid.' => 'Teenus ebasobiv.',
         'New Owner' => 'Uus omanik',
         'Please set a new owner!' => 'Palun määra uus omanik!',
@@ -2788,7 +2802,7 @@ sub Data {
         'For all pending* states.' => '',
         'Add Article' => '',
         'Create an Article' => '',
-        'Spell check' => '',
+        'Spell check' => 'Õigekirjakontroll',
         'Text Template' => '',
         'Setting a template will overwrite any text or attachment.' => '',
         'Note type' => 'Märkuse tüüp',
@@ -2821,14 +2835,16 @@ sub Data {
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => 'Koosta vastus',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => '',
         'Remove Ticket Customer' => '',
         'Please remove this entry and enter a new one with the correct value.' =>
             '',
         'Remove Cc' => '',
         'Remove Bcc' => '',
-        'Address book' => '',
-        'Date Invalid!' => '',
+        'Address book' => 'Aadressiraamat',
+        'Date Invalid!' => 'Vigane kuupäev!',
 
         # Template: AgentTicketCustomer
         'Change customer of ticket' => 'Muuda intsidendiga seotud klienti',
@@ -2836,7 +2852,7 @@ sub Data {
 
         # Template: AgentTicketEmail
         'Create New Email Ticket' => '',
-        'Example Template' => '',
+        'Example Template' => 'Näidismall',
         'From queue' => '',
         'To customer user' => '',
         'Please include at least one customer user for the ticket.' => '',
@@ -2846,6 +2862,13 @@ sub Data {
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => '',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => '',
@@ -2917,16 +2940,16 @@ sub Data {
         'Create New' => 'Loo uus',
         'Profile link' => '',
         'Save changes in template' => '',
-        'Filters in use' => '',
+        'Filters in use' => 'kasutatavad filtrid',
         'Additional filters' => '',
         'Add another attribute' => 'Lisa parameeter',
-        'Output' => 'Tulemuste formaat',
+        'Output' => 'Väljund',
         'Fulltext' => 'Täistekst',
         'Remove' => 'Eemalda',
         'Searches in the attributes From, To, Cc, Subject and the article body, overriding other attributes with the same name.' =>
             '',
         'Customer User Login' => 'Kliendi kasutajanimi',
-        'Attachment Name' => '',
+        'Attachment Name' => 'Manuse nimi',
         '(e. g. m*file or myfi*)' => '',
         'Created in Queue' => 'Loodud järjekorras',
         'Lock state' => 'Luku seisund',
@@ -3032,7 +3055,7 @@ sub Data {
         'Not yet registered?' => '',
         'Request new password' => 'Telli uus parool',
         'Your User Name' => 'Kasutajanimi',
-        'A new password will be sent to your email address.' => '',
+        'A new password will be sent to your email address.' => 'Uus salasõna saadetakse Teie e-posti aadressile,',
         'Create Account' => 'Loo konto',
         'Please fill out this form to receive login credentials.' => '',
         'How we should address you' => '',
@@ -3044,17 +3067,18 @@ sub Data {
         'Incoming Chat Requests' => '',
         'You have unanswered chat requests' => '',
         'Edit personal preferences' => 'Muuda isiklikke eelistusi',
+        'Logout %s %s' => 'Logi välja %s %s',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => '',
 
         # Template: CustomerTicketMessage
-        'Service level agreement' => '',
+        'Service level agreement' => 'Teenustaseme leping',
 
         # Template: CustomerTicketOverview
         'Welcome!' => 'Tere tulemast!',
-        'Please click the button below to create your first ticket.' => '',
-        'Create your first ticket' => '',
+        'Please click the button below to create your first ticket.' => 'Pileti loomiseks vajuta allolevat nuppu.',
+        'Create your first ticket' => 'Loo uus pilet',
 
         # Template: CustomerTicketPrint
         'Ticket Print' => '',
@@ -3065,7 +3089,7 @@ sub Data {
         'e. g. 10*5155 or 105658*' => '',
         'Customer ID' => '',
         'Fulltext search in tickets (e. g. "John*n" or "Will*")' => '',
-        'Carbon Copy' => '',
+        'Carbon Copy' => 'Koopia',
         'e. g. m*file or myfi*' => '',
         'Types' => 'Tüübid',
         'Time restrictions' => '',
@@ -3073,15 +3097,15 @@ sub Data {
         'Only tickets created' => '',
         'Only tickets created between' => '',
         'Ticket archive system' => '',
-        'Save search as template?' => '',
-        'Save as Template?' => '',
-        'Save as Template' => '',
-        'Template Name' => '',
-        'Pick a profile name' => '',
-        'Output to' => '',
+        'Save search as template?' => 'Salvesta otsing kui mall?',
+        'Save as Template?' => 'Salvesta kui mall?',
+        'Save as Template' => 'Salvesta kui mall',
+        'Template Name' => 'Malli nimi',
+        'Pick a profile name' => 'vali profiili nimi',
+        'Output to' => 'Tulemuste formaat',
 
         # Template: CustomerTicketSearchResultShort
-        'of' => '',
+        'of' => 'ei',
         'Search Results for' => '',
         'Remove this Search Term.' => '',
 
@@ -3091,48 +3115,51 @@ sub Data {
         'Reply' => '',
 
         # Template: DashboardEventsTicketCalendar
-        'All-day' => '',
-        'Sunday' => '',
-        'Monday' => '',
-        'Tuesday' => '',
-        'Wednesday' => '',
-        'Thursday' => '',
-        'Friday' => '',
-        'Saturday' => '',
-        'Su' => '',
-        'Mo' => '',
-        'Tu' => '',
-        'We' => '',
-        'Th' => '',
-        'Fr' => '',
-        'Sa' => '',
-        'Event Information' => '',
-        'Ticket fields' => '',
-        'Dynamic fields' => '',
+        'All-day' => 'kogu päev',
+        'Sunday' => 'pühapäev',
+        'Monday' => 'esmaspäev',
+        'Tuesday' => 'teisipäev',
+        'Wednesday' => 'kolmapäev',
+        'Thursday' => 'neljapäev',
+        'Friday' => 'reede',
+        'Saturday' => 'laupäev',
+        'Su' => 'P',
+        'Mo' => 'E',
+        'Tu' => 'T',
+        'We' => 'K',
+        'Th' => 'N',
+        'Fr' => 'R',
+        'Sa' => 'L',
+        'Event Information' => 'Sündmuse teave',
+        'Ticket fields' => 'pileti väljad',
+        'Dynamic fields' => 'Dünaamilised väljad',
 
         # Template: Datepicker
-        'Invalid date (need a future date)!' => '',
-        'Invalid date (need a past date)!' => '',
-        'Previous' => '',
+        'Invalid date (need a future date)!' => 'Vigane kuupäev (peab olema tulevikus)!',
+        'Invalid date (need a past date)!' => 'Vigane kuupäev (peab olema minevikus)!',
+        'Previous' => 'Eelmine',
         'Open date selection' => '',
 
         # Template: Error
-        'Oops! An Error occurred.' => '',
+        'Oops! An Error occurred.' => 'Ups! Nüüd tekkis viga.',
         'You can' => '',
-        'Send a bugreport' => '',
-        'go back to the previous page' => '',
-        'Error Details' => '',
+        'Send a bugreport' => 'Saada vearaport',
+        'go back to the previous page' => 'Tagasi eelmisele lehele',
+        'Error Details' => 'Vea üksikasjad',
 
         # Template: FooterJS
         'If you now leave this page, all open popup windows will be closed, too!' =>
-            '',
+            'Lahkudes sellelt lehelt suletakse ka kõik hüpikaknad!',
         'A popup of this screen is already open. Do you want to close it and load this one instead?' =>
             '',
         'Please enter at least one search value or * to find anything.' =>
             '',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            'Palun eemalda otsingust järgnevad sõnad, kuna neid ei saa otsida:',
         'Please check the fields marked as red for valid inputs.' => '',
-        'Please perform a spell check on the the text first.' => '',
+        'Please perform a spell check on the the text first.' => 'Palun kontrolli esmalt teksti õigekirja.',
         'Slide the navigation bar' => '',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => 'Sisse logitud kasutajana',
@@ -3140,53 +3167,54 @@ sub Data {
             '',
 
         # Template: Installer
-        'JavaScript not available' => '',
-        'Database Settings' => '',
+        'JavaScript not available' => 'Ei saa kasutada JavaScript\'i',
+        'Database Settings' => 'Andmebaasi seaded',
         'General Specifications and Mail Settings' => '',
+        'Welcome to %s' => '',
         'Web site' => '',
-        'Mail check successful.' => '',
+        'Mail check successful.' => 'E-posti kontroll õnnestus.',
         'Error in the mail settings. Please correct and try again.' => '',
 
         # Template: InstallerConfigureMail
         'Configure Outbound Mail' => '',
-        'Outbound mail type' => '',
+        'Outbound mail type' => 'Tüüp',
         'Select outbound mail type.' => '',
         'Outbound mail port' => '',
         'Select outbound mail port.' => '',
-        'SMTP host' => '',
-        'SMTP host.' => '',
+        'SMTP host' => 'e-posti server',
+        'SMTP host.' => 'E-posti server.',
         'SMTP authentication' => '',
-        'Does your SMTP host need authentication?' => '',
+        'Does your SMTP host need authentication?' => 'Kas e-posti server kasutab autentimist?',
         'SMTP auth user' => '',
         'Username for SMTP auth.' => '',
         'SMTP auth password' => '',
         'Password for SMTP auth.' => '',
         'Configure Inbound Mail' => '',
-        'Inbound mail type' => '',
+        'Inbound mail type' => 'Tüüp',
         'Select inbound mail type.' => '',
-        'Inbound mail host' => '',
-        'Inbound mail host.' => '',
-        'Inbound mail user' => '',
+        'Inbound mail host' => 'Siseneva e-posti server',
+        'Inbound mail host.' => 'Siseneva e-posti server.',
+        'Inbound mail user' => 'Kasutaja',
         'User for inbound mail.' => '',
-        'Inbound mail password' => '',
+        'Inbound mail password' => 'Parool',
         'Password for inbound mail.' => '',
-        'Result of mail configuration check' => '',
-        'Check mail configuration' => '',
-        'Skip this step' => '',
+        'Result of mail configuration check' => 'E-posti häälestuse kontrolli tulemus',
+        'Check mail configuration' => 'Kontrolli e-posti häälestust',
+        'Skip this step' => 'Jäta see samm vahele',
 
         # Template: InstallerDBResult
-        'Database setup successful!' => '',
+        'Database setup successful!' => 'Andmebaasi paigaldus õnnestus!',
 
         # Template: InstallerDBStart
         'Install Type' => '',
-        'Create a new database for OTRS' => '',
-        'Use an existing database for OTRS' => '',
+        'Create a new database for OTRS' => 'Loo OTRSile uus andmebaas',
+        'Use an existing database for OTRS' => 'Kasuta olemasolevat andmebaasi',
 
         # Template: InstallerDBmssql
-        'Database name' => '',
-        'Check database settings' => '',
-        'Result of database check' => '',
-        'Database check successful.' => '',
+        'Database name' => 'Andmebaasi nimi',
+        'Check database settings' => 'Kontrolli andmebaasi seadeid',
+        'Result of database check' => 'Andmebaasi kontrolli tulemus',
+        'Database check successful.' => 'Andmebaasi kontroll õnnestus.',
         'Database User' => '',
         'New' => 'Uus',
         'A new database user with limited permissions will be created for this OTRS system.' =>
@@ -3211,7 +3239,7 @@ sub Data {
 
         # Template: InstallerLicense
         'Don\'t accept license' => 'Ära nõustu litsensiga',
-        'Accept license and continue' => '',
+        'Accept license and continue' => 'Nõustu litsentsiga ja jätka',
 
         # Template: InstallerSystem
         'The identifier of the system. Each ticket number and each HTTP session ID contain this number.' =>
@@ -3266,6 +3294,7 @@ sub Data {
 
         # Template: Test
         'OTRS Test Page' => 'OTRS testileht',
+        'Welcome %s %s' => '',
         'Counter' => 'Loendur',
 
         # Template: Warning
@@ -3277,6 +3306,7 @@ sub Data {
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => 'Arvestati %s ajaühikut. Kokku %s ajaühikut.',
         '(UserLogin) Firstname Lastname' => '',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3284,7 +3314,7 @@ sub Data {
         'A picture' => '',
         'ACL module that allows closing parent tickets only if all its children are already closed ("State" shows which states are not available for the parent ticket until all child tickets are closed).' =>
             '',
-        'Access Control Lists (ACL)' => '',
+        'Access Control Lists (ACL)' => 'Pääsuloendid (ACL)',
         'AccountedTime' => '',
         'Activates a blinking mechanism of the queue that contains the oldest ticket.' =>
             '',
@@ -3397,7 +3427,7 @@ sub Data {
             '',
         'Archive state changed: "%s"' => '',
         'ArticleTree' => '',
-        'Attachments <-> Templates' => '',
+        'Attachments <-> Templates' => 'Manused <-> Mallid',
         'Auto Responses <-> Queues' => 'Automaatvastused <-> Järjekorrad',
         'AutoFollowUp sent to "%s".' => 'Automaatedastus "%s".',
         'AutoReject sent to "%s".' => 'Automaatne tagasilükkamine "%s".',
@@ -3408,7 +3438,7 @@ sub Data {
             '',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             '',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
             '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             '',
@@ -3477,6 +3507,7 @@ sub Data {
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             '',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             '',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3503,7 +3534,7 @@ sub Data {
         'Create and manage salutations.' => 'Tervituste loomine ja haldamine.',
         'Create and manage services.' => 'Teenuste loomine ja haldamine.',
         'Create and manage signatures.' => 'Allkirjade loomine ja haldamine.',
-        'Create and manage templates.' => '',
+        'Create and manage templates.' => 'Loo ja halda malle.',
         'Create and manage ticket priorities.' => 'Intsidendi prioriteetide loomine ja haldamine.',
         'Create and manage ticket states.' => 'Intsidentide olekute loomine ja haldamine.',
         'Create and manage ticket types.' => 'Intsidentide tüüpide loomine ja haldamine.',
@@ -3542,9 +3573,9 @@ sub Data {
             '',
         'Default loop protection module.' => '',
         'Default queue ID used by the system in the agent interface.' => '',
-        'Default skin for OTRS 3.0 interface.' => '',
         'Default skin for the agent interface (slim version).' => '',
         'Default skin for the agent interface.' => '',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             '',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3574,7 +3605,7 @@ sub Data {
         'Defines a customer item, which generates a google maps icon at the end of a customer info block.' =>
             '',
         'Defines a default list of words, that are ignored by the spell checker.' =>
-            '',
+            'Määrab õigekirjakontrolli poolt eiratavate sõnade vaikenimekirja',
         'Defines a filter for html output to add links behind CVE numbers. The element Image allows two input kinds. At once the name of an image (e.g. faq.png). In this case the OTRS image path will be used. The second possiblity is to insert the link to the image.' =>
             '',
         'Defines a filter for html output to add links behind MSBulletin numbers. The element Image allows two input kinds. At once the name of an image (e.g. faq.png). In this case the OTRS image path will be used. The second possiblity is to insert the link to the image.' =>
@@ -3602,7 +3633,7 @@ sub Data {
             '',
         'Defines all the possible stats output formats.' => '',
         'Defines an alternate URL, where the login link refers to.' => '',
-        'Defines an alternate URL, where the logout link refers to.' => '',
+        'Defines an alternate URL, where the logout link refers to.' => 'Määrab alternatiivURLi, kuhu väljalogimislink viitab.',
         'Defines an alternate login URL for the customer panel..' => '',
         'Defines an alternate logout URL for the customer panel.' => '',
         'Defines an external link to the database of the customer (e.g. \'http://yourhost/customer.php?CID=[% Data.CustomerID %]\' or \'\').' =>
@@ -3660,6 +3691,8 @@ sub Data {
         'Defines scheduler PID update time in seconds.' => '',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             '',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             '',
         'Defines the URL CSS path.' => '',
@@ -3682,6 +3715,8 @@ sub Data {
         'Defines the body text for rejected emails.' => '',
         'Defines the boldness of the line drawed by the graph.' => '',
         'Defines the calendar width in percent. Default is 95%.' => '',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => '',
         'Defines the column to store the keys for the preferences table.' =>
             '',
@@ -3768,7 +3803,7 @@ sub Data {
             '',
         'Defines the default sort order for all services in the service view, after priority sort.' =>
             '',
-        'Defines the default spell checker dictionary.' => '',
+        'Defines the default spell checker dictionary.' => 'Määrab õigekirjakontrolli vaikesõnastiku.',
         'Defines the default state of new customer tickets in the customer interface.' =>
             '',
         'Defines the default state of new tickets.' => '',
@@ -3955,7 +3990,7 @@ sub Data {
             '',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             '',
-        'Defines the list of possible next actions on an error screen.' =>
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
             '',
         'Defines the list of types for templates.' => '',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
@@ -3991,6 +4026,8 @@ sub Data {
             '',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             '',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             '',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4011,7 +4048,7 @@ sub Data {
         'Defines the name of the key for customer sessions.' => '',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             '',
-        'Defines the name of the table, where the customer preferences are stored.' =>
+        'Defines the name of the table where the user preferences are stored.' =>
             '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             '',
@@ -4140,7 +4177,7 @@ sub Data {
         'Defines the valid state types for a ticket.' => '',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             '',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
             '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             '',
@@ -4194,11 +4231,17 @@ sub Data {
             '',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             '',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
             '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             '',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
+            '',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
             '',
         'Display settings to override defaults for Process Tickets.' => '',
         'Displays the accounted time for an article in the ticket zoom view.' =>
@@ -4367,8 +4410,8 @@ sub Data {
             '',
         'Forces to unlock tickets after being moved to another queue.' =>
             '',
-        'Forwarded to "%s".' => 'Edastatud "%s".',
-        'Frontend language' => '',
+        'Forwarded to "%s".' => 'Edastatud "%s"-le.',
+        'Frontend language' => 'kasutatav keel',
         'Frontend module registration (disable AgentTicketService link if Ticket Serivice feature is not used).' =>
             '',
         'Frontend module registration (disable company link if no company feature is used).' =>
@@ -4531,6 +4574,7 @@ sub Data {
             '',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             '',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             '',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4544,17 +4588,19 @@ sub Data {
             '',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             '',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => '',
         'Lastname, Firstname (UserLogin)' => '',
         'Left' => '',
         'Link agents to groups.' => 'Töötajate sidumine rühmadega.',
         'Link agents to roles.' => 'Töötajate sidumine rollidega',
-        'Link attachments to templates.' => '',
+        'Link attachments to templates.' => 'Seo manused mallidega.',
         'Link customer user to groups.' => '',
         'Link customer user to services.' => '',
         'Link queues to auto responses.' => 'Järjekordade sidumine automaatvastustega.',
         'Link roles to groups.' => 'Rollide sidumine rühmadega.',
-        'Link templates to queues.' => '',
+        'Link templates to queues.' => 'Seo mallid järjekordadega.',
         'Links 2 tickets with a "Normal" type link.' => '',
         'Links 2 tickets with a "ParentChild" type link.' => '',
         'List of CSS files to always be loaded for the agent interface.' =>
@@ -4610,6 +4656,7 @@ sub Data {
             '',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             '',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             '',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4684,10 +4731,10 @@ sub Data {
         'Number of tickets to be displayed in each page of a search result in the customer interface.' =>
             '',
         'Old: "%s" New: "%s"' => 'Vana: "%s" Uus: "%s"',
-        'Online' => '',
+        'Online' => 'Hetkel siin',
         'Open tickets (customer user)' => '',
         'Open tickets (customer)' => '',
-        'Out Of Office' => '',
+        'Out Of Office' => 'Töölt eemal',
         'Overloads (redefines) existing functions in Kernel::System::Ticket. Used to easily add customizations.' =>
             '',
         'Overview Escalated Tickets' => '',
@@ -4865,8 +4912,7 @@ sub Data {
             '',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             '',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            '',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             '',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4875,6 +4921,8 @@ sub Data {
         'Service view' => '',
         'Set sender email addresses for this system.' => 'Süsteemi saatjate e-posti aadresside seadistamine.',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
+            '',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
             '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             '',
@@ -4960,6 +5008,8 @@ sub Data {
         'Sets the display order of the different items in the preferences view.' =>
             '',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
+            '',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
             '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             '',
@@ -5063,7 +5113,8 @@ sub Data {
             '',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             '',
-        'Sets the time (in seconds) a user is marked as active.' => '',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => '',
         'Sets the timeout (in seconds) for http/ftp downloads.' => '',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>
@@ -5328,7 +5379,7 @@ sub Data {
             '',
         'System Maintenance' => '',
         'System Request (%s).' => '',
-        'Templates <-> Queues' => '',
+        'Templates <-> Queues' => 'Mallid <-> Järjekorrad',
         'Textarea' => 'Tekstiala',
         'The "bin/PostMasterMailAccount.pl" will reconnect to POP3/POP3S/IMAP/IMAPS host after the specified count of messages.' =>
             '',
@@ -5364,9 +5415,9 @@ sub Data {
         'The maximal number of articles shown on a single page in AgentTicketZoom.' =>
             '',
         'The text at the beginning of the subject in an email reply, e.g. RE, AW, or AS.' =>
-            '',
+            'Tekst vastuskirja teemarea alguses, nt. Re, Vs.',
         'The text at the beginning of the subject when an email is forwarded, e.g. FW, Fwd, or WG.' =>
-            '',
+            'Tekst teemarea alguses, kui e-kiri on edasi saadetud, nt. Fw, Fwd, Ed.',
         'This event module stores attributes from CustomerUser as DynamicFields tickets. Please see the setting above for how to configure the mapping.' =>
             '',
         'This module and its PreRun() function will be executed, if defined, for every request. This module is useful to check some user options or to display news about new applications.' =>
@@ -5404,7 +5455,7 @@ sub Data {
         'Turns on the remote ip address check. It should be set to "No" if the application is used, for example, via a proxy farm or a dialup connection, because the remote ip address is mostly different for the requests.' =>
             '',
         'Unlock tickets whenever a note is added and the owner is out of office.' =>
-            '',
+            'Eemalda lukk juhul kui piletile lisatakse märkus ning pileti omanik on töölt eemal.',
         'Unlocked ticket.' => 'Intsidendi lukk eemaldati.',
         'Update Ticket "Seen" flag if every article got seen or a new Article got created.' =>
             '',
@@ -5426,7 +5477,7 @@ sub Data {
             '',
         'View performance benchmark results.' => 'Jõudlustestide tulemuste vaatamine.',
         'View system log messages.' => 'Süsteemilogi teadete vaatamine.',
-        'Wear this frontend skin' => '',
+        'Wear this frontend skin' => 'kasutatav kest',
         'Webservice path separator.' => '',
         'When tickets are merged, a note will be added automatically to the ticket which is no longer active. Here you can define the body of this note (this text cannot be changed by the agent).' =>
             '',

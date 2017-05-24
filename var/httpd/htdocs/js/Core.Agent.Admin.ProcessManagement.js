@@ -1,6 +1,5 @@
 // --
-// Core.Agent.Admin.ProcessManagement.js - provides the special module functions for the Process Management.
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -472,7 +471,7 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
             }
         }
 
-        $('#Activities li, #ActivityDialogs li, #Transitions li, #TransitionActions li').draggable({
+        $('#Activities li.OneRow, #ActivityDialogs li.OneRow, #Transitions li.OneRow, #TransitionActions li.OneRow').draggable({
             revert: 'invalid',
             helper: function () {
                 var $Clone = $(this).clone();
@@ -523,7 +522,7 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
         });
 
         $('#Canvas').droppable({
-            accept: '#Activities li, #ActivityDialogs li, #Transitions li, #TransitionActions li',
+            accept: '#Activities li.OneRow, #ActivityDialogs li.OneRow, #Transitions li.OneRow, #TransitionActions li.OneRow',
             drop: function (Event, UI) {
                 var $Source = $(UI.draggable),
                     SourceID = $Source.closest('ul').attr('id');
@@ -915,10 +914,13 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
                                  FieldConfig.Config.ArticleType = $('#ArticleType').val();
 
                                  // show error if internal article type is set for an interface different than AgentInterface
-                                 if ($('#Interface').val() !== 'AgentInterface' && $('#ArticleType').val().match(/int/i)){
+                                 if ($('#Interface').val() !== 'AgentInterface' && $('#ArticleType').val().match(/-int/i)){
                                      window.alert(Core.Agent.Admin.ProcessManagement.Localization.WrongArticleTypeMsg);
                                      return;
                                  }
+
+                                 // add the time units value to the fieldconfig
+                                 FieldConfig.Config.TimeUnits = $('#TimeUnits').val();
                              }
 
                              $Element.closest('li').data('config', Core.JSON.Stringify(FieldConfig));
@@ -971,6 +973,9 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
                     if (FieldConfig.Config.ArticleType) {
                         $('#ArticleType').val(FieldConfig.Config.ArticleType);
                     }
+                    if (FieldConfig.Config.TimeUnits) {
+                        $('#TimeUnits').val(FieldConfig.Config.TimeUnits);
+                    }
                 }
 
             }
@@ -984,9 +989,11 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
             // only article should show ArticleType select.
             if (Fieldname === 'Article') {
                 $('#ArticleTypeContainer').removeClass('Hidden');
+                $('#TimeUnitsContainer').removeClass('Hidden');
             }
             else {
                 $('#ArticleTypeContainer').addClass('Hidden');
+                $('#TimeUnitsContainer').addClass('Hidden');
             }
 
             return false;
@@ -1248,9 +1255,9 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
     TargetNS.HideOverlay = function () {
         $('#Overlay').remove();
         $('body').css({
-            'overflow': 'auto'
+            'overflow': 'visible',
+            'min-height': 0
         });
-        $('body').css('min-height', 'auto');
     };
 
     TargetNS.GetConditionConfig = function ($Conditions) {
@@ -1291,6 +1298,12 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
     TargetNS.UpdateConfig = function (Config) {
         if (typeof Config === 'undefined') {
             return false;
+        }
+
+        // IE (11) has some permission problems with objects from other windows
+        // Therefore we "copy" the object if we are in IE
+        if ($.browser.trident) {
+            Config = Core.JSON.Parse(Core.JSON.Stringify(Config));
         }
 
         // Update config from e.g. popup windows

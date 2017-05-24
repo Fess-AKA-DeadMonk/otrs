@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Ticket/TicketSearch.pm - all ticket search functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -253,7 +252,7 @@ To find tickets in your system.
 
         # OrderBy and SortBy (optional)
         OrderBy => 'Down',  # Down|Up
-        SortBy  => 'Age',   # Owner|Responsible|CustomerID|State|TicketNumber|Queue|Priority|Age|Type|Lock
+        SortBy  => 'Age',   # Created|Owner|Responsible|CustomerID|State|TicketNumber|Queue|Priority|Age|Type|Lock
                             # Changed|Title|Service|SLA|PendingTime|EscalationTime
                             # EscalationUpdateTime|EscalationResponseTime|EscalationSolutionTime
                             # DynamicField_FieldNameX
@@ -305,6 +304,7 @@ sub TicketSearch {
     if ( !$Param{ContentSearch} ) {
         $Param{ContentSearch} = 'AND';
     }
+
     my %SortOptions = (
         Owner                  => 'st.user_id',
         Responsible            => 'st.responsible_user_id',
@@ -318,6 +318,7 @@ sub TicketSearch {
         Type                   => 'st.type_id',
         Priority               => 'st.ticket_priority_id',
         Age                    => 'st.create_time_unix',
+        Created                => 'st.create_time',
         Changed                => 'st.change_time',
         Service                => 'st.service_id',
         SLA                    => 'st.sla_id',
@@ -430,16 +431,9 @@ sub TicketSearch {
     }
 
     # check sort/order by options
-    my @SortByArray;
-    my @OrderByArray;
-    if ( ref $SortBy eq 'ARRAY' ) {
-        @SortByArray  = @{$SortBy};
-        @OrderByArray = @{$OrderBy};
-    }
-    else {
-        @SortByArray  = ($SortBy);
-        @OrderByArray = ($OrderBy);
-    }
+    my @SortByArray  = ( ref $SortBy eq 'ARRAY'  ? @{$SortBy}  : ($SortBy) );
+    my @OrderByArray = ( ref $OrderBy eq 'ARRAY' ? @{$OrderBy} : ($OrderBy) );
+
     for my $Count ( 0 .. $#SortByArray ) {
         if (
             !$SortOptions{ $SortByArray[$Count] }
@@ -1126,7 +1120,13 @@ sub TicketSearch {
             next VALUE if !$Value;
 
             # replace wild card search
-            $Value =~ s/\*/%/gi;
+            if (
+                $Key ne 'CustomerIDRaw'
+                && $Key ne 'CustomerUserLoginRaw'
+                )
+            {
+                $Value =~ s/\*/%/gi;
+            }
 
             # check search attribute, we do not need to search for *
             next VALUE if $Value =~ /^\%{1,3}$/;
@@ -2177,6 +2177,97 @@ sub TicketSearch {
     }
 }
 
+=item SearchStringStopWordsFind()
+
+Find stop words within given search string.
+
+    my $StopWords = $TicketObject->SearchStringStopWordsFind(
+        SearchStrings => {
+            'Fulltext' => '(this AND is) OR test',
+            'From'     => 'myself',
+        },
+    );
+
+    Returns Hashref with found stop words.
+
+=cut
+
+sub SearchStringStopWordsFind {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Key (qw(SearchStrings)) {
+        if ( !$Param{$Key} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Key!",
+            );
+            return;
+        }
+    }
+
+    # create lower case stop words
+    my %StopWordRaw = %{ $Kernel::OM->Get('Kernel::Config')->Get('Ticket::SearchIndex::StopWords') || {} };
+    my %StopWord;
+    WORD:
+    for my $Word ( sort keys %StopWordRaw ) {
+
+        next WORD if !$Word;
+        $Word = lc $Word;
+        $StopWord{$Word} = 1;
+    }
+
+    my %StopWordsFound;
+    SEARCHSTRING:
+    for my $Key ( sort keys %{ $Param{SearchStrings} } ) {
+        my $SearchString = $Param{SearchStrings}->{$Key};
+        my %Result       = $Kernel::OM->Get('Kernel::System::DB')->QueryCondition(
+            'Key'      => '.',             # resulting SQL is irrelevant
+            'Value'    => $SearchString,
+            'BindMode' => 1,
+        );
+
+        next SEARCHSTRING if !%Result || ref $Result{Values} ne 'ARRAY' || !@{ $Result{Values} };
+
+        my %Words;
+        for my $Value ( @{ $Result{Values} } ) {
+            my @Words = split '\s+', $$Value;
+            for my $Word (@Words) {
+                $Words{ lc $Word } = 1;
+            }
+        }
+
+        @{ $StopWordsFound{$Key} } = grep { $StopWord{$_} } sort keys %Words;
+    }
+
+    return \%StopWordsFound;
+}
+
+=item SearchStringStopWordsUsageWarningActive()
+
+Checks if warnings for stop words in search strings are active or not.
+
+    my $WarningActive = $TicketObject->SearchStringStopWordsUsageWarningActive();
+
+=cut
+
+sub SearchStringStopWordsUsageWarningActive {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject        = $Kernel::OM->Get('Kernel::Config');
+    my $SearchIndexModule   = $ConfigObject->Get('Ticket::SearchIndexModule');
+    my $WarnOnStopWordUsage = $ConfigObject->Get('Ticket::SearchIndex::WarnOnStopWordUsage') || 0;
+    if (
+        $SearchIndexModule eq 'Kernel::System::Ticket::ArticleSearchIndex::StaticDB'
+        && $WarnOnStopWordUsage
+        )
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 =begin Internal:
 
 =cut
@@ -2199,25 +2290,28 @@ condition string from an array.
 sub _InConditionGet {
     my ( $Self, %Param ) = @_;
 
-    # check needed stuff
-    for my $Key (qw(TableColumn IDRef)) {
-        if ( !$Param{$Key} ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need $Key!",
-            );
-            return;
-        }
+    if ( !$Param{TableColumn} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need TableColumn!",
+        );
+        return;
+    }
+
+    if ( !$Param{IDRef} || ref $Param{IDRef} ne 'ARRAY' || !@{ $Param{IDRef} } ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need IDRef!",
+        );
+        return;
     }
 
     # sort ids to cache the SQL query
     my @SortedIDs = sort { $a <=> $b } @{ $Param{IDRef} };
 
-    # quote values
-    SORTEDID:
-    for my $Value (@SortedIDs) {
-        next SORTEDID if !defined $Kernel::OM->Get('Kernel::System::DB')->Quote( $Value, 'Integer' );
-    }
+    # Error out if some values were not integers.
+    @SortedIDs = map { $Kernel::OM->Get('Kernel::System::DB')->Quote( $_, 'Integer' ) } @SortedIDs;
+    return if scalar @SortedIDs != scalar @{ $Param{IDRef} };
 
     # split IN statement with more than 900 elements in more statements combined with OR
     # because Oracle doesn't support more than 1000 elements for one IN statement.

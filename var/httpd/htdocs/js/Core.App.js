@@ -1,11 +1,11 @@
 // --
-// Core.App.js - provides the application functions
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
+// nofilter(TidyAll::Plugin::OTRS::JavaScript::UnloadEvent)
 
 "use strict";
 
@@ -43,6 +43,51 @@ Core.App = (function (TargetNS) {
     }
 
     /**
+     * @name BindWindowUnloadEvent
+     * @memberof Core.App
+     * @function
+     * @param {String} Namespace - Namespace for which the event should be bound.
+     * @param {Function} CallbackFunction - Function which should be executed once the event is fired.
+     * @description
+     *      Binds a crossbrowser compatible unload event to the window object
+     */
+    TargetNS.BindWindowUnloadEvent = function (Namespace, CallbackFunction) {
+
+        if (!$.isFunction(CallbackFunction)) {
+            return;
+        }
+
+        // we need a special handling for all IE's before 11, because these
+        // don't know the pagehide event but support the non-standard
+        // unload event.
+        if ($.browser.msie && parseInt($.browser.version, 10) < 11) {
+            $(window).on('unload.' + Namespace, function () {
+                CallbackFunction();
+            });
+        }
+        else {
+            $(window).on('pagehide.' + Namespace, function () {
+                CallbackFunction();
+            });
+        }
+    };
+
+    /**
+     * @name UnbindWindowUnloadEvent
+     * @memberof Core.App
+     * @function
+     * @param {String} Namespace - Namespace for which the event should be removed.
+     * @description
+     *      Unbinds a crossbrowser compatible unload event to the window object
+     */
+    TargetNS.UnbindWindowUnloadEvent = function (Namespace) {
+        $(window).off('unload.' + Namespace);
+        $(window).off('pagehide.' + Namespace);
+    };
+
+    /**
+     * @name GetSessionInformation
+     * @memberof Core.App
      * @function
      * @private
      * @return {Object} Hash with session data, if needed
@@ -158,14 +203,48 @@ Core.App = (function (TargetNS) {
     };
 
     /**
+     * @name EscapeSelector
+     * @memberof Core.App
      * @function
-     *  Escapes the special characters (. :) in the given jQuery Selector
-     *  jQ does not allow the usage of dot or colon in ID or class names
-     * @param {String} Selector The original selector (e.g. ID, class, etc.)
-     * @return {String} The escaped selector
+     * @returns {String} The escaped selector.
+     * @param {String} Selector - The original selector (e.g. ID, class, etc.).
+     * @description
+     *      Escapes the special characters (. :) in the given jQuery Selector
+     *      jQ does not allow the usage of dot or colon in ID or class names
+     *      An overview of special characters that should be quoted can be found here:
+     *      https://api.jquery.com/category/selectors/
      */
     TargetNS.EscapeSelector = function (Selector) {
-        return Selector.replace(/(#|:|\.|\[|\])/g,'\\$1');
+        if (Selector && Selector.length) {
+            return Selector.replace(/(#|:|\.|\[|\]|@|!|"|\$|%|&|<|=|>|'|\(|\)|\*|\+|,|\?|\/|\;|\\|\^|{|}|`|\||~)/g, '\\$1');
+        }
+        return '';
+    };
+
+    /**
+     * @name EscapeHTML
+     * @memberof Core.App
+     * @function
+     * @returns {String} The escaped string.
+     * @param {String} StringToEscape - The string which is supposed to be escaped.
+     * @description
+     *      Escapes the special HTML characters ( < > & ) in supplied string to their
+     *      corresponding entities.
+     */
+    TargetNS.EscapeHTML = function (StringToEscape) {
+        var HTMLEntities = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;'
+        };
+
+        if (!StringToEscape) {
+            return '';
+        }
+
+        return StringToEscape.replace(/[&<>"]/g, function(Entity) {
+            return HTMLEntities[Entity] || Entity;
+        });
     };
 
     /**

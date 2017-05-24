@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/Checkbox.pm - Delegate for DynamicField Checkbox Driver
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -353,8 +352,13 @@ sub EditFieldValueGet {
     my %Data;
 
     # check if there is a Template and retrieve the dynamic field value from there
-    if ( IsHashRefWithData( $Param{Template} ) ) {
-
+    if (
+        IsHashRefWithData( $Param{Template} ) && (
+            defined $Param{Template}->{$FieldName}
+            || defined $Param{Template}->{ $FieldName . 'Used' }
+        )
+        )
+    {
         # get dynamic field value form Template
         $Data{FieldValue} = $Param{Template}->{$FieldName};
 

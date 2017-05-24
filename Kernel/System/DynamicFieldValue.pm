@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicFieldValue.pm - DynamicField values backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -372,6 +371,58 @@ sub AllValuesDelete {
     # Cleanup entire cache!
     $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
         Type => 'DynamicFieldValue',
+    );
+
+    return 1;
+}
+
+=item ObjectValuesDelete()
+
+Delete all entries of a dynamic field values for object ID.
+
+    my $Success = $DynamicFieldValueObject->ObjectValuesDelete(
+        ObjectType => 'Ticket',    # Dynamic Field object type ( e. g. Ticket, Article, FAQ)
+        ObjectID   => $ObjectID,   # ID of the current object that the field
+                                   #   is linked to, e. g. TicketID
+        UserID     => 123,
+    );
+
+    Returns 1.
+
+=cut
+
+sub ObjectValuesDelete {
+    my ( $Self, %Param ) = @_;
+
+    # Check needed stuff.
+    for my $Needed (qw(ObjectID ObjectType UserID)) {
+        if ( !$Param{$Needed} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+            return;
+        }
+    }
+
+    # Delete dynamic field value.
+    return if !$Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => '
+            DELETE FROM dynamic_field_value
+                WHERE
+                    field_id IN (
+                        SELECT id FROM dynamic_field
+                        WHERE object_type = ?
+                    )
+                    AND object_id = ?
+        ',
+        Bind => [ \$Param{ObjectType}, \$Param{ObjectID} ],
+    );
+
+    # Clear ValueGet cache.
+    $Kernel::OM->Get('Kernel::System::Cache')->Delete(
+        Type => 'DynamicFieldValue',
+        Key  => 'ValueGet::ObjectID::' . $Param{ObjectID},
     );
 
     return 1;

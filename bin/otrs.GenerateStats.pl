@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.GenerateStats.pl - send stats output via email
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -62,7 +61,7 @@ GetOptions(
 
 if ( $Opts{h} || !$Opts{n} ) {
     print "otrs.GenerateStats.pl - OTRS cmd stats\n";
-    print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+    print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
     print
         "usage: otrs.GenerateStats.pl -n <StatNumber> [-p <PARAM_STRING>] [-o <DIRECTORY>] [-r <RECIPIENT> -r ... -s <SENDER>] [-m <MESSAGE>] [-l <LANGUAGE>] [-f CSV|Excel|Print] [-S <SEPARATOR>] [-F <FILENAME> [-R]\n";
     print
@@ -103,10 +102,12 @@ if ( !$Opts{m} && $Opts{r} ) {
 }
 
 # language
-my $Lang = $Kernel::OM->Get('Kernel::Config')->Get('DefaultLanguage') || 'en';
-if ( $Opts{l} ) {
-    $Lang = $Opts{l};
-}
+my $UserLanguage = $Opts{l} || $Kernel::OM->Get('Kernel::Config')->Get('DefaultLanguage') || 'en';
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::Language' => {
+        UserLanguage => $UserLanguage,
+    },
+);
 
 # format
 $Opts{f} //= 'CSV';
@@ -189,7 +190,7 @@ my @StatArray = @{
     $Kernel::OM->Get('Kernel::System::Stats')->StatsRun(
         StatID   => $StatID,
         GetParam => \%GetParam,
-        )
+    );
 };
 
 # generate output

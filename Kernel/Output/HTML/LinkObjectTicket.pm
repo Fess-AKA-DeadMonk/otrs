@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/LinkObjectTicket.pm - layout backend module for link object 'Ticket'.
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -509,6 +508,15 @@ sub SearchOptionList {
             };
     }
 
+    if ( $Self->{ConfigObject}->Get('Ticket::ArchiveSystem') ) {
+        push @SearchOptionList,
+            {
+            Key  => 'ArchiveID',
+            Name => 'Archive search',
+            Type => 'List',
+            };
+    }
+
     # add formkey
     for my $Row (@SearchOptionList) {
         $Row->{FormKey} = 'SEARCH::' . $Row->{Key};
@@ -548,6 +556,8 @@ sub SearchOptionList {
             my @FormData = $Self->{ParamObject}->GetArray( Param => $Row->{FormKey} );
             $Row->{FormData} = \@FormData;
 
+            my $Multiple = 1;
+
             my %ListData;
             if ( $Row->{Key} eq 'StateIDs' ) {
                 %ListData = $Self->{StateObject}->StateList(
@@ -564,6 +574,17 @@ sub SearchOptionList {
                     UserID => $Self->{UserID},
                 );
             }
+            elsif ( $Row->{Key} eq 'ArchiveID' ) {
+                %ListData = (
+                    ArchivedTickets    => 'Archived tickets',
+                    NotArchivedTickets => 'Unarchived tickets',
+                    AllTickets         => 'All tickets',
+                );
+                if ( !scalar @{ $Row->{FormData} } ) {
+                    $Row->{FormData} = ['NotArchivedTickets'];
+                }
+                $Multiple = 0;
+            }
 
             # add the input string
             $Row->{InputStrg} = $Self->{LayoutObject}->BuildSelection(
@@ -571,7 +592,31 @@ sub SearchOptionList {
                 Name       => $Row->{FormKey},
                 SelectedID => $Row->{FormData},
                 Size       => 3,
-                Multiple   => 1,
+                Multiple   => $Multiple,
+            );
+
+            next ROW;
+        }
+
+        if ( $Row->{Type} eq 'Checkbox' ) {
+
+            # get form data
+            $Row->{FormData} = $Self->{ParamObject}->GetParam( Param => $Row->{FormKey} );
+
+            # parse the input text block
+            $Self->{LayoutObject}->Block(
+                Name => 'Checkbox',
+                Data => {
+                    Name    => $Row->{FormKey},
+                    Title   => $Row->{FormKey},
+                    Content => $Row->{FormKey},
+                    Checked => $Row->{FormData} || '',
+                },
+            );
+
+            # add the input string
+            $Row->{InputStrg} = $Self->{LayoutObject}->Output(
+                TemplateFile => 'LinkObject',
             );
 
             next ROW;
@@ -587,7 +632,7 @@ sub SearchOptionList {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
 the enclosed file COPYING for license information (AGPL). If you

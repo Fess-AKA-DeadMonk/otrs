@@ -1,6 +1,5 @@
 # --
-# Kernel/System/OTRSBusiness.pm - OTRSBusiness deployment backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -34,7 +33,7 @@ my $NoConnectWarningPeriod = 60 * 60 * 24 * 5;    # 5 days
 my $NoConnectErrorPeriod = 60 * 60 * 24 * 15;     # 15 days
 
 # If the contract is about to expire in less than this time, show a hint
-my $ContractExpiryWarningPeriod = 60 * 60 * 24 * 30;
+my $ContractExpiryWarningPeriod = 60 * 60 * 24 * 28;    # 28 days
 
 =head1 NAME
 
@@ -557,11 +556,16 @@ sub HandleBusinessPermissionCloudServiceResult {
         LastUpdateTime     => $Kernel::OM->Get('Kernel::System::Time')->SystemTime2TimeStamp(
             SystemTime => $Kernel::OM->Get('Kernel::System::Time')->SystemTime()
         ),
+        AgentSessionLimit             => $OperationResult->{Data}->{AgentSessionLimit}             // 0,
+        AgentSessionLimitPriorWarning => $OperationResult->{Data}->{AgentSessionLimitPriorWarning} // 0,
     );
 
     my $SystemDataObject = $Kernel::OM->Get('Kernel::System::SystemData');
 
+    KEY:
     for my $Key ( sort keys %StoreData ) {
+        next KEY if !defined $StoreData{$Key};
+
         my $FullKey = 'OTRSBusiness::' . $Key;
 
         if ( defined $SystemDataObject->SystemDataGet( Key => $FullKey ) ) {
@@ -739,6 +743,7 @@ sub OTRSBusinessUninstall {
     # Package not found -> return failure
     return if !$Package;
 
+    # TODO: the following code is now Deprecated and should be removed in further versions of OTRS
     # get a list of all dynamic fields for ticket and article
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
     my $DynamicFieldList   = $DynamicFieldObject->DynamicFieldListGet(
@@ -785,6 +790,8 @@ sub OTRSBusinessUninstall {
             );
         }
     }
+
+    # TODO: end Deprecated
 
     my $PackageString = $Kernel::OM->Get('Kernel::System::Package')->RepositoryGet(
         Name    => $Package->{Name}->{Content},

@@ -1,6 +1,5 @@
 // --
-// Core.Agent.Dashboard.js - provides the special module functions for the dashboard
-// Copyright (C) 2001-2011 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -27,8 +26,8 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.InitCustomerIDAutocomplete = function ($Input) {
         $Input.autocomplete({
-            minLength: Core.Config.Get('CustomerAutocomplete.MinQueryLength'),
-            delay: Core.Config.Get('CustomerAutocomplete.QueryDelay'),
+            minLength: Core.Config.Get('CustomerIDAutocomplete.MinQueryLength'),
+            delay: Core.Config.Get('CustomerIDAutocomplete.QueryDelay'),
             open: function() {
                 // force a higher z-index than the overlay/dialog
                 $(this).autocomplete('widget').addClass('ui-overlay-autocomplete');
@@ -37,9 +36,10 @@ Core.Agent.Dashboard = (function (TargetNS) {
             source: function (Request, Response) {
                 var URL = Core.Config.Get('Baselink'), Data = {
                     Action: 'AgentCustomerInformationCenterSearch',
+                    IncludeUnknownTicketCustomers: Core.Config.Get('IncludeUnknownTicketCustomers'),
                     Subaction: 'SearchCustomerID',
                     Term: Request.term,
-                    MaxResults: Core.Config.Get('CustomerAutocomplete.MaxResultsDisplayed')
+                    MaxResults: Core.Config.Get('CustomerIDAutocomplete.MaxResultsDisplayed')
                 };
 
                 // if an old ajax request is already running, stop the old request and start the new one
@@ -91,6 +91,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
             source: function (Request, Response) {
                 var URL = Core.Config.Get('Baselink'), Data = {
                     Action: 'AgentCustomerSearch',
+                    IncludeUnknownTicketCustomers: Core.Config.Get('IncludeUnknownTicketCustomers'),
                     Term: Request.term,
                     MaxResults: Core.Config.Get('CustomerUserAutocomplete.MaxResultsDisplayed')
                 };
@@ -329,6 +330,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
             allDayText: Params.AllDayText,
             axisFormat: 'H(:mm)', // uppercase H for 24-hour clock
             editable: false,
+            firstDay: Params.FirstDay,
             monthNames: Params.MonthNames,
             monthNamesShort: Params.MonthNamesShort,
             dayNames: Params.DayNames,

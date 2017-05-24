@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/CustomerTicketSearch.pm - Utilities for tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -288,8 +287,28 @@ sub Run {
         );
     }
 
+    # check for server errors
+    my %ServerErrors;
+    if (
+        $Self->{Subaction} eq 'Search'
+        && !$Self->{EraseTemplate}
+        )
+    {
+
+        # check for stop word errors
+        my %StopWordsServerErrors = $Self->_StopWordsServerErrorsGet(
+            From    => $GetParam{From},
+            To      => $GetParam{To},
+            Cc      => $GetParam{Cc},
+            Subject => $GetParam{Subject},
+            Body    => $GetParam{Body},
+        );
+
+        %ServerErrors = ( %ServerErrors, %StopWordsServerErrors );
+    }
+
     # show result page
-    if ( $Self->{Subaction} eq 'Search' && !$Self->{EraseTemplate} ) {
+    if ( !%ServerErrors && $Self->{Subaction} eq 'Search' && !$Self->{EraseTemplate} ) {
 
         # fill up profile name (e.g. with last-search)
         if ( !$Self->{Profile} || !$Self->{SaveProfile} ) {
@@ -505,7 +524,7 @@ sub Run {
 
         # disable output of company tickets if configured
         if ( $Self->{DisableCompanyTickets} ) {
-            $GetParam{CustomerUserLogin} = $Self->{UserID};
+            $GetParam{CustomerUserLoginRaw} = $Self->{UserID};
         }
 
         # perform ticket search
@@ -1342,7 +1361,8 @@ sub Run {
             %GetParam,
             Profile          => $Self->{Profile},
             Area             => 'Customer',
-            DynamicFieldHTML => \%DynamicFieldHTML
+            DynamicFieldHTML => \%DynamicFieldHTML,
+            %ServerErrors,
         );
         $Output .= $Self->{LayoutObject}->CustomerFooter();
         return $Output;
@@ -1630,6 +1650,51 @@ sub MaskForm {
         TemplateFile => 'CustomerTicketSearch',
         Data         => \%Param,
     );
+}
+
+sub _StopWordsServerErrorsGet {
+    my ( $Self, %Param ) = @_;
+
+    if ( !%Param ) {
+        $Self->{LayoutObject}->FatalError( Message => "Got no values to check." );
+    }
+
+    my %StopWordsServerErrors;
+    if ( !$Self->{TicketObject}->SearchStringStopWordsUsageWarningActive() ) {
+        return %StopWordsServerErrors;
+    }
+
+    my %SearchStrings;
+
+    FIELD:
+    for my $Field ( sort keys %Param ) {
+        next FIELD if !defined $Param{$Field};
+        next FIELD if !length $Param{$Field};
+
+        $SearchStrings{$Field} = $Param{$Field};
+    }
+
+    if (%SearchStrings) {
+
+        my $StopWords = $Self->{TicketObject}->SearchStringStopWordsFind(
+            SearchStrings => \%SearchStrings
+        );
+
+        FIELD:
+        for my $Field ( sort keys %{$StopWords} ) {
+            next FIELD if !defined $StopWords->{$Field};
+            next FIELD if ref $StopWords->{$Field} ne 'ARRAY';
+            next FIELD if !@{ $StopWords->{$Field} };
+
+            $StopWordsServerErrors{ $Field . 'Invalid' }        = 'ServerError';
+            $StopWordsServerErrors{ $Field . 'InvalidTooltip' } = $Self->{LayoutObject}->{LanguageObject}
+                ->Translate('Please remove the following words because they cannot be used for the search:')
+                . ' '
+                . join( ',', sort @{ $StopWords->{$Field} } );
+        }
+    }
+
+    return %StopWordsServerErrors;
 }
 
 1;

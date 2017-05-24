@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/LayoutLoader.pm - provides generic HTML output
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -67,10 +66,22 @@ sub LoaderCreateAgentCSSCalls {
     # 2. use HostBased skin setting, if available
     # 3. use default skin from configuration
 
-    my $SkinSelected = $Self->{'UserSkin'}
-        || $SkinSelectedHostBased
-        || $Self->{ConfigObject}->Get('Loader::Agent::DefaultSelectedSkin')
-        || 'default';
+    my $SkinSelected = $Self->{'UserSkin'};
+
+    # check if the skin is valid
+    my $SkinValid = 0;
+    if ($SkinSelected) {
+        $SkinValid = $Self->SkinValidate(
+            SkinType => 'Agent',
+            Skin     => $SkinSelected,
+        );
+    }
+
+    if ( !$SkinValid ) {
+        $SkinSelected = $SkinSelectedHostBased
+            || $Self->{ConfigObject}->Get('Loader::Agent::DefaultSelectedSkin')
+            || 'default';
+    }
 
     # save selected skin
     $Self->{SkinSelected} = $SkinSelected;

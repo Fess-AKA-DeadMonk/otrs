@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.GetTicketThread.pl - to print the whole ticket thread to STDOUT
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -37,7 +36,7 @@ my %Opts;
 getopt( 'tl', \%Opts );
 if ( $Opts{h} || !$Opts{t} ) {
     print "otrs.GetTicketThread.pl - Prints out a ticket with all its articles.\n";
-    print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+    print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
     print "usage: otrs.GetTicketThread.pl -t <TicketID> [-l article limit]\n";
     exit 1;
 }

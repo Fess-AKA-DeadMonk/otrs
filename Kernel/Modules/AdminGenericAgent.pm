@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminGenericAgent.pm - admin generic agent interface
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -24,6 +23,8 @@ use Kernel::System::CheckItem;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::VariableCheck qw(:all);
+
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -262,6 +263,16 @@ sub Run {
             $Errors{ProfileInvalid} = 'ServerError';
         }
 
+        # Check if ticket selection contains stop words
+        my %StopWordsServerErrors = $Self->_StopWordsServerErrorsGet(
+            From    => $GetParam{From},
+            To      => $GetParam{To},
+            Cc      => $GetParam{Cc},
+            Subject => $GetParam{Subject},
+            Body    => $GetParam{Body},
+        );
+        %Errors = ( %Errors, %StopWordsServerErrors );
+
         # if no errors occurred
         if ( !%Errors ) {
 
@@ -302,6 +313,7 @@ sub Run {
             %GetParam,
             %DynamicFieldValues,
             %Errors,
+            StopWordsAlreadyChecked => 1,
         );
 
         # generate search mask
@@ -324,6 +336,7 @@ sub Run {
 
         # generate search mask
         my $Output = $Self->{LayoutObject}->Header( Title => 'Edit' );
+
         $Output .= $Self->{LayoutObject}->NavigationBar();
         $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminGenericAgent',
@@ -701,6 +714,18 @@ sub _MaskUpdate {
         SelectedID => $JobData{NewLockID},
     );
 
+    # Show server errors if ticket selection contains stop words
+    my %StopWordsServerErrors;
+    if ( !$Param{StopWordsAlreadyChecked} ) {
+        %StopWordsServerErrors = $Self->_StopWordsServerErrorsGet(
+            From    => $JobData{From},
+            To      => $JobData{To},
+            Cc      => $JobData{Cc},
+            Subject => $JobData{Subject},
+            Body    => $JobData{Body},
+        );
+    }
+
     # REMARK: we changed the wording "Send no notifications" to
     # "Send agent/customer notifications on changes" in frontend.
     # But the backend code is still the same (compatiblity).
@@ -722,8 +747,9 @@ sub _MaskUpdate {
     $Self->{LayoutObject}->Block(
         Name => 'Edit',
         Data => {
-            %Param,
             %JobData,
+            %Param,
+            %StopWordsServerErrors,
         },
     );
 
@@ -1179,23 +1205,27 @@ sub _MaskRun {
 
     # perform ticket search
     my $Counter = $Self->{TicketObject}->TicketSearch(
-        Result          => 'COUNT',
-        SortBy          => 'Age',
-        OrderBy         => 'Down',
-        UserID          => 1,
-        Limit           => 60_000,
-        ConditionInline => 1,
+        Result              => 'COUNT',
+        SortBy              => 'Age',
+        OrderBy             => 'Down',
+        UserID              => 1,
+        Limit               => 60_000,
+        ContentSearchPrefix => '*',
+        ContentSearchSuffix => '*',
+        ConditionInline     => 1,
         %JobData,
         %DynamicFieldSearchParameters,
     ) || 0;
 
     my @TicketIDs = $Self->{TicketObject}->TicketSearch(
-        Result          => 'ARRAY',
-        SortBy          => 'Age',
-        OrderBy         => 'Down',
-        UserID          => 1,
-        Limit           => 30,
-        ConditionInline => 1,
+        Result              => 'ARRAY',
+        SortBy              => 'Age',
+        OrderBy             => 'Down',
+        UserID              => 1,
+        Limit               => 30,
+        ContentSearchPrefix => '*',
+        ContentSearchSuffix => '*',
+        ConditionInline     => 1,
         %JobData,
         %DynamicFieldSearchParameters,
     );
@@ -1214,6 +1244,17 @@ sub _MaskRun {
             AffectedIDs => $Counter,
         },
     );
+
+    my $RunLimit = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::GenericAgentRunLimit');
+    if ( $Counter > $RunLimit ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'RunLimit',
+            Data => {
+                Counter  => $Counter,
+                RunLimit => $RunLimit,
+            },
+        );
+    }
 
     if (@TicketIDs) {
         $Self->{LayoutObject}->Block( Name => 'ResultBlock' );
@@ -1273,6 +1314,51 @@ sub _MaskRun {
     # build footer
     $Output .= $Self->{LayoutObject}->Footer();
     return $Output;
+}
+
+sub _StopWordsServerErrorsGet {
+    my ( $Self, %Param ) = @_;
+
+    if ( !%Param ) {
+        $Self->{LayoutObject}->FatalError( Message => "Got no values to check." );
+    }
+
+    my %StopWordsServerErrors;
+    if ( !$Self->{TicketObject}->SearchStringStopWordsUsageWarningActive() ) {
+        return %StopWordsServerErrors;
+    }
+
+    my %SearchStrings;
+
+    FIELD:
+    for my $Field ( sort keys %Param ) {
+        next FIELD if !defined $Param{$Field};
+        next FIELD if !length $Param{$Field};
+
+        $SearchStrings{$Field} = $Param{$Field};
+    }
+
+    if (%SearchStrings) {
+
+        my $StopWords = $Self->{TicketObject}->SearchStringStopWordsFind(
+            SearchStrings => \%SearchStrings
+        );
+
+        FIELD:
+        for my $Field ( sort keys %{$StopWords} ) {
+            next FIELD if !defined $StopWords->{$Field};
+            next FIELD if ref $StopWords->{$Field} ne 'ARRAY';
+            next FIELD if !@{ $StopWords->{$Field} };
+
+            $StopWordsServerErrors{ $Field . 'Invalid' }        = 'ServerError';
+            $StopWordsServerErrors{ $Field . 'InvalidTooltip' } = $Self->{LayoutObject}->{LanguageObject}
+                ->Translate('Please remove the following words because they cannot be used for the ticket selection:')
+                . ' '
+                . join( ',', sort @{ $StopWords->{$Field} } );
+        }
+    }
+
+    return %StopWordsServerErrors;
 }
 
 1;

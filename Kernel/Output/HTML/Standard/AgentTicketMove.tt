@@ -1,6 +1,5 @@
 # --
-# AgentTicketMove.tt - provides HTML form for move mask
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -38,8 +37,6 @@
 
         </div>
         <div class="Content">
-
-[% RenderBlockStart("WidgetTicketActions") %]
             <div class="WidgetSimple Expanded">
                 <div class="Header">
                     <div class="WidgetAction Toggle">
@@ -117,7 +114,7 @@
                         <div class="Clear"></div>
 [% RenderBlockEnd("Owner") %]
 
-                        [% RenderBlockStart("State") %]
+[% RenderBlockStart("State") %]
                         <label for="NewStateID">[% Translate("Next ticket state") | html %]:</label>
                         <div class="Field">
                             [% Data.NextStatesStrg %]
@@ -160,7 +157,6 @@
                     </fieldset>
                 </div>
             </div>
-[% RenderBlockEnd("WidgetTicketActions") %]
 
 [% RenderBlockStart("WidgetDynamicFields") %]
             <div class="WidgetSimple Expanded">
@@ -269,7 +265,9 @@
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
     $('#StandardTemplateID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        Core.Agent.TicketAction.ConfirmTemplateOverwrite('RichText', $(this), function () {
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        });
         return false;
     });
 //]]></script>

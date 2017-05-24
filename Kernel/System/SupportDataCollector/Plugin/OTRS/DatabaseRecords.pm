@@ -1,6 +1,5 @@
 # --
-# Kernel/System/SupportDataCollector/Plugin/OTRS/DatabaseRecords.pm - system data collector plugin
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -15,6 +14,7 @@ use warnings;
 use base qw(Kernel::System::SupportDataCollector::PluginBase);
 
 our @ObjectDependencies = (
+    'Kernel::Config',
     'Kernel::System::DB',
 );
 
@@ -105,6 +105,17 @@ sub Run {
             SQL        => "SELECT count(*) FROM pm_process",
             Identifier => 'ProcessCount',
             Label      => "Processes",
+        },
+        {
+            SQL => "
+                SELECT count(*)
+                FROM dynamic_field df
+                    LEFT JOIN dynamic_field_value dfv ON df.id = dfv.field_id
+                    RIGHT JOIN ticket t ON t.id = dfv.object_id
+                WHERE df.name = '"
+                . $Kernel::OM->Get('Kernel::Config')->Get("Process::DynamicFieldProcessManagementProcessID") . "'",
+            Identifier => 'ProcessTickets',
+            Label      => "Process Tickets",
         },
     );
 

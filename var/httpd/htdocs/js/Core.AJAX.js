@@ -1,6 +1,5 @@
 // --
-// Core.AJAX.js - provides the functionality for AJAX calls
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -20,6 +19,14 @@ var Core = Core || {};
 Core.AJAX = (function (TargetNS) {
     var AJAXLoaderPrefix = 'AJAXLoader',
         ActiveAJAXCalls = {};
+
+    if (!Core.Debug.CheckDependency('Core.AJAX', 'Core.Exception', 'Core.Exception')) {
+        return;
+    }
+
+    if (!Core.Debug.CheckDependency('Core.AJAX', 'Core.App', 'Core.App')) {
+        return;
+    }
 
     /**
      * @function
@@ -149,7 +156,7 @@ Core.AJAX = (function (TargetNS) {
             //3rd: set form submit and disable validation on attachment delete
             $('#AttachmentDeleteButton' + FileID).bind('click', function () {
                 var $Form = $(this).closest('form');
-                $('#AttachmentDelete' + FileID).val(1);
+                $(this).next('input[type=hidden]').val(1);
                 Core.Form.Validate.DisableValidation($Form);
                 $Form.trigger('submit');
             });
@@ -256,8 +263,12 @@ Core.AJAX = (function (TargetNS) {
             // Select elements
             if ($Element.is('select')) {
                 $Element.empty();
+
                 $.each(Value, function (Index, Value) {
-                    var NewOption = new Option(Value[1], Value[0], Value[2], Value[3]);
+                    var NewOption,
+                        OptionText = Core.App.EscapeHTML(Value[1]);
+
+                    NewOption = new Option(OptionText, Value[0], Value[2], Value[3]);
 
                     // Check if option must be disabled.
                     if (Value[4]) {
@@ -266,7 +277,7 @@ Core.AJAX = (function (TargetNS) {
 
                     // Overwrite option text, because of wrong html quoting of text content.
                     // (This is needed for IE.)
-                    NewOption.innerHTML = Value[1];
+                    NewOption.innerHTML = OptionText;
                     $Element.append(NewOption);
 
                 });

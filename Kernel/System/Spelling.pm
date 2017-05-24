@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Spelling.pm - the global spelling module
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -81,14 +80,12 @@ sub Check {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for (qw(Text)) {
-        if ( !$Param{$_} ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need $_!"
-            );
-            return;
-        }
+    if ( !defined $Param{Text} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need Text!"
+        );
+        return;
     }
 
     # default ignored words

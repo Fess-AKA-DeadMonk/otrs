@@ -1,6 +1,5 @@
 # --
-# Kernel/GenericInterface/Transport/HTTP/SOAP.pm - GenericInterface network transport interface for HTTP::SOAP
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -173,6 +172,16 @@ sub ProviderProcessRequest {
     my $Content;
     read STDIN, $Content, $Length;
 
+    # If there is no STDIN data it might be caused by fastcgi already having read the request.
+    # In this case we need to get the data from CGI.
+    my $RequestMethod = $ENV{'REQUEST_METHOD'} || 'GET';
+    if ( !IsStringWithData($Content) && $RequestMethod ne 'GET' ) {
+        my $ParamName = $RequestMethod . 'DATA';
+        $Content = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam(
+            Param => $ParamName,
+        );
+    }
+
     # check if we have content
     if ( !IsStringWithData($Content) ) {
         return $Self->_Error(
@@ -183,7 +192,7 @@ sub ProviderProcessRequest {
 
     # convert charset if necessary
     my $ContentCharset;
-    if ( $ENV{'CONTENT_TYPE'} =~ m{ \A (.*) ;charset= ["']? ( [^"']+ ) ["']? \z }xmsi ) {
+    if ( $ENV{'CONTENT_TYPE'} =~ m{ \A ( .+ ) ;charset= ["']{0,1} ( .+? ) ["']{0,1} (;|\z) }xmsi ) {
 
         # remember content type for the response
         $Self->{ContentType} = $1;
@@ -483,39 +492,33 @@ sub RequesterPerformRequest {
             )
         {
 
-            # force Net::SSL instead of IO::Socket::SSL, otherwise GI can't connect to certificate
-            # authentication restricted servers
-            my $SSLModule = 'Net::SSL';
-            if ( !$Kernel::OM->Get('Kernel::System::Main')->Require($SSLModule) ) {
-                return {
-                    Success      => 0,
-                    ErrorMessage => "The Perl module \"$SSLModule\" needed to manage SSL"
-                        . " connections with certificates is missing!",
-                };
-            }
+            # Force Net::SSL instead of IO::Socket::SSL, otherwise GI can't connect to certificate
+            #   authentication restricted servers, see https://metacpan.org/pod/Net::HTTPS#ENVIRONMENT,
+            #   see bug #12306.
+            $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = 'Net::SSL';    ## no critic
 
-            $ENV{HTTPS_PKCS12_FILE}     = $Config->{SSL}->{SSLP12Certificate};
-            $ENV{HTTPS_PKCS12_PASSWORD} = $Config->{SSL}->{SSLP12Password};
+            $ENV{HTTPS_PKCS12_FILE}     = $Config->{SSL}->{SSLP12Certificate};    ## no critic
+            $ENV{HTTPS_PKCS12_PASSWORD} = $Config->{SSL}->{SSLP12Password};       ## no critic
 
             # add certificate authority
             if ( IsStringWithData( $Config->{SSL}->{SSLCAFile} ) ) {
-                $ENV{HTTPS_CA_FILE} = $Config->{SSL}->{SSLCAFile};
+                $ENV{HTTPS_CA_FILE} = $Config->{SSL}->{SSLCAFile};                ## no critic
             }
             if ( IsStringWithData( $Config->{SSL}->{SSLCADir} ) ) {
-                $ENV{HTTPS_CA_DIR} = $Config->{SSL}->{SSLCADir};
+                $ENV{HTTPS_CA_DIR} = $Config->{SSL}->{SSLCADir};                  ## no critic
             }
 
             # add proxy
             if ( IsStringWithData( $Config->{SSL}->{SSLProxy} ) ) {
-                $ENV{HTTPS_PROXY} = $Config->{SSL}->{SSLProxy};
+                $ENV{HTTPS_PROXY} = $Config->{SSL}->{SSLProxy};                   ## no critic
             }
 
             # add proxy basic authentication
             if ( IsStringWithData( $Config->{SSL}->{SSLProxyUser} ) ) {
-                $ENV{HTTPS_PROXY_USERNAME} = $Config->{SSL}->{SSLProxyUser};
+                $ENV{HTTPS_PROXY_USERNAME} = $Config->{SSL}->{SSLProxyUser};      ## no critic
             }
             if ( IsStringWithData( $Config->{SSL}->{SSLProxyPassword} ) ) {
-                $ENV{HTTPS_PROXY_PASSWORD} = $Config->{SSL}->{SSLProxyPassword};
+                $ENV{HTTPS_PROXY_PASSWORD} = $Config->{SSL}->{SSLProxyPassword};    ## no critic
             }
         }
     }
@@ -1171,9 +1174,13 @@ sub _SOAPOutputProcessString {
 
     return '' if !defined $Param{Data};
 
-    # escape characters that are invalid in XML
+    # Escape characters that are invalid in XML (or might cause problems).
     $Param{Data} =~ s{ & }{&amp;}xmsg;
     $Param{Data} =~ s{ < }{&lt;}xmsg;
+    $Param{Data} =~ s{ > }{&gt;}xmsg;
+
+    # Remove restricted characters #x1-#x8, #xB-#xC, #xE-#x1F, #x7F-#x84 and #x86-#x9F.
+    $Param{Data} =~ s{ [\x01-\x08|\x0B-\x0C|\x0E-\x1F|\x7F-\x84|\x86-\x9F] }{}msxg;
 
     return $Param{Data};
 }

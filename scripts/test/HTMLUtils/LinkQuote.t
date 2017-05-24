@@ -1,6 +1,5 @@
 # --
-# LinkQuote.t - HTMLUtils tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -309,6 +308,36 @@ my @Tests = (
         Result =>
             '<br /><a href="http://cuba/otrs/index.pl?Action=AgentTicketZoom&amp;TicketID=4348" title="http://cuba/otrs/index.pl?Action=AgentTicketZoom&amp;TicketID=4348">http://cuba/otrs/index.pl?Action=AgentTicketZoom&amp;TicketID=4348</a><br /><br />Your OTRS Notification Master',
         Name   => 'LinkQuote - just TLD given;',
+        Target => '',
+    },
+    {
+        Input =>
+            '<img title="00073905.TMH_plausible-921733-edited.jpg" alt="00073905.TMH_plausible-921733-edited.jpg" src="http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=96" data-constrained="true" style="vertical-align:bottom; -ms-interpolation-mode:bicubic; width:96px; max-width:96px; margin:0px 0px 10px 10px; float:right" align="right" width="96" srcset="http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=48 48w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=96 96w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=144 144w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=192 192w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=240 240w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=288 288w" sizes="(max-width: 96px) 100vw, 96px">',
+        Result =>
+            '<img title="00073905.TMH_plausible-921733-edited.jpg" alt="00073905.TMH_plausible-921733-edited.jpg" src="http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=96" data-constrained="true" style="vertical-align:bottom; -ms-interpolation-mode:bicubic; width:96px; max-width:96px; margin:0px 0px 10px 10px; float:right" align="right" width="96" srcset="http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=48 48w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=96 96w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=144 144w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=192 192w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=240 240w, http://info.isightpartners.com/hs-fs/hubfs/00073905.TMH_plausible-921733-edited.jpg?t=1467377990501&width=288 288w" sizes="(max-width: 96px) 100vw, 96px">',
+        Name   => 'Complex tag with nested URLs',
+        Target => '',
+    },
+    {
+        Input =>
+            '<img src="http://www.test.com" data-link="http://www.test.com, http://www.test2.com">Test</img>',
+        Result =>
+            '<img src="http://www.test.com" data-link="http://www.test.com, http://www.test2.com">Test</img>',
+        Name   => 'Complex tag with nested URLs',
+        Target => '',
+    },
+    {
+        Input => 'Following unquoted link looks strangely like an ftp URL: www.ftp.de',
+        Result =>
+            'Following unquoted link looks strangely like an ftp URL: <a href="http://www.ftp.de" title="http://www.ftp.de">www.ftp.de</a>',
+        Name   => 'Text with HTTP url (bug#12472)',
+        Target => '',
+    },
+    {
+        Input => 'Following unquoted link is an actual ftp URL: ftp.my.de',
+        Result =>
+            'Following unquoted link is an actual ftp URL: <a href="ftp://ftp.my.de" title="ftp://ftp.my.de">ftp.my.de</a>',
+        Name   => 'Text with FTP url (bug#12472)',
         Target => '',
     },
 );

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Stats/Dynamic/TicketAccountedTime.pm - stats for accounted ticket time
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -16,6 +15,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::Language',
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
@@ -37,8 +37,6 @@ sub new {
     # allocate new hash for object
     my $Self = {};
     bless( $Self, $Type );
-
-    $Self->{DBSlaveObject} = $Param{DBSlaveObject} || $Kernel::OM->Get('Kernel::System::DB');
 
     # get the dynamic fields for ticket object
     $Self->{DynamicField} = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
@@ -86,10 +84,12 @@ sub GetObjectAttributes {
         $ValidAgent = 1;
     }
 
-    # get user list
+    # Get user list without the out of office message, because of the caching in the statistics
+    #   and not meaningful with a date selection.
     my %UserList = $UserObject->UserList(
-        Type  => 'Long',
-        Valid => $ValidAgent,
+        Type          => 'Long',
+        Valid         => $ValidAgent,
+        NoOutOfOffice => 1,
     );
 
     # get state list
@@ -383,7 +383,8 @@ sub GetObjectAttributes {
 
         # get service list
         my %Service = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
-            UserID => 1,
+            KeepChildren => $ConfigObject->Get('Ticket::Service::KeepChildren'),
+            UserID       => 1,
         );
 
         # get sla list
@@ -507,17 +508,19 @@ sub GetObjectAttributes {
         push @ObjectAttributes, @ObjectAttributeAdd;
     }
 
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
     if ( $ConfigObject->Get('Stats::CustomerIDAsMultiSelect') ) {
 
         # Get CustomerID
         # (This way also can be the solution for the CustomerUserID)
-        $Self->{DBSlaveObject}->Prepare(
+        $DBObject->Prepare(
             SQL => "SELECT DISTINCT customer_id FROM ticket",
         );
 
         # fetch the result
         my %CustomerID;
-        while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             if ( $Row[0] ) {
                 $CustomerID{ $Row[0] } = $Row[0];
             }
@@ -651,7 +654,7 @@ sub GetObjectAttributes {
                     Element          => $DynamicFieldStatsParameter->{Element},
                     Block            => $DynamicFieldStatsParameter->{Block},
                     Values           => $DynamicFieldStatsParameter->{Values},
-                    Translation      => 0,
+                    Translation      => $DynamicFieldStatsParameter->{TranslatableValues} || 0,
                     IsDynamicField   => 1,
                     ShowAsTree       => $DynamicFieldConfig->{Config}->{TreeView} || 0,
                 );
@@ -747,14 +750,17 @@ sub GetHeaderLine {
 
         my %Selected = map { $_ => 1 } @{ $Param{XValue}{SelectedValues} };
 
+        # get language object
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
         my $Attributes = $Self->_KindsOfReporting();
-        my @HeaderLine = ('Evaluation by');
+        my @HeaderLine = ( $LanguageObject->Translate('Evaluation by') );
         my $SortedRef  = $Self->_SortedKindsOfReporting();
 
         ATTRIBUTE:
         for my $Attribute ( @{$SortedRef} ) {
             next ATTRIBUTE if !$Selected{$Attribute};
-            push @HeaderLine, $Attributes->{$Attribute};
+            push @HeaderLine, $LanguageObject->Translate( $Attributes->{$Attribute} );
         }
         return \@HeaderLine;
 
@@ -934,6 +940,8 @@ sub _ReportingValues {
     my $SearchAttributes = $Param{SearchAttributes};
     my @Where;
 
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
     #
     # escape search attributes for ticket search
     #
@@ -978,13 +986,13 @@ sub _ReportingValues {
         if ( ref $TicketSearch{$Attribute} ) {
             if ( ref $TicketSearch{$Attribute} eq 'ARRAY' ) {
                 $TicketSearch{$Attribute} = [
-                    map { $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $_ ) }
+                    map { $DBObject->QueryStringEscape( QueryString => $_ ) }
                         @{ $TicketSearch{$Attribute} }
                 ];
             }
         }
         else {
-            $TicketSearch{$Attribute} = $Self->{DBSlaveObject}->QueryStringEscape(
+            $TicketSearch{$Attribute} = $DBObject->QueryStringEscape(
                 QueryString => $TicketSearch{$Attribute}
             );
         }
@@ -1077,7 +1085,7 @@ sub _ReportingValues {
         }
 
         # get db type
-        my $DBType = $Self->{DBSlaveObject}->{'DB::Type'};
+        my $DBType = $DBObject->{'DB::Type'};
 
         # here comes a workaround for ORA-01795: maximum number of expressions in a list is 1000
         # for oracle we make sure, that we don 't get more than 1000 ticket ids in a list
@@ -1155,7 +1163,7 @@ sub _ReportingValues {
     }
 
     if ( $SearchAttributes->{AccountedByAgent} ) {
-        my @AccountedByAgent = map { $Self->{DBSlaveObject}->Quote( $_, 'Integer' ) }
+        my @AccountedByAgent = map { $DBObject->Quote( $_, 'Integer' ) }
             @{ $SearchAttributes->{AccountedByAgent} };
         my $String = join ', ', @AccountedByAgent;
         push @Where, "create_by IN ( $String )";
@@ -1166,8 +1174,8 @@ sub _ReportingValues {
         && $SearchAttributes->{ArticleAccountedTimeNewerDate}
         )
     {
-        my $Start = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeNewerDate} );
-        my $Stop  = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeOlderDate} );
+        my $Start = $DBObject->Quote( $SearchAttributes->{ArticleAccountedTimeNewerDate} );
+        my $Stop  = $DBObject->Quote( $SearchAttributes->{ArticleAccountedTimeOlderDate} );
         push @Where, "create_time >= '$Start' AND create_time <= '$Stop'";
     }
     my $WhereString = '';
@@ -1182,11 +1190,11 @@ sub _ReportingValues {
     if ( $SelectedKindsOfReporting{TotalTime} ) {
 
         # db query
-        $Self->{DBSlaveObject}->Prepare(
+        $DBObject->Prepare(
             SQL => "SELECT SUM(time_unit) FROM time_accounting $WhereString"
         );
 
-        while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             $Reporting{TotalTime} = $Row[0] ? int( $Row[0] * 100 ) / 100 : 0;
         }
     }
@@ -1205,14 +1213,14 @@ sub _ReportingValues {
     }
 
     # db query
-    $Self->{DBSlaveObject}->Prepare(
+    $DBObject->Prepare(
         SQL => "SELECT ticket_id, article_id, time_unit FROM time_accounting $WhereString"
     );
 
     my %TicketID;
     my %ArticleID;
     my $Time = 0;
-    while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+    while ( my @Row = $DBObject->FetchrowArray() ) {
         $TicketID{ $Row[0] }  += $Row[2];
         $ArticleID{ $Row[1] } += $Row[2];
         $Time                 += $Row[2];

@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/CustomerTicketProcess.pm - to create process tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -29,6 +28,7 @@ use Kernel::System::Group;
 use Kernel::System::Lock;
 use Kernel::System::Priority;
 use Kernel::System::CustomerUser;
+use Kernel::System::CustomerGroup;
 use Kernel::System::Type;
 use Kernel::System::VariableCheck qw(:all);
 
@@ -73,9 +73,10 @@ sub new {
         TransitionActionObject => $Self->{TransitionActionObject},
         %Param,
     );
-    $Self->{CustomerUserObject} = Kernel::System::CustomerUser->new(%Param);
-    $Self->{TypeObject}         = Kernel::System::Type->new(%Param);
-    $Self->{DynamicField}       = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+    $Self->{CustomerUserObject}  = Kernel::System::CustomerUser->new(%Param);
+    $Self->{CustomerGroupObject} = Kernel::System::CustomerGroup->new(%Param);
+    $Self->{TypeObject}          = Kernel::System::Type->new(%Param);
+    $Self->{DynamicField}        = $Self->{DynamicFieldObject}->DynamicFieldListGet(
         Valid      => 1,
         ObjectType => 'Ticket',
     );
@@ -211,6 +212,7 @@ sub Run {
                 TicketID               => $TicketID,
                 ReturnType             => 'ActivityDialog',
                 ReturnSubType          => '-',
+                Action                 => $Self->{Action},
                 CustomerUserID         => $Self->{UserID},
             );
 
@@ -270,6 +272,7 @@ sub Run {
         ReturnType     => 'Process',
         ReturnSubType  => '-',
         Data           => \%ProcessListACL,
+        Action         => $Self->{Action},
         CustomerUserID => $Self->{UserID},
     );
 
@@ -399,14 +402,14 @@ sub Run {
         );
     }
     return $Self->{LayoutObject}->CustomerErrorScreen(
-        Message => 'Subacion is invalid!',
+        Message => 'Subaction is invalid!',
         Comment => 'Please contact the admin.',
     );
 }
 
 sub _RenderAjax {
 
-    # FatalError is safe because a JSON strcuture is expecting, then it will result into a
+    # FatalError is safe because a JSON structure is expecting, then it will result into a
     # communications error
 
     my ( $Self, %Param ) = @_;
@@ -514,6 +517,7 @@ sub _RenderAjax {
                 ReturnType     => 'Ticket',
                 ReturnSubType  => 'DynamicField_' . $DynamicFieldConfig->{Name},
                 Data           => \%AclData,
+                Action         => $Self->{Action},
                 CustomerUserID => $Self->{UserID},
             );
 
@@ -821,18 +825,18 @@ sub _GetParam {
             my $DynamicFieldConfig = ( grep { $_->{Name} eq $DynamicFieldName } @{ $Self->{DynamicField} } )[0];
 
             if ( !IsHashRefWithData($DynamicFieldConfig) ) {
-                my $Message = "DynamicFieldConfig missing for field: $DynamicFieldName!";
 
-                # does not show header and footer again
-                if ( $Self->{IsMainWindow} ) {
-                    return $Self->{LayoutObject}->CustomerError(
-                        Message => $Message,
-                    );
-                }
+                my $Message
+                    = "DynamicFieldConfig missing for field: $Param{FieldName}, or is not a Ticket Dynamic Field!";
 
-                $Self->{LayoutObject}->CustomerFatalError(
-                    Message => $Message,
+                # log error but does not stop the execution as it could be an old Article
+                # DynamicField, see bug#11666
+                $Self->{LogObject}->Log(
+                    Priority => 'error',
+                    Message  => $Message,
                 );
+
+                next DIALOGFIELD;
             }
 
             # Get DynamicField Values
@@ -1026,7 +1030,7 @@ sub _OutputActivityDialog {
     my %Error        = ();
     my %ErrorMessage = ();
 
-    # If we had Errors, we got an Errorhash
+    # If we had Errors, we got an Error hash
     %Error        = %{ $Param{Error} }        if ( IsHashRefWithData( $Param{Error} ) );
     %ErrorMessage = %{ $Param{ErrorMessage} } if ( IsHashRefWithData( $Param{ErrorMessage} ) );
 
@@ -1133,7 +1137,7 @@ sub _OutputActivityDialog {
             && IsHashRefWithData( $Activity->{ActivityDialog}{$_}{Overwrite} )
     } keys %{ $Activity->{ActivityDialog} };
 
-    # let the Overwrites Overwrite the ActivityDialog's Hashvalues
+    # let the Overwrites Overwrite the ActivityDialog's Hash values
     if ( $OverwriteActivityDialogNumber[0] ) {
         %{$ActivityDialog} = (
             %{$ActivityDialog},
@@ -1151,13 +1155,11 @@ sub _OutputActivityDialog {
             Value => $Ticket{Number},
         );
 
-        # display given notify messages if this is not an ajax request
+        # display given notify messages if this is not an AJAX request
         if ( IsArrayRefWithData( $Param{Notify} ) ) {
 
-            for my $NotifyString ( @{ $Param{Notify} } ) {
-                $Output .= $Self->{LayoutObject}->Notify(
-                    Data => $NotifyString,
-                );
+            for my $NotifyData ( @{ $Param{Notify} } ) {
+                $Output .= $Self->{LayoutObject}->Notify( %{$NotifyData} );
             }
         }
 
@@ -1167,8 +1169,32 @@ sub _OutputActivityDialog {
                 Name =>
                     $Self->{LayoutObject}->{LanguageObject}->Translate( $ActivityDialog->{Name} )
                     || '',
-                }
+            },
         );
+
+        # show descriptions
+        if ( $ActivityDialog->{DescriptionShort} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'DescriptionShort',
+                Data => {
+                    DescriptionShort
+                        => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                        $ActivityDialog->{DescriptionShort},
+                        ),
+                },
+            );
+        }
+        if ( $ActivityDialog->{DescriptionLong} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'DescriptionLong',
+                Data => {
+                    DescriptionLong
+                        => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                        $ActivityDialog->{DescriptionLong},
+                        ),
+                },
+            );
+        }
     }
     elsif ( $Self->{IsMainWindow} && IsHashRefWithData( \%Error ) ) {
 
@@ -1199,64 +1225,33 @@ sub _OutputActivityDialog {
         $MainBoxClass = 'MainBox';
     }
 
-    # display process iformation
+    # Show descriptions if activity is a first screen. See bug#12649 for more information.
     if ( $Self->{IsMainWindow} ) {
-
-        # get process data
-        my $Process = $Self->{ProcessObject}->ProcessGet(
-            ProcessEntityID => $Param{ProcessEntityID},
-        );
-
-        # output main process information
-        $Self->{LayoutObject}->Block(
-            Name => 'ProcessInfoSidebar',
-            Data => {
-                Process        => $Process->{Name}        || '',
-                Activity       => $Activity->{Name}       || '',
-                ActivityDialog => $ActivityDialog->{Name} || '',
-            },
-        );
-
-        # output activity dilalog short description (if any)
-        if (
-            defined $ActivityDialog->{DescriptionShort}
-            && $ActivityDialog->{DescriptionShort} ne ''
-            )
-        {
+        if ( $ActivityDialog->{DescriptionShort} ) {
             $Self->{LayoutObject}->Block(
-                Name => 'ProcessInfoSidebarActivityDialogDesc',
+                Name => 'DescriptionShortAlt',
                 Data => {
-                    ActivityDialogDescription => $ActivityDialog->{DescriptionShort} || '',
+                    DescriptionShort
+                        => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                        $ActivityDialog->{DescriptionShort},
+                        ),
+                },
+            );
+        }
+        if ( $ActivityDialog->{DescriptionLong} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'DescriptionLongAlt',
+                Data => {
+                    DescriptionLong
+                        => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                        $ActivityDialog->{DescriptionLong},
+                        ),
                 },
             );
         }
     }
 
-    # show descriptions
-    if ( $ActivityDialog->{DescriptionShort} ) {
-        $Self->{LayoutObject}->Block(
-            Name => 'DescriptionShort',
-            Data => {
-                DescriptionShort
-                    => $Self->{LayoutObject}->{LanguageObject}->Translate(
-                    $ActivityDialog->{DescriptionShort},
-                    ),
-            },
-        );
-    }
-    if ( $ActivityDialog->{DescriptionLong} ) {
-        $Self->{LayoutObject}->Block(
-            Name => 'DescriptionLong',
-            Data => {
-                DescriptionLong
-                    => $Self->{LayoutObject}->{LanguageObject}->Translate(
-                    $ActivityDialog->{DescriptionLong},
-                    ),
-            },
-        );
-    }
-
-    # show close & cancel link if neccessary
+    # show close & cancel link if necessary
     if ( !$Self->{IsMainWindow} ) {
         if ( $Param{RenderLocked} ) {
             $Self->{LayoutObject}->Block(
@@ -1742,6 +1737,23 @@ sub _RenderDynamicField {
     }
     my $DynamicFieldConfig = ( grep { $_->{Name} eq $Param{FieldName} } @{ $Self->{DynamicField} } )[0];
 
+    if ( !IsHashRefWithData($DynamicFieldConfig) ) {
+
+        my $Message = "DynamicFieldConfig missing for field: $Param{FieldName}, or is not a Ticket Dynamic Field!";
+
+        # log error but does not stop the execution as it could be an old Article
+        # DynamicField, see bug#11666
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => $Message,
+        );
+
+        return {
+            Success => 1,
+            HTML    => '',
+        };
+    }
+
     my $PossibleValuesFilter;
 
     my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
@@ -1820,7 +1832,7 @@ sub _RenderDynamicField {
     );
 
     my %Data = (
-        Name    => $DynamicFieldHTML->{Name},
+        Name    => $DynamicFieldConfig->{Name},
         Label   => $DynamicFieldHTML->{Label},
         Content => $DynamicFieldHTML->{Field},
     );
@@ -3132,33 +3144,22 @@ sub _StoreActivityDialog {
                 my $DynamicFieldConfig = ( grep { $_->{Name} eq $DynamicFieldName } @{ $Self->{DynamicField} } )[0];
 
                 if ( !IsHashRefWithData($DynamicFieldConfig) ) {
-                    $Self->{LayoutObject}->CustomerFatalError(
-                        Message => "DynamicFieldConfig missing for field: $DynamicFieldName!",
+
+                    my $Message
+                        = "DynamicFieldConfig missing for field: $Param{FieldName}, or is not a Ticket Dynamic Field!";
+
+                    # log error but does not stop the execution as it could be an old Article
+                    # DynamicField, see bug#11666
+                    $Self->{LogObject}->Log(
+                        Priority => 'error',
+                        Message  => $Message,
                     );
+
+                    next DIALOGFIELD;
                 }
 
                 # Will be extended lateron for ACL Checking:
                 my $PossibleValuesFilter;
-
-                # Check DynamicField Values
-                my $ValidationResult = $Self->{BackendObject}->EditFieldValueValidate(
-                    DynamicFieldConfig   => $DynamicFieldConfig,
-                    PossibleValuesFilter => $PossibleValuesFilter,
-                    ParamObject          => $Self->{ParamObject},
-                    Mandatory            => $ActivityDialog->{Fields}{$CurrentField}{Display} == 2,
-                );
-
-                if ( !IsHashRefWithData($ValidationResult) ) {
-                    $Self->{LayoutObject}->CustomerFatalError(
-                        Message =>
-                            "Could not perform validation on field $DynamicFieldConfig->{Label}!",
-                    );
-                }
-
-                if ( $ValidationResult->{ServerError} ) {
-                    $Error{ $DynamicFieldConfig->{Name} } = 1;
-                    $ErrorMessage{ $DynamicFieldConfig->{Name} } = $ValidationResult->{ErrorMessage} || '';
-                }
 
                 # if we had an invisible field, use config's default value
                 if ( $ActivityDialog->{Fields}{$CurrentField}{Display} == 0 ) {
@@ -3166,8 +3167,28 @@ sub _StoreActivityDialog {
                         || '';
                 }
 
-                # else take the DynamicField Value
+                # only validate visible fields
                 else {
+                    # Check DynamicField Values
+                    my $ValidationResult = $Self->{BackendObject}->EditFieldValueValidate(
+                        DynamicFieldConfig   => $DynamicFieldConfig,
+                        PossibleValuesFilter => $PossibleValuesFilter,
+                        ParamObject          => $Self->{ParamObject},
+                        Mandatory            => $ActivityDialog->{Fields}{$CurrentField}{Display} == 2,
+                    );
+
+                    if ( !IsHashRefWithData($ValidationResult) ) {
+                        $Self->{LayoutObject}->CustomerFatalError(
+                            Message =>
+                                "Could not perform validation on field $DynamicFieldConfig->{Label}!",
+                        );
+                    }
+
+                    if ( $ValidationResult->{ServerError} ) {
+                        $Error{ $DynamicFieldConfig->{Name} } = 1;
+                        $ErrorMessage{ $DynamicFieldConfig->{Name} } = $ValidationResult->{ErrorMessage} || '';
+                    }
+
                     $TicketParam{$CurrentField} =
                         $Self->{BackendObject}->EditFieldValueGet(
                         DynamicFieldConfig => $DynamicFieldConfig,
@@ -3245,6 +3266,8 @@ sub _StoreActivityDialog {
             }
         }
     }
+
+    my @Notify;
 
     my $NewTicketID;
     if ( !$TicketID ) {
@@ -3430,10 +3453,35 @@ sub _StoreActivityDialog {
         };
         if ( !$ActivityEntityID )
         {
-            return $Self->{LayoutObject}->CustomerErrorScreen(
-                Message => "Missing ActivityEntityID in Ticket $Ticket{TicketID}!",
-                Comment => 'Please contact the admin.',
+            return $Self->_ShowDialogError(
+                Message => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                    'Missing ActivityEntityID in Ticket %s!',
+                    $Ticket{TicketID},
+                ),
+                Comment => 'Please contact the administrator.',
             );
+        }
+
+        # Make sure the activity dialog to save is still the correct activity
+        my $Activity = $Self->{ActivityObject}->ActivityGet(
+            ActivityEntityID => $ActivityEntityID,
+            Interface        => ['CustomerInterface'],
+        );
+        my %ActivityDialogs = reverse %{ $Activity->{ActivityDialog} // {} };
+        if ( !$ActivityDialogs{$ActivityDialogEntityID} ) {
+            my $TicketHook        = $Self->{ConfigObject}->Get('Ticket::Hook');
+            my $TicketHookDivider = $Self->{ConfigObject}->Get('Ticket::HookDivider');
+
+            $Error{WrongActivity} = 1;
+            push @Notify, {
+                Priority => 'Error',
+                Data     => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                    'This step does not belong anymore the current activity in process for ticket \'%s%s%s\'! Another user changed this ticket in the meantime.',
+                    $TicketHook,
+                    $TicketHookDivider,
+                    $Ticket{TicketNumber},
+                ),
+            };
         }
 
         $ProcessEntityID = $Ticket{
@@ -3443,8 +3491,12 @@ sub _StoreActivityDialog {
 
         if ( !$ProcessEntityID )
         {
-            $Self->{LayoutObject}->CustomerFatalError(
-                Message => "Missing ProcessEntityID in Ticket $Ticket{TicketID}!",
+            return $Self->_ShowDialogError(
+                Message => $Self->{LayoutObject}->{LanguageObject}->Translate(
+                    'Missing ProcessEntityID in Ticket %s!',
+                    $Ticket{TicketID},
+                ),
+                Comment => 'Please contact the administrator.',
             );
         }
     }
@@ -3458,6 +3510,7 @@ sub _StoreActivityDialog {
             Error                  => \%Error,
             ErrorMessage           => \%ErrorMessage,
             GetParam               => $Param{GetParam},
+            Notify                 => \@Notify,
         );
     }
 
@@ -3484,6 +3537,21 @@ sub _StoreActivityDialog {
         if ( $CurrentField =~ m{^DynamicField_(.*)}xms ) {
             my $DynamicFieldName = $1;
             my $DynamicFieldConfig = ( grep { $_->{Name} eq $DynamicFieldName } @{ $Self->{DynamicField} } )[0];
+
+            if ( !IsHashRefWithData($DynamicFieldConfig) ) {
+
+                my $Message
+                    = "DynamicFieldConfig missing for field: $Param{FieldName}, or is not a Ticket Dynamic Field!";
+
+                # log error but does not stop the execution as it could be an old Article
+                # DynamicField, see bug#11666
+                $Self->{LogObject}->Log(
+                    Priority => 'error',
+                    Message  => $Message,
+                );
+
+                next DIALOGFIELD;
+            }
 
             my $Success = $Self->{BackendObject}->ValueSet(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -3529,7 +3597,9 @@ sub _StoreActivityDialog {
                     Body                      => $Param{GetParam}{Body},
                     Subject                   => $Param{GetParam}{Subject},
                     ArticleType               => $ActivityDialog->{Fields}->{Article}->{Config}->{ArticleType},
-                    ForceNotificationToUserID => $Param{GetParam}{InformUserID},
+                    ForceNotificationToUserID => $ActivityDialog->{Fields}->{Article}->{Config}->{InformAgents}
+                    ? $Param{GetParam}{InformUserID}
+                    : [],
                 );
                 if ( !$ArticleID ) {
                     return $Self->{LayoutObject}->CustomerErrorScreen();
@@ -4147,10 +4217,10 @@ sub _GetQueues {
         if ( $Self->{ConfigObject}->Get('Ticket::Frontend::NewQueueSelectionType') eq 'Queue' ) {
             %Queues = $Self->{TicketObject}->MoveList(
                 %Param,
-                Type    => 'create',
-                Action  => $Self->{Action},
-                QueueID => $Self->{QueueID},
-                UserID  => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+                Type           => 'create',
+                Action         => $Self->{Action},
+                QueueID        => $Self->{QueueID},
+                CustomerUserID => $Self->{UserID},
             );
         }
         else {
@@ -4163,8 +4233,8 @@ sub _GetQueues {
         }
 
         # get create permission queues
-        my %UserGroups = $Self->{GroupObject}->GroupMemberList(
-            UserID => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+        my %UserGroups = $Self->{CustomerGroupObject}->GroupMemberList(
+            UserID => $Self->{UserID},
             Type   => 'create',
             Result => 'HASH',
         );
@@ -4181,6 +4251,10 @@ sub _GetQueues {
                 || '<Realname> <<Email>> - Queue: <Queue>';
             $String =~ s/<Queue>/$QueueData{Name}/g;
             $String =~ s/<QueueComment>/$QueueData{Comment}/g;
+
+            # remove trailing spaces
+            $String =~ s{\s+\z}{} if !$QueueData{Comment};
+
             if ( $Self->{ConfigObject}->Get('Ticket::Frontend::NewQueueSelectionType') ne 'Queue' )
             {
                 my %SystemAddressData = $Self->{SystemAddress}->SystemAddressGet(
@@ -4314,6 +4388,15 @@ sub _GetFieldsToUpdateStrg {
         }
     }
     return $FieldsToUpdate;
+}
+
+sub _ShowDialogError {
+    my ( $Self, %Param ) = @_;
+
+    my $Output = $Self->{LayoutObject}->CustomerHeader( Type => 'Small' );
+    $Output .= $Self->{LayoutObject}->CustomerError(%Param);
+    $Output .= $Self->{LayoutObject}->CustomerFooter( Type => 'Small' );
+    return $Output;
 }
 
 1;

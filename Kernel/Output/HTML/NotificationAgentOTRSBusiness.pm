@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/NotificationAgentOTRSBusiness.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -44,9 +43,9 @@ sub Run {
     my $IsInstalled       = $Self->{OTRSBusinessObject}->OTRSBusinessIsInstalled();
     my $OTRSBusinessLabel = '<b>OTRS Business Solution</b>™';
 
-    # ----------------------------------------
+    #
     # check if OTRS Business Solution™ is available, but not installed
-    # ----------------------------------------
+    #
     if (
         $Param{Type} eq 'Admin'
         && !$IsInstalled
@@ -73,9 +72,9 @@ sub Run {
     # all following checks require OTRS Business Solution™ to be installed
     return '' if !$IsInstalled;
 
-    # ----------------------------------------
+    #
     # check entitlement status
-    # ----------------------------------------
+    #
     my $EntitlementStatus = $Self->{OTRSBusinessObject}->OTRSBusinessEntitlementStatus(
         CallCloudService => 0,
     );
@@ -104,9 +103,9 @@ sub Run {
     # all following notifications should only be visible for admins
     return '' if !$Self->{LayoutObject}->{"UserIsGroup[$Group]"};
 
-    # ----------------------------------------
+    #
     # check contract expiry
-    # ----------------------------------------
+    #
     my $ExpiryDate = $Self->{OTRSBusinessObject}->OTRSBusinessContractExpiryDateCheck();
 
     if ($ExpiryDate) {
@@ -122,9 +121,9 @@ sub Run {
         );
     }
 
-    # ----------------------------------------
+    #
     # check for available updates
-    # ----------------------------------------
+    #
     my %UpdatesAvailable = $Self->{OTRSBusinessObject}->OTRSBusinessVersionCheckOffline();
 
     if ( $UpdatesAvailable{OTRSBusinessUpdateAvailable} ) {

@@ -1,6 +1,5 @@
 # --
-# AdminNotificationEvent.tt - provides HTML form for AdminNotificationEvent
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -474,7 +473,7 @@
 
                     <dt><code>&lt;OTRS_CUSTOMER_REALNAME&gt;</code></dt>
                     <dd>
-                        [% Translate("To get the realname of the sender (if given).") | html %]
+                        [% Translate("To get the realname of the ticket's customer user (if given).") | html %]
                     </dd>
 
                     <dt><code>&lt;OTRS_CUSTOMER_*&gt;</code></dt>

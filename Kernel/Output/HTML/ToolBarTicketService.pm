@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/ToolBarTicketService.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -79,7 +78,15 @@ sub Run {
         @MyServiceIDs = (0);
     }
 
-    # get number of tickets in MyServices (which are not locked)
+    # Get config setting 'ViewAllPossibleTickets' for AgentTicketService and set permissions
+    #   accordingly.
+    my $Config     = $Self->{ConfigObject}->Get('Ticket::Frontend::AgentTicketService');
+    my $Permission = 'rw';
+    if ( $Config->{ViewAllPossibleTickets} ) {
+        $Permission = 'ro';
+    }
+
+    # Get number of tickets in MyServices (which are not locked).
     my $Count = $Self->{TicketObject}->TicketSearch(
         Result     => 'COUNT',
         QueueIDs   => \@ViewableQueueIDs,
@@ -87,7 +94,7 @@ sub Run {
         StateIDs   => \@ViewableStateIDs,
         LockIDs    => \@ViewableLockIDs,
         UserID     => $Self->{UserID},
-        Permission => 'ro',
+        Permission => $Permission,
     );
 
     my $Class = $Param{Config}->{CssClass};

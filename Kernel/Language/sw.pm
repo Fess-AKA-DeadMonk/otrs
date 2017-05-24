@@ -1,6 +1,5 @@
 # --
-# Kernel/Language/sw.pm - provides Swahili language translation
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -276,9 +275,14 @@ sub Data {
         'Dispatching by email To: field.' => 'Tuma kwa barua pepe kwenda: uga.',
         'Dispatching by selected Queue.' => 'Tuma kwa foleni iliyochaguliwa.',
         'No entry found!' => 'Hakuna ingizo lililopatikana!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => 'Kipindi batili. Tafadhani ingia tena.',
         'Session has timed out. Please log in again.' => 'Muda wa kipindi umeisha.Tafadhali jaribu tena baadae',
         'Session limit reached! Please try again later.' => 'Upeo wa kipindi umefikiwa.Tafadhali jaribu tena baadae.',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => 'Hakuna ruhusa',
         '(Click here to add)' => '(Bofya hapa kuongeza)',
         'Preview' => 'Kihakiki',
@@ -290,6 +294,7 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             'Nje ya ofisi imewezeshwa, ungependa kuikatisha?',
         'News about OTRS releases!' => 'Taarifa kuhusu matoleo ya OTRS! ',
+        'Go to dashboard!' => '',
         'Customer %s added' => 'Mteja %s ameongezwa',
         'Role added!' => 'Jukumu limeongezwa!',
         'Role updated!' => 'Jukumu limesasishwa!',
@@ -701,6 +706,9 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'Webserver Version' => 'Toleo la tovuti',
         'Could not determine webserver version.' => 'Haikuweza kutambua toleo la seva ya tovuti.',
         'Loaded Apache Modules' => 'Moduli za Apache zilizopakiwa',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => 'Matumizi ya kichocheo cha CGI',
         'You should use FastCGI or mod_perl to increase your performance.' =>
             'Tumia FastCGI au mod_perl kuongeza uwezo wako.',
@@ -864,6 +872,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'Create new Email Ticket' => 'Tengeneza tiketi ya barua pepe mpya',
         'Phone-Ticket' => 'Simu-Tiketi',
         'Search Tickets' => 'Tafuta tiketi',
+        'Customer Realname' => '',
         'Customer History' => '',
         'Edit Customer Users' => 'Badili watuamiaji wa mteja',
         'Edit Customer' => 'Badili mteja',
@@ -1069,7 +1078,8 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'You can use the following tags' => 'Unaweza kutumia lebo zifuatazo',
         'To get the first 20 character of the subject.' => 'Kupata herufi 20 za kwanza za somo',
         'To get the first 5 lines of the email.' => 'Kupata mistari 5 ya kwanza ya barua pepe.',
-        'To get the realname of the sender (if given).' => 'Kupata jina halisi la mtumaji ( kama limetolewa)',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => 'Kupata sifa za makala',
         ' e. g.' => 'Mfano',
         'Options of the current customer user data' => 'Chaguo la data za mtumiaji za mteja wa sasa',
@@ -1294,6 +1304,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'This event is already attached to the job, Please use a different one.' =>
             'Tukio hili tayari limeweambatanishwa na kazi, tafadhali tumia lingine.',
         'Delete this Event Trigger' => 'Futa kichochezi cha tukio hili',
+        'Remove selection' => '',
         'Select Tickets' => 'Chagua tiketi',
         '(e. g. 10*5155 or 105658*)' => '(Mfano 10*5155 au 105658)',
         '(e. g. 234321)' => '(Mfano 234321)',
@@ -1371,6 +1382,8 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         '%s Tickets affected! What do you want to do?' => 'Tiketi %s zimeathirika. Unataka kufanya nini?',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
             'Onyo: Umetumia chaguo la kufuta. Tiketi zote zilizofutwa zitapotea!',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
+            '',
         'Edit job' => 'Hariri kazi',
         'Run job' => 'Fanya kazi',
         'Affected Tickets' => 'Tiketi zilizoathirika',
@@ -1819,8 +1832,8 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'Download' => 'Pakua',
         'Download file from package!' => 'Pakua faili kutoka kwenye kifurushi',
         'Required' => 'Hitajika',
-        'PrimaryKey' => 'Funguo wa msingi',
-        'AutoIncrement' => 'Ongeza kwa otomatiki',
+        'Primary Key' => '',
+        'Auto Increment' => '',
         'SQL' => 'SQL',
         'File differences for file %s' => 'Tofauti ya faili kwa faili %s',
 
@@ -2044,6 +2057,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
             'Tafadhali zingatia kwamba kubadili mpito huu utaathiri michakato ifuatayo',
         'Transition' => 'Mpito',
         'Transition Name' => 'Jina la mpito',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => 'Aina ya kunganisha kati ya masharti',
         'Remove this Condition' => 'Ondoa sharti hili',
         'Type of Linking' => 'Aina ya kiunganishi',
@@ -2825,6 +2839,8 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => 'Tunga jibu kwa ajili ya tiketi',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => 'Tafadhali ambatanisha mpokeaji japo mmoja',
         'Remove Ticket Customer' => 'Mtoe mteja wa tiketi',
         'Please remove this entry and enter a new one with the correct value.' =>
@@ -2850,6 +2866,13 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => 'Barua pepe zilizofungwa nje.',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => 'Tuma mbele: %s - %s',
@@ -3048,6 +3071,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'Incoming Chat Requests' => 'Maombi ya mazungumzo yanayoingia',
         'You have unanswered chat requests' => 'Unamaombi ya mazungumzo ambayo hayajajibiwa',
         'Edit personal preferences' => 'Hariri mapendeleo binafsi',
+        'Logout %s %s' => '',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => 'Gawanya nukuu',
@@ -3134,9 +3158,12 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
             'Kiibukizi katika skrini hii tayari imefunguliwa. Je unataka kufunga na kupakia hii hapa badala yake?',
         'Please enter at least one search value or * to find anything.' =>
             'Tafadhali ingiza japo moja ya thamani ilitafutwa au * kutafuta yoyote.',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            '',
         'Please check the fields marked as red for valid inputs.' => 'Tafadhali angalia uga zote ziliizowekwa alama nyekundu kwa ajili ya maingizo batili.',
         'Please perform a spell check on the the text first.' => 'Tafadhali fanya uangalizi maneno katika makala kwanza.',
         'Slide the navigation bar' => 'Telezesha mwambaa wa uabiri',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => 'Umeingia kama',
@@ -3147,6 +3174,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         'JavaScript not available' => 'JavaScript haipatikani',
         'Database Settings' => 'Mipangilio ya hifadhi data',
         'General Specifications and Mail Settings' => 'Ubainishi wa jumla na mipangilio ya barua pepe',
+        'Welcome to %s' => '',
         'Web site' => 'Tovuti',
         'Mail check successful.' => 'Barua pepe imeangaliwa kwa mafanikio',
         'Error in the mail settings. Please correct and try again.' => 'Kosa katika mipangilio ya barua pepe. Tafadhali rekebisha na jaribu tena.',
@@ -3270,6 +3298,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
 
         # Template: Test
         'OTRS Test Page' => 'Ukurasa wa majaribio wa OTRS',
+        'Welcome %s %s' => '',
         'Counter' => 'Kiesabuji',
 
         # Template: Warning
@@ -3281,6 +3310,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => '%s k(v)izio cha muda vinahusika. Sasa %s jumla ya k(v)izio cha muda.',
         '(UserLogin) Firstname Lastname' => '(Kuingia kwa mtumiaji) Jina kwanza Jina la mwisho',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '(Kuingia kwa mtumiaji) Jina la mwsiho, jina la kwanza',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3412,8 +3442,8 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
             'Imefungwa otomatiki na inamuweka mmiliki katika wakala wa sasa baada ya kufungua skrini ya kuhamisha tiketi ya kiolesura cha wakala.',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             'Imefungwa otomatiki na inamuweka mmiliki katika wakala wa sasa baada ya kuchagua kitendo cha wingi.',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
-            'Inamuweka otomatiki mmiliki wa tiketi kama mhuiska wake (Kama kipengele cha uhusika wa tiketi kimewezeshwa).',
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
+            '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             'Inamuweka otomatiki mmhusika wa tiketi (Kama hajawekwa bado) baada ya usasishwaji wa mmiliki wa kwanza.',
         'Balanced white skin by Felix Niklas (slim version).' => 'Balanced white skin na Felix Niklas (toleo jembamba).',
@@ -3481,6 +3511,7 @@ Matatizo<br>&nbsp;-utendaji wa matatizo<br><br> tafadhali kumbuka kwamba mambo y
             'Inasanidi mpangilio chaguo-msingi Uga wenye nguvu wa tiketi. "Jina" inafafanua uga wenye nguvu unaotakiwa kutumika, "Thamani" ni data ambayo itawekwa, na "Tukio" inafafanua kichochezi cha tukio. Tafadhali angalia mwongozo wa msanifu (http://doc.otrs.org/), sura "Moduli ya tukio la tiketi".',
         'Controls how to display the ticket history entries as readable values.' =>
             'Inadhibiti jinsi ya kuonyesha maingizo ya historia ya tiketi kama thamani zinazosomeka. ',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             'Inadhibiti kama wateja wanauwezo wa kupanga tiketi zao.',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3549,9 +3580,9 @@ Mfano:
 "Mwaka wa kuanza wa muda wa kutengeneza tiketi=2010; Mwezi wa kuanza wa muda wa kutengeneza tiketi=10; Siku ya kuanza ya muda wa kutengeneza tiketi=4; Mwaka wa kuacha wa muda wa kutengeneza tiketi =2010; Mwezi wa kuacha wa muda wa kutengeneza tiketi = 11; Siku ya kuacha ya muda wa kutengeneza tiketi=3; ".',
         'Default loop protection module.' => 'Moduli ya kulinda kitanzi chaguo-msingi.',
         'Default queue ID used by the system in the agent interface.' => 'Kitambulisho cha foleni chaguo-msingi kinachotumika na mfumo katika kiolesura cha wakala.',
-        'Default skin for OTRS 3.0 interface.' => 'Gamba chaguo-msingi la kiolesura cha OTRS cha 3.0.',
         'Default skin for the agent interface (slim version).' => 'Gamba chaguo-msingi kwa jili ya kiolesura cha wakala (toleo jembamba).',
         'Default skin for the agent interface.' => 'Gamba chaguo-msingi kwa ajili ya kiolesura cha wakala.',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             'Kitambulisho cha tiketi chaguo-msingi kinachotumika na mfumo katika kiolesura cha wakala.',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3667,6 +3698,8 @@ Mfano:
         'Defines scheduler PID update time in seconds.' => 'Inafafanua muda wa kusasihwa PID kipanga ratiba katika sekunde.',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             'Inafafanua Muda wa kulala wa kipanga ratiba katika sekunde baada ya kushughulikia kazi zote zilizokuwepo (namba yenye pointi zinazoelea).',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             'Inafafanua maelezo ya kawaida ya IP ya kufikia hifadhi ya ndani. Unahitaji kuwezesha hii ili kuweza kufikia hifadhi yako ya ndani na kifurushi:: Orodha ya hifadhi inahitajika kwa mwenyeji wa mbali.',
         'Defines the URL CSS path.' => 'Inafafanua njia ya URL CSS.',
@@ -3689,6 +3722,8 @@ Mfano:
         'Defines the body text for rejected emails.' => 'Inafafanua kiini cha matini ya barua pepe zilizokataliwa',
         'Defines the boldness of the line drawed by the graph.' => 'Inafafanua mkolezo wa mstari uliochorwa na grafu',
         'Defines the calendar width in percent. Default is 95%.' => 'Inafafanua upana wa kalenda katika silimia. Chaguo msingi ni 95%.',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => 'Inafafanua rangi za grafu.',
         'Defines the column to store the keys for the preferences table.' =>
             'Inafafanua safu wima za kuhifadhi vibonye kwa ajili ya jedwali la mapendeleo.',
@@ -3962,8 +3997,8 @@ Mfano:
             'Inafafanua aina ya kiunganishi vikundi. Aina za viunganishi zilizokatika kikundi kimoja zinajifuta zenyewe.Mfano: Kama tiketi A imeunganishwa na kiunganishi \'Kawaida\' na tiketi B, tiketi hizi haziwezi kuunganishwa tena na kiunganishi kutoka \'Zazi mtoto\'. ',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             'Inafafanua orodha ya hifadhi za mtandaoni. Usanidi mwingine unaweza kutumika kama hifadhi, kwa mfano: kibonye="http://example.com/otrs/public.pl?Action=PublicRepository;File=" na maudhui="Baadhi ya majina".',
-        'Defines the list of possible next actions on an error screen.' =>
-            'Inafafanua orodha ya matendo yanayowezekana yajayo katika skrini ya makosa.',
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
+            '',
         'Defines the list of types for templates.' => 'Infafanua aina ya orodha kwa vielezo.',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
             'Inafafanua sehemu ya kupata orodha hifadhi mtandaoni kwa vifurushi vilivyoongezwa. Jibu la kwanza lililopo litatumika. ',
@@ -3998,6 +4033,8 @@ Mfano:
             'Inafafanua moduli ya kuonyesha taarifa katika kiolesura cha wakala, kama wakala aliingiia  nje-ya-ofisi ikiwa amilifu.',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             'Inafafanua moduli ya kuonyesha taarifa katika kiolesura cha wakala, kama wakala aliingia wakati matengenezo ya mfumo ikiwa amilifu.',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             'Inafafanua moduli ya kuonyesha taarifa katika kiolesura cha wakala, kama mfumo unatumika na mtumiaji wa muongozaji(mara zote usipende kufanya kazi kama kiongozi)',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4018,8 +4055,8 @@ Mfano:
         'Defines the name of the key for customer sessions.' => 'Fafanua jina la funguo kwa vipindi vya mteja.',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             'Fafanua jina la funguo wa kipindi.Mfano Kipindi, Kitambulisho cha kipindi au OTRS.',
-        'Defines the name of the table, where the customer preferences are stored.' =>
-            'Fafanua jina la jedwali, ambalo mapendekezo ya mteja yamehifadhiwa.',
+        'Defines the name of the table where the user preferences are stored.' =>
+            '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             'Fafanua hali zinafouta zinazowezekana baada ya kutunga/kujibu tiketi katika skrini ta kutunga tiketi ya kiolesura  cha wakala.',
         'Defines the next possible states after forwarding a ticket in the ticket forward screen of the agent interface.' =>
@@ -4147,8 +4184,8 @@ Mfano:
         'Defines the valid state types for a ticket.' => 'Inafafanua aina ya hali halali ya tiketi.',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             'Inafafanua aina ya hali halali ya tiketi zilizofunguliwa. Kufungua tiketi hati "bin/otrs.UnlockTickets.pl"  inaweza kutumika.',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
-            'Inafafanua kufuli zinazooneka za tiketi. Chaguo: fungua, tmp_lock.',
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
+            '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             'Inafafanua upana kwa ajili ya kijenzi wa kihariri cha matini tajiri kwa skrini hii. Ingiza namba (pikseli) au thamani ya asilimia (inayohusiana).',
         'Defines the width for the rich text editor component. Enter number (pixels) or percent value (relative).' =>
@@ -4201,12 +4238,18 @@ Mfano:
             'Inaamua michaguo ipi itakuwa halali kwa mpokeaji (tiketi za simu) na mtumaji (tiketi za barua pepe) katika kiolesura cha wakala.',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             'Inaamua foleni zipi zitakuwa halali kwa wapokeaji wa tiketi katika kiolesura cha mteja.',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
-            'Lemaza ulinzi uliozuiliwa kw aajili ya IFrames katika IE. Inaweza ikahitajika kwa ajili ya SSO kufanya kazi na IE8.',
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
+            '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             'Inalemaza utumaji wa taarifa za kikumbushaji kwa wakala anayehusika wa tiketi (Tiketi:: Uhusika unahitaji kuamilishwa).',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
             'Inalemaza kisanishi cha wavuti (http://yourhost.example.com/otrs/installer.pl), kuzuia mfumo kuvamiwa. Kama imewekwa kuwa "hapana", mfumo unaweza kusanidiwa upya na usanidi wa sasa wa msingi utatumika kujaza maswali katika hati ya usakinishi. Kama haijaamilishwa, pia inalemaza Wakala wa Jumla, Kisimamizi cha Kifurushi na kikasha cha SQL.',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
+            '',
         'Display settings to override defaults for Process Tickets.' => 'Inaonyesha mipangilio ya inayobadilisha michaguo msingi kw aajili ya mchakato wa tiketi.',
         'Displays the accounted time for an article in the ticket zoom view.' =>
             'Inaonyesha muda ulihesabiwa kwa ajili ya makala ya mandhari ya ukuzaji wa tiketi.',
@@ -4538,6 +4581,7 @@ Mfano:
             'Kama unataka kutumia hifadhi data kioo kwa utafutaji wa matini kamili ya tiketi ya wakala au kutengeneza takwimu, mtumiaji wa kuhakikishwa katika hifadhi data hii anaweza kubainishwa.',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             'Inapuuzia makala yenye aina ya mtumaji wa mfumo kwa ajili ya kipengele cha makala mpya (mfano majibu ya otomatiki au taarifa za barua pepe ).',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             'Inahusisha muda wa kutengeneza makala katika utafutaji wa tiketi wa kiolesura cha wakala.',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4551,6 +4595,8 @@ Mfano:
             'Inawezekana kusanidi magamba tofauti, kwa mfano kutofautisha kati wateja tofauti, wataokaotumika katika kila huduma kwenye kikoa katika programu tumizi. Kwa kutumia imizo la kawaida (regex), unaweza kusanidi jozi ya yaliyomo/kibonye kulandanisha kikoa. Thamani katika "Kibonye" ilandane na kikoa, na thamani kwenye "Yaliyomo" iwe gamba batili katika mfumo wako. Tafadhali ona maingizo ya mfano kwa  ajili fomu sahihi ya  imizo la kawaida.',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             'Inawezekana kusanidi dhima tofauti, kwa mfano kutofautisha kati wakala na wateja, wataokaotumika katika kila huduma kwenye kikoa katika programu tumizi. Kwa kutumia imizo la kawaida (regex), unaweza kusanidi jozi ya yaliyomo/kibonye kulandanisha kikoa. Thamani katika "Kibonye" ilandane na kikoa, na thamani kwenye "Yaliyomo" iwe dhima batili katika mfumo wako. Tafadhali ona maingizo ya mfano kwa  ajili fomu sahihi ya  imizo la kawaida.',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => 'Jina la mwisho, Jina la kwanza',
         'Lastname, Firstname (UserLogin)' => 'Jina la mwisho, Jina la kwanza (Kuingia kwa mtumiaji)',
         'Left' => '',
@@ -4617,6 +4663,7 @@ Mfano:
             'Majibu ya barua pepe ya otomatiki ya upeo wa juu kwenda anwani yake yenyewe ya barua pepe kwa siku (Ulinzi wa kitanzi).',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             'Ukubwa wa upeo wa juu katika baiti K kwa ajili ya barua pepe ambazo zinawezwa kuchukuliwa kwa kutumia POP3/POP3S/IMAP/IMAPS (Baiti K).',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             'Urefu wa upeo wa juu (katika herufi) ya uga wenye nguvu katika makala ya mandhari iliyokuzwa ya tiketi.',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4691,7 +4738,7 @@ Mfano:
         'Number of tickets to be displayed in each page of a search result in the customer interface.' =>
             'Namba ta tiketi zitakazoonyeshwa katika kila ukurasa wa matokeo ya utafutaji katika kiolesura cha mteja.',
         'Old: "%s" New: "%s"' => 'Ya zamani: "%s" Mpya: "%s"',
-        'Online' => '',
+        'Online' => 'Mtandaoni',
         'Open tickets (customer user)' => 'Fungua tiketi (Mtumiaji wa mteja)',
         'Open tickets (customer)' => 'Fungua tiketi (Mteja)',
         'Out Of Office' => 'Nje ya ofisi',
@@ -4832,7 +4879,7 @@ Mfano:
             'Inarudisha tiketi kwenye hifadhi (kama tukio tu ni hali ya kubadilika, kutoka kufungwa kwenda hali yoyote iliyopo iliyo wazi).',
         'Retains all services in listings even if they are children of invalid elements.' =>
             'Inaacha huduma zote katika orodha hata kama ni vipengele vidogo vya vipengele batili. ',
-        'Right' => '',
+        'Right' => 'Haki',
         'Roles <-> Groups' => 'Majukumu <-> Makundi',
         'Running Process Tickets' => 'Endeshaji wa tiketi za mchakato.',
         'Runs an initial wildcard search of the existing customer company when accessing the AdminCustomerCompany module.' =>
@@ -4873,8 +4920,7 @@ Mfano:
             'Tuma taarifa za ufuatiliaji za wakala kwa mmiliki tu, kama tiketi imefunguliwa (Chaguo-msingi ni kutuma taarifa kwa mawakala wote).',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             'Tuma bariu pepe za kwenda nje zote kupitia bcc kwa anwani iliyobainishwa.Tafadhali tumia hii kwa sababu za chelezo.',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            'Tuma taarifa za mteja kwa mteja wa kuunganisha. Kawaida, kama hakuna mteja aliyeunganishwa, mtumaji wa mteja wa sasa atapata taarifa.',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             'Tuma taarifa za kukumbusha za tiketi iliyofunguliwa baada ya kufikia tarehe kukumbushwa. (Inatumwa kwa mmiliki wa tiketi tu).',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4884,6 +4930,8 @@ Mfano:
         'Set sender email addresses for this system.' => 'Weka anwani za barua pepe ya mtumaji kwa mfumo huu. ',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             'Weka urefu wa chaguo-msingi (katika pikseli) ya ndani ya makala ya HTML katika kikuzaji cha tiketi cha wakala.',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
+            '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             'Weka upeo wa juu wa urefu (katika pikseli) ya ndani ya mstari wa makala za HTML katika kikuzaji cha tiketi cha wakala',
         'Set this to yes if you trust in all your public and private pgp keys, even if they are not certified with a trusted signature.' =>
@@ -4969,6 +5017,8 @@ Mfano:
             'Inaweka mpangilio wa kuonyesha ya vipengele mbalimbali katika mandhari ya kuona ya mapendeleo.',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
             'Inaweka muda ambao hauna tukio (katika sekunde) kupita kabla ya kipindi kukatwa na mtumiaji kutolewa.',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
+            '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             'Inaweka upeo wa juu ya namba wa makala amilifu katika kipindi cha muda kilichofafanuliwa katika Muda amilifu wa Kipindi. ',
         'Sets the maximum number of active customers within the timespan defined in SessionActiveTime.' =>
@@ -5071,7 +5121,8 @@ Mfano:
             'Inaweka aina ya tiketi katika skrini ya kipaumbele cha tiketi ya tiketi iliyokuzwa katika kiolesura cha wakala (Tiketi:: aina inahitaji kuamilishwa).',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             'Inaweka aina ya tiketi katika skrini husika ya tiketi ya kiolesura cha wakala (Tiketi::Aina inahitaji kuamilishwa).',
-        'Sets the time (in seconds) a user is marked as active.' => 'Inaweka muda (katika sekunde) mtumiaji anawekwa alama kama amilifu.',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => 'Inaweka aina ya muda unaotakiwa kuonyeshwa.',
         'Sets the timeout (in seconds) for http/ftp downloads.' => 'Inaweka muda wa kuisha (katika sekunde) kwa http/ftp za kupakua.',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>

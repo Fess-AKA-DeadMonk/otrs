@@ -1,6 +1,5 @@
 # --
-# Helper.pm - unit test helper functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -56,8 +55,6 @@ sub new {
 
     $Self->{Debug} = $Param{Debug} || 0;
 
-    # get needed objects
-    $Self->{ConfigObject}   = $Kernel::OM->Get('Kernel::Config');
     $Self->{UnitTestObject} = $Kernel::OM->Get('Kernel::System::UnitTest');
 
     # make backup of system configuration if needed
@@ -89,12 +86,42 @@ sub new {
 
 creates a random ID that can be used in tests as a unique identifier.
 
+It is guaranteed that within a test this function will never return a duplicate.
+
+Please note that these numbers are not really random and should only be used
+to create test data.
+
 =cut
 
 sub GetRandomID {
     my ( $Self, %Param ) = @_;
 
-    return 'test' . int( rand(1000000) )
+    return 'test' . $Self->GetRandomNumber();
+}
+
+=item GetRandomNumber()
+
+creates a random Number that can be used in tests as a unique identifier.
+
+It is guaranteed that within a test this function will never return a duplicate.
+
+Please note that these numbers are not really random and should only be used
+to create test data.
+
+=cut
+
+# Use package variables here (instead of attributes in $Self)
+# to make it work across several unit tests that run during the same second.
+my %GetRandomNumberPrevious;
+
+sub GetRandomNumber {
+
+    my $PIDReversed = reverse $$;
+    my $PID = reverse sprintf '%.6d', $PIDReversed;
+
+    my $Prefix = $PID . substr time(), -5, 5;
+
+    return $Prefix . $GetRandomNumberPrevious{$Prefix}++ || 0;
 }
 
 =item TestUserCreate()
@@ -113,21 +140,33 @@ the login name of the new user, the password is the same.
 sub TestUserCreate {
     my ( $Self, %Param ) = @_;
 
-    # create test user
-    my $TestUserLogin = $Self->GetRandomID();
-
     # disable email checks to create new user
-    local $Self->{ConfigObject}->{CheckEmailAddresses} = 0;
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    local $ConfigObject->{CheckEmailAddresses} = 0;
 
-    my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
-        UserFirstname => $TestUserLogin,
-        UserLastname  => $TestUserLogin,
-        UserLogin     => $TestUserLogin,
-        UserPw        => $TestUserLogin,
-        UserEmail     => $TestUserLogin . '@localunittest.com',
-        ValidID       => 1,
-        ChangeUserID  => 1,
-    ) || die "Could not create test user";
+    # create test user
+    my $TestUserID;
+    my $TestUserLogin;
+    COUNT:
+    for my $Count ( 1 .. 10 ) {
+
+        $TestUserLogin = $Self->GetRandomID();
+
+        $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+            UserFirstname => $TestUserLogin,
+            UserLastname  => $TestUserLogin,
+            UserLogin     => $TestUserLogin,
+            UserPw        => $TestUserLogin,
+            UserEmail     => $TestUserLogin . '@localunittest.com',
+            ValidID       => 1,
+            ChangeUserID  => 1,
+        );
+
+        last COUNT if $TestUserID;
+    }
+
+    die 'Could not create test user login' if !$TestUserLogin;
+    die 'Could not create test user'       if !$TestUserID;
 
     # Remember UserID of the test user to later set it to invalid
     #   in the destructor.
@@ -191,22 +230,32 @@ sub TestCustomerUserCreate {
     my ( $Self, %Param ) = @_;
 
     # disable email checks to create new user
-    local $Self->{ConfigObject}->{CheckEmailAddresses} = 0;
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    local $ConfigObject->{CheckEmailAddresses} = 0;
 
     # create test user
-    my $TestUserLogin = $Self->GetRandomID();
+    my $TestUser;
+    COUNT:
+    for my $Count ( 1 .. 10 ) {
 
-    my $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
-        Source         => 'CustomerUser',
-        UserFirstname  => $TestUserLogin,
-        UserLastname   => $TestUserLogin,
-        UserCustomerID => $TestUserLogin,
-        UserLogin      => $TestUserLogin,
-        UserPassword   => $TestUserLogin,
-        UserEmail      => $TestUserLogin . '@localunittest.com',
-        ValidID        => 1,
-        UserID         => 1,
-    ) || die "Could not create test user";
+        my $TestUserLogin = $Self->GetRandomID();
+
+        $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+            Source         => 'CustomerUser',
+            UserFirstname  => $TestUserLogin,
+            UserLastname   => $TestUserLogin,
+            UserCustomerID => $TestUserLogin,
+            UserLogin      => $TestUserLogin,
+            UserPassword   => $TestUserLogin,
+            UserEmail      => $TestUserLogin . '@localunittest.com',
+            ValidID        => 1,
+            UserID         => 1,
+        );
+
+        last COUNT if $TestUser;
+    }
+
+    die 'Could not create test user' if !$TestUser;
 
     # Remember UserID of the test user to later set it to invalid
     #   in the destructor.
@@ -225,6 +274,38 @@ sub TestCustomerUserCreate {
     $Self->{UnitTestObject}->True( 1, "Set customer user UserLanguage to $UserLanguage" );
 
     return $TestUser;
+}
+
+=item GetTestHTTPHostname()
+
+returns a hostname for HTTP based tests, possibly including the port.
+
+=cut
+
+sub GetTestHTTPHostname {
+    my ( $Self, %Param ) = @_;
+
+    my $Host = $Kernel::OM->Get('Kernel::Config')->Get('TestHTTPHostname');
+    return $Host if $Host;
+
+    my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
+
+    # try to resolve fqdn host
+    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
+        $Host = $FQDN;
+    }
+
+    # try to resolve localhost instead
+    if ( !$Host && gethostbyname('localhost') ) {
+        $Host = 'localhost';
+    }
+
+    # use hardcoded localhost ip address
+    if ( !$Host ) {
+        $Host = '127.0.0.1';
+    }
+
+    return $Host;
 }
 
 my $FixedTime;
@@ -347,7 +428,8 @@ sub DESTROY {
     }
 
     # disable email checks to create new user
-    local $Self->{ConfigObject}->{CheckEmailAddresses} = 0;
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    local $ConfigObject->{CheckEmailAddresses} = 0;
 
     # invalidate test users
     if ( ref $Self->{TestUsers} eq 'ARRAY' && @{ $Self->{TestUsers} } ) {

@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/CustomerTicketPrint.pm - print layout for customer interface
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -127,7 +126,10 @@ sub Run {
     # generate pdf output
     if ( $Self->{PDFObject} ) {
         my $PrintedBy = $Self->{LayoutObject}->{LanguageObject}->Translate('printed by');
-        my $Time      = $Self->{LayoutObject}->{Time};
+        my $Time      = $Self->{LayoutObject}->{LanguageObject}->FormatTimeString(
+            $Self->{TimeObject}->CurrentTimestamp(),
+            'DateFormat',
+        );
         my %Page;
 
         # get maximum number of pages
@@ -838,13 +840,15 @@ sub _PDFOutputArticles {
             my $Lines;
             if ( IsArrayRefWithData( $Article{Body} ) ) {
                 for my $Line ( @{ $Article{Body} } ) {
+                    my $CreateTime = $Self->{LayoutObject}->{LanguageObject}
+                        ->FormatTimeString( $Line->{CreateTime}, 'DateFormat' );
                     if ( $Line->{SystemGenerated} ) {
-                        $Lines .= '[' . $Line->{CreateTime} . '] ' . $Line->{MessageText} . "\n";
+                        $Lines .= '[' . $CreateTime . '] ' . $Line->{MessageText} . "\n";
                     }
                     else {
                         $Lines
                             .= '['
-                            . $Line->{CreateTime} . '] '
+                            . $CreateTime . '] '
                             . $Line->{ChatterName} . ' '
                             . $Line->{MessageText} . "\n";
                     }

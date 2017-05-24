@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketCustomer.pm - to set the ticket customer and show the customer history
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -261,8 +260,11 @@ sub Form {
         $Param{SelectedCustomerUser} = $TicketData{CustomerUserID};
 
         $Param{Table} = $Self->{LayoutObject}->AgentCustomerViewTable(
-            Data => \%CustomerUserData,
-            Max  => $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerInfoComposeMaxSize'),
+            Data => {
+                %CustomerUserData,
+                TicketID => $Self->{TicketID},
+            },
+            Max => $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerInfoComposeMaxSize'),
         );
 
         # show customer field as "FirstName Lastname" <MailAddress>

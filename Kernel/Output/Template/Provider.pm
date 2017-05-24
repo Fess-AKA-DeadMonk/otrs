@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/Template/Provider.pm - Template Toolkit provider
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -395,6 +394,7 @@ sub _PreProcessTemplateContent {
                 # Load the template via the provider.
                 # We'll use SUPER::load here because we don't need the preprocessing twice.
                 my $TemplateContent = ($Self->SUPER::load($1))[0];
+                $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput(\$TemplateContent);
 
                 # Remove commented lines already here because of problems when the InsertTemplate tag
                 #   is not on the beginning of the line.
@@ -694,7 +694,7 @@ sub MigrateDTLtoTT {
         }esmxg;
 
     # drop empty $Text
-    $Content =~ s{\$Text{""}}{}xmsg;
+    $Content =~ s{ \$Text [{] "" [}] }{}xmsg;
 
     # $JSText
     $Content =~ s{

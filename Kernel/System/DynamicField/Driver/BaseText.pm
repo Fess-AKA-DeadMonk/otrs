@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/BaseText.pm - Dynamic field Driver functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -122,8 +121,14 @@ sub SearchSQLGet {
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     if ( $Operators{ $Param{Operator} } ) {
-        my $SQL = " $Param{TableAlias}.value_text $Operators{$Param{Operator}} '";
-        $SQL .= $DBObject->Quote( $Param{SearchTerm} ) . "' ";
+        my $Lower = '';
+        if ( $DBObject->GetDatabaseFunction('CaseSensitive') ) {
+            $Lower = 'LOWER';
+        }
+
+        my $SQL = " $Lower($Param{TableAlias}.value_text) $Operators{ $Param{Operator} } ";
+        $SQL .= "$Lower('" . $DBObject->Quote( $Param{SearchTerm} ) . "') ";
+
         return $SQL;
     }
 
@@ -259,7 +264,7 @@ sub EditFieldValueGet {
     my $Value;
 
     # check if there is a Template and retrieve the dynamic field value from there
-    if ( IsHashRefWithData( $Param{Template} ) ) {
+    if ( IsHashRefWithData( $Param{Template} ) && defined $Param{Template}->{$FieldName} ) {
         $Value = $Param{Template}->{$FieldName};
     }
 
@@ -473,8 +478,10 @@ sub SearchFieldParameterBuild {
     # set operator
     my $Operator = 'Equals';
 
-    # search for a wild card in the value
-    if ( $Value && $Value =~ m{\*} ) {
+    # Search for a wild card in the value (also for '%').
+    # The '%' is needed for the compatibility with the old removed textarea function (bug#12783) and
+    #   can be removed with OTRS 6.
+    if ( $Value && ( $Value =~ m{\*} || $Value =~ m{\%} ) ) {
 
         # change oprator
         $Operator = 'Like';
@@ -507,8 +514,10 @@ sub StatsSearchFieldParameterBuild {
     # set operator
     my $Operator = 'Equals';
 
-    # search for a wild card in the value
-    if ( $Value && $Value =~ m{\*} ) {
+    # Search for a wild card in the value (also for '%').
+    # The '%' is needed for the compatibility with the old removed textarea function (bug#12783) and
+    #   can be removed with OTRS 6.
+    if ( $Value && ( $Value =~ m{\*} || $Value =~ m{\%} ) ) {
 
         # change oprator
         $Operator = 'Like';

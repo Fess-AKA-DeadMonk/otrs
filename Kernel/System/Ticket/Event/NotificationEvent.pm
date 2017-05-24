@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Ticket/Event/NotificationEvent.pm - a event module to send notifications
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -28,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::SystemAddress',
     'Kernel::System::Ticket',
     'Kernel::System::User',
+    'Kernel::System::CheckItem',
 );
 
 sub new {
@@ -169,9 +169,24 @@ sub Run {
 
                     next VALUE if !$IsNotificationEventCondition;
 
+                    # Get match value from the dynamic field backend, if applicable (bug#12257).
+                    my $MatchValue;
+                    my $SearchFieldParameter = $DynamicFieldBackendObject->SearchFieldParameterBuild(
+                        DynamicFieldConfig => $DynamicFieldConfig,
+                        Profile            => {
+                            $Key => $Value,
+                        },
+                    );
+                    if ( defined $SearchFieldParameter->{Parameter}->{Equals} ) {
+                        $MatchValue = $SearchFieldParameter->{Parameter}->{Equals};
+                    }
+                    else {
+                        $MatchValue = $Value;
+                    }
+
                     $Match = $DynamicFieldBackendObject->ObjectMatch(
                         DynamicFieldConfig => $DynamicFieldConfig,
-                        Value              => $Value,
+                        Value              => $MatchValue,
                         ObjectAttributes   => \%Ticket,
                     );
 
@@ -262,8 +277,18 @@ sub Run {
 
             # add attachments to notification
             if ( $Notification{Data}->{ArticleAttachmentInclude}->[0] ) {
+
+                # get article, it is needed for the correct behavior of the
+                # StripPlainBodyAsAttachment flag into the ArticleAttachmentIndex function
+                my %Article = $Kernel::OM->Get('Kernel::System::Ticket')->ArticleGet(
+                    ArticleID     => $Param{Data}->{ArticleID},
+                    UserID        => $Param{UserID},
+                    DynamicFields => 0,
+                );
+
                 my %Index = $TicketObject->ArticleAttachmentIndex(
                     ArticleID                  => $Param{Data}->{ArticleID},
+                    Article                    => \%Article,
                     UserID                     => $Param{UserID},
                     StripPlainBodyAsAttachment => 3,
                 );
@@ -422,8 +447,21 @@ sub _SendNotificationToRecipients {
                     my %CustomerUser = $CustomerUserObject->CustomerUserDataGet(
                         User => $Article{CustomerUserID},
                     );
-                    if ( $CustomerUser{UserEmail} ) {
-                        $Recipient{Email} = $CustomerUser{UserEmail};
+
+                    # Check if customer user is email address, in case it is not stored in system
+                    if (
+                        !IsHashRefWithData( \%CustomerUser )
+                        && !$ConfigObject->Get('CustomerNotifyJustToRealCustomer')
+                        && $Kernel::OM->Get('Kernel::System::CheckItem')
+                        ->CheckEmail( Address => $Article{CustomerUserID} )
+                        )
+                    {
+                        $Recipient{Email} = $Article{CustomerUserID};
+                    }
+                    else {
+
+                        # join Recipient data with CustomerUser data
+                        %Recipient = ( %Recipient, %CustomerUser );
                     }
 
                     # get user language
@@ -469,6 +507,15 @@ sub _SendNotificationToRecipients {
             next RECIPIENT if $Recipient == 1;
             next RECIPIENT if $AgentUsed{$Recipient};
 
+            # skip users with out ro permissions
+            my $Permission = $TicketObject->TicketPermission(
+                Type     => 'ro',
+                TicketID => $Param{TicketID},
+                UserID   => $Recipient,
+            );
+
+            next RECIPIENT if !$Permission;
+
             $AgentUsed{$Recipient} = 1;
 
             my %User = $UserObject->GetUserData(
@@ -504,6 +551,15 @@ sub _SendNotificationToRecipients {
                 next GROUPMEMBER if $Recipient == 1;
                 next GROUPMEMBER if $AgentUsed{$Recipient};
 
+                # skip users with out ro permissions
+                my $Permission = $TicketObject->TicketPermission(
+                    Type     => 'ro',
+                    TicketID => $Param{TicketID},
+                    UserID   => $Recipient,
+                );
+
+                next GROUPMEMBER if !$Permission;
+
                 $AgentUsed{$Recipient} = 1;
 
                 my %UserData = $UserObject->GetUserData(
@@ -537,6 +593,15 @@ sub _SendNotificationToRecipients {
 
                 next ROLEMEMBER if $Recipient == 1;
                 next ROLEMEMBER if $AgentUsed{$Recipient};
+
+                # skip users with out ro permissions
+                my $Permission = $TicketObject->TicketPermission(
+                    Type     => 'ro',
+                    TicketID => $Param{TicketID},
+                    UserID   => $Recipient,
+                );
+
+                next ROLEMEMBER if !$Permission;
 
                 $AgentUsed{$Recipient} = 1;
 

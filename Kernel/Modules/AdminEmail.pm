@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminEmail.pm - to send a email to all agents
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -185,9 +184,16 @@ sub Run {
                     return $Self->{LayoutObject}->ErrorScreen();
                 }
 
+                my $BccText = $Param{Bcc};
+                $BccText =~ s{(.*?),\s$}{$1}gsmx;
+                $BccText .= ".";
+
                 $Self->{LayoutObject}->Block(
                     Name => 'Sent',
-                    Data => \%Param,
+                    Data => {
+                        %Param,
+                        Bcc => $BccText,
+                    },
                 );
                 my $Output = $Self->{LayoutObject}->Header();
                 $Output .= $Self->{LayoutObject}->NavigationBar();

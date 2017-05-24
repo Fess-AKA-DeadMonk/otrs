@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Auth/Sync/LDAP.pm - provides the ldap sync
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +12,7 @@ use strict;
 use warnings;
 
 use Net::LDAP;
+use Net::LDAP::Util qw(escape_filter_value);
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -144,12 +144,8 @@ sub Sync {
         return;
     }
 
-    # user quote
-    my $UserQuote = $Param{User};
-    $UserQuote =~ s{ ( [\\()] ) }{\\$1}xmsg;
-
     # build filter
-    my $Filter = "($Self->{UID}=$UserQuote)";
+    my $Filter = "($Self->{UID}=" . escape_filter_value( $Param{User} ) . ')';
 
     # prepare filter
     if ( $Self->{AlwaysFilter} ) {
@@ -189,10 +185,6 @@ sub Sync {
         $LDAP->unbind();
         return;
     }
-
-    # DN quote
-    my $UserDNQuote = $UserDN;
-    $UserDNQuote =~ s{ ( [\\()] ) }{\\$1}xmsg;
 
     # get needed objects
     my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
@@ -371,10 +363,10 @@ sub Sync {
             # search if we are allowed to
             my $Filter;
             if ( $Self->{UserAttr} eq 'DN' ) {
-                $Filter = "($Self->{AccessAttr}=$UserDNQuote)";
+                $Filter = "($Self->{AccessAttr}=" . escape_filter_value($UserDN) . ')';
             }
             else {
-                $Filter = "($Self->{AccessAttr}=$UserQuote)";
+                $Filter = "($Self->{AccessAttr}=" . escape_filter_value( $Param{User} ) . ')';
             }
             my $Result = $LDAP->search(
                 base   => $GroupDN,
@@ -449,7 +441,7 @@ sub Sync {
     if ($UserSyncAttributeGroupsDefinition) {
 
         # build filter
-        my $Filter = "($Self->{UID}=$UserQuote)";
+        my $Filter = "($Self->{UID}=" . escape_filter_value( $Param{User} ) . ')';
 
         # perform search
         $Result = $LDAP->search(
@@ -591,10 +583,10 @@ sub Sync {
             # search if we're allowed to
             my $Filter;
             if ( $Self->{UserAttr} eq 'DN' ) {
-                $Filter = "($Self->{AccessAttr}=$UserDNQuote)";
+                $Filter = "($Self->{AccessAttr}=" . escape_filter_value($UserDN) . ')';
             }
             else {
-                $Filter = "($Self->{AccessAttr}=$UserQuote)";
+                $Filter = "($Self->{AccessAttr}=" . escape_filter_value( $Param{User} ) . ')';
             }
             my $Result = $LDAP->search(
                 base   => $GroupDN,
@@ -657,7 +649,7 @@ sub Sync {
     if ($UserSyncAttributeRolesDefinition) {
 
         # build filter
-        my $Filter = "($Self->{UID}=$UserQuote)";
+        my $Filter = "($Self->{UID}=" . escape_filter_value( $Param{User} ) . ')';
 
         # perform search
         $Result = $LDAP->search(

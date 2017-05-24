@@ -1,6 +1,5 @@
 # --
-# DynamicFieldSet.t - DynamicFieldSet testscript
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -37,9 +36,9 @@ my $TestUserID    = $UserObject->UserLookup(
     UserLogin => $TestUserLogin,
 );
 
-# ----------------------------------------
+#
 # Create the dynamic fields for testing
-# ----------------------------------------
+#
 
 my @NewDynamicFieldConfig = (
     {
@@ -89,11 +88,9 @@ for my $DynamicFieldConfig (@NewDynamicFieldConfig) {
     );
 }
 
-# ----------------------------------------
-
-# ----------------------------------------
+#
 # Create a test ticket
-# ----------------------------------------
+#
 my $TicketID = $TicketObject->TicketCreate(
     TN            => undef,
     Title         => 'test',
@@ -126,8 +123,6 @@ $Self->True(
     IsHashRefWithData( \%Ticket ),
     "TicketGet() - Get Ticket with ID $TicketID.",
 );
-
-# ----------------------------------------
 
 # Run() tests
 my @Tests = (
@@ -268,6 +263,17 @@ my @Tests = (
         Success => 1,
     },
     {
+        Name   => 'Correct Ticket->Queue + Ticket->QueueID Dropdown',
+        Config => {
+            UserID => $UserID,
+            Ticket => \%Ticket,
+            Config => {
+                $DFName1 => '<OTRS_TICKET_Queue> <OTRS_TICKET_QueueID>',
+            },
+        },
+        Success => 1,
+    },
+    {
         Name   => 'Correct Ticket->NotExisting Dropdown',
         Config => {
             UserID => $UserID,
@@ -358,6 +364,18 @@ for my $Test (@Tests) {
                 "$ModuleName - Test:'$Test->{Name}' | Attribute: DynamicField_$Attribute value: $OrigTest->{Config}->{Config}->{$Attribute} should been replaced",
             );
         }
+        elsif (
+            $OrigTest->{Config}->{Config}->{$Attribute}
+            =~ m{\A<OTRS_TICKET_([A-Za-z0-9_]+)> [ ] <OTRS_TICKET_([A-Za-z0-9_]+)>\z}msx
+            )
+        {
+            $ExpectedValue = ( $Ticket{$1} // '' ) . ' ' . ( $Ticket{$2} // '' );
+            $Self->IsNot(
+                $Test->{Config}->{Config}->{$Attribute},
+                $OrigTest->{Config}->{Config}->{$Attribute},
+                "$ModuleName - Test:'$Test->{Name}' | Attribute: DynamicField_$Attribute value: $OrigTest->{Config}->{Config}->{$Attribute} should been replaced",
+            );
+        }
 
         $Self->Is(
             $Ticket{ 'DynamicField_' . $Attribute },
@@ -377,9 +395,9 @@ for my $Test (@Tests) {
     }
 }
 
-#-----------------------------------------
+#
 # Destructors to remove our Testitems
-# ----------------------------------------
+#
 
 # Ticket
 my $Delete = $TicketObject->TicketDelete(
@@ -404,7 +422,5 @@ for my $ID (@AddedDynamicFields) {
         "DynamicFieldDelete() - Remove DynamicField $ID from the system with True"
     );
 }
-
-# ----------------------------------------
 
 1;

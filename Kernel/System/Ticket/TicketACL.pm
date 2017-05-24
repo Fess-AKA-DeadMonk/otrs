@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Ticket/TicketACL.pm - all ticket ACL functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -426,6 +425,9 @@ sub TicketAcl {
                     for my $Item ( @{ $Step{$PropertiesHash}->{$Key}->{$Data} } ) {
                         if ( ref $UsedChecks{$Key}->{$Data} eq 'ARRAY' ) {
                             my $MatchItem = 0;
+                            if ( substr( $Item, 0, length '[Not' ) eq '[Not' ) {
+                                $MatchItem = 1;
+                            }
                             my $MatchedArrayDataItem;
                             ARRAYDATAITEM:
                             for my $ArrayDataItem ( @{ $UsedChecks{$Key}->{$Data} } ) {
@@ -1150,17 +1152,27 @@ sub _GetChecks {
 
         # check if is a dynamic field with data
         next TICKETATTRIBUTE if $TicketAttribute !~ m{ \A DynamicField_ }smx;
-        next TICKETATTRIBUTE if !$Checks{Ticket}->{$TicketAttribute};
-        next TICKETATTRIBUTE if
+        next TICKETATTRIBUTE if !defined $Checks{Ticket}->{$TicketAttribute};
+        next TICKETATTRIBUTE if !length $Checks{Ticket}->{$TicketAttribute};
+
+        if (
             ref $Checks{Ticket}->{$TicketAttribute} eq 'ARRAY'
-            && !IsArrayRefWithData( $Checks{Ticket}->{$TicketAttribute} );
+            && !IsArrayRefWithData( $Checks{Ticket}->{$TicketAttribute} )
+            )
+        {
+            next TICKETATTRIBUTE;
+        }
 
         # compare if data is different and skip on same data
-        if ( $Checks{DynamicField}->{$TicketAttribute} ) {
-            next TICKETATTRIBUTE if !DataIsDifferent(
+        if (
+            $Checks{DynamicField}->{$TicketAttribute}
+            && !DataIsDifferent(
                 Data1 => $Checks{Ticket}->{$TicketAttribute},
                 Data2 => $Checks{DynamicField}->{$TicketAttribute},
-            );
+            )
+            )
+        {
+            next TICKETATTRIBUTE;
         }
 
         $Checks{DynamicField}->{$TicketAttribute} = $Checks{Ticket}->{$TicketAttribute};
@@ -1173,10 +1185,16 @@ sub _GetChecks {
 
         # check if is a dynamic field with data
         next TICKETATTRIBUTE if $TicketAttribute !~ m{ \A DynamicField_ }smx;
-        next TICKETATTRIBUTE if !$ChecksDatabase{Ticket}->{$TicketAttribute};
-        next TICKETATTRIBUTE if
+        next TICKETATTRIBUTE if !defined $ChecksDatabase{Ticket}->{$TicketAttribute};
+        next TICKETATTRIBUTE if !length $ChecksDatabase{Ticket}->{$TicketAttribute};
+
+        if (
             ref $ChecksDatabase{Ticket}->{$TicketAttribute} eq 'ARRAY'
-            && !IsArrayRefWithData( $ChecksDatabase{Ticket}->{$TicketAttribute} );
+            && !IsArrayRefWithData( $ChecksDatabase{Ticket}->{$TicketAttribute} )
+            )
+        {
+            next TICKETATTRIBUTE;
+        }
 
         $ChecksDatabase{DynamicField}->{$TicketAttribute} = $ChecksDatabase{Ticket}->{$TicketAttribute};
     }
@@ -2120,15 +2138,42 @@ sub _CompareMatchWithData {
     my $Match = $Param{Match};
     my $Data  = $Param{Data};
 
-    # Not equal match, this case requires a reverse logic than the rest
-    if ( substr( $Match, 0, length '[Not]' ) eq '[Not]' ) {
-        my $NotValue = substr $Match, length '[Not]';
-        if ( $NotValue eq $Data ) {
-            return {
-                Success => 1,
-                Match   => 0,
-            };
+    # Negated matches requires a different logic.
+    if ( substr( $Match, 0, length '[Not' ) eq '[Not' ) {
+
+        # Not equal match
+        if ( substr( $Match, 0, length '[Not]' ) eq '[Not]' ) {
+            my $NotValue = substr $Match, length '[Not]';
+            if ( $NotValue eq $Data ) {
+                return {
+                    Success => 1,
+                    Match   => 0,
+                };
+            }
         }
+
+        # Not reg-exp match case-sensitive.
+        elsif ( substr( $Match, 0, length '[NotRegExp]' ) eq '[NotRegExp]' ) {
+            my $RegExp = substr $Match, length '[NotRegExp]';
+            if ( $Data =~ /$RegExp/ ) {
+                return {
+                    Success => 1,
+                    Match   => 0,
+                };
+            }
+        }
+
+        # Not reg-exp match case-insensitive.
+        elsif ( substr( $Match, 0, length '[Notregexp]' ) eq '[Notregexp]' ) {
+            my $RegExp = substr $Match, length '[Notregexp]';
+            if ( $Data =~ /$RegExp/i ) {
+                return {
+                    Success => 1,
+                    Match   => 0,
+                };
+            }
+        }
+
         if ( $Param{SingleItem} ) {
             return {
                 Success => 1,
@@ -2144,72 +2189,52 @@ sub _CompareMatchWithData {
             };
         }
     }
-
-    # equal match
-    elsif ( $Match eq $Data ) {
-        return {
-            Success => 1,
-            Match   => 1,
-        };
-    }
-
-    # reg-exp match case-sensitive
-    elsif ( substr( $Match, 0, length '[RegExp]' ) eq '[RegExp]' ) {
-        my $RegExp = substr $Match, length '[RegExp]';
-        if ( $Data =~ /$RegExp/ ) {
-            return {
-                Success => 1,
-                Match   => 1,
-            };
-        }
-    }
-
-    # reg-exp match case-insensitive
-    elsif ( substr( $Match, 0, length '[regexp]' ) eq '[regexp]' ) {
-        my $RegExp = substr $Match, length '[regexp]';
-        if ( $Data =~ /$RegExp/i ) {
-            return {
-                Success => 1,
-                Match   => 1,
-            };
-        }
-    }
-
-    # not reg-exp match case-sensitive
-    elsif ( substr( $Match, 0, length '[NotRegExp]' ) eq '[NotRegExp]' ) {
-        my $RegExp = substr $Match, length '[NotRegExp]';
-        if ( $Data !~ /$RegExp/ ) {
-            return {
-                Success => 1,
-                Match   => 1,
-            };
-        }
-    }
-
-    # not reg-exp match case-insensitive
-    elsif ( substr( $Match, 0, length '[Notregexp]' ) eq '[Notregexp]' ) {
-        my $RegExp = substr $Match, length '[Notregexp]';
-        if ( $Data !~ /$RegExp/i ) {
-            return {
-                Success => 1,
-                Match   => 1,
-            };
-        }
-    }
-
-    if ( $Param{SingleItem} ) {
-        return {
-            Success => 1,
-            Match   => 0,
-            Skip    => 0,
-        };
-    }
     else {
-        return {
-            Success => 1,
-            Match   => 0,
-            Skip    => 1,
-        };
+
+        # Equal match.
+        if ( $Match eq $Data ) {
+            return {
+                Success => 1,
+                Match   => 1,
+            };
+        }
+
+        # Reg-exp match case-sensitive.
+        elsif ( substr( $Match, 0, length '[RegExp]' ) eq '[RegExp]' ) {
+            my $RegExp = substr $Match, length '[RegExp]';
+            if ( $Data =~ /$RegExp/ ) {
+                return {
+                    Success => 1,
+                    Match   => 1,
+                };
+            }
+        }
+
+        # Reg-exp match case-insensitive.
+        elsif ( substr( $Match, 0, length '[regexp]' ) eq '[regexp]' ) {
+            my $RegExp = substr $Match, length '[regexp]';
+            if ( $Data =~ /$RegExp/i ) {
+                return {
+                    Success => 1,
+                    Match   => 1,
+                };
+            }
+        }
+
+        if ( $Param{SingleItem} ) {
+            return {
+                Success => 1,
+                Match   => 0,
+                Skip    => 0,
+            };
+        }
+        else {
+            return {
+                Success => 1,
+                Match   => 0,
+                Skip    => 1,
+            };
+        }
     }
 }
 

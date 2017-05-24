@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.RefreshSMIMEKeys.pl - normalize SMIME private secrets and rename all certificates to the correct hash
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -40,7 +39,7 @@ getopt( 'd', \%Opts );
 if ( $Opts{h} ) {
     print "otrs.RefreshSMIMEKeys.pl - fix SMIME certificates private keys and"
         . " secrets filenames\n";
-    print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+    print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
     print "usage: otrs.RefreshSMIMEKeys.pl -d <DETAILS> (short|long) [-f (force to execute even"
         . " if SMIME is not enabled in SysConfig)]  \n";
     exit 1;
@@ -52,9 +51,7 @@ if ( $Opts{d} && lc $Opts{d} eq 'short' ) {
     $Options{Details} = 'ShortDetails';
 }
 
-# ---
 # create object manager
-# ---
 local $Kernel::OM = Kernel::System::ObjectManager->new(
     'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.RefreshSMIMEKeys.pl',

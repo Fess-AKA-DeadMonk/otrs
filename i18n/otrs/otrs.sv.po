@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OTRS\n"
 "POT-Creation-Date: 2014-08-08 19:10+0200\n"
-"PO-Revision-Date: 2015-03-25 21:00+0000\n"
-"Last-Translator: Carlos Rodríguez <carlos.rodriguez@otrs.com>\n"
-"Language-Team: Swedish (http://www.transifex.com/projects/p/OTRS/language/sv/)\n"
+"PO-Revision-Date: 2015-05-20 16:11+0000\n"
+"Last-Translator: Anthon Nilsson <superdos@gmail.com>\n"
+"Language-Team: Swedish (http://www.transifex.com/otrs/OTRS/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2498,6 +2498,14 @@ msgid "Loaded Apache Modules"
 msgstr "Laddade Apache-moduler"
 
 #. Template: AAASupportDataCollector
+msgid "MPM model"
+msgstr ""
+
+#. Template: AAASupportDataCollector
+msgid "OTRS requires apache to be run with the 'prefork' MPM model."
+msgstr ""
+
+#. Template: AAASupportDataCollector
 msgid "CGI Accelerator Usage"
 msgstr ""
 
@@ -3125,6 +3133,10 @@ msgstr "Telefonärende"
 #. Template: AAATicket
 msgid "Search Tickets"
 msgstr "Sök ärenden"
+
+#. Template: AAATicket
+msgid "Customer Realname"
+msgstr ""
 
 #. Template: AAATicket
 msgid "Customer History"
@@ -4460,7 +4472,7 @@ msgstr "Skicka"
 
 #. Template: AdminGenericAgent
 msgid "Generic Agent"
-msgstr ""
+msgstr "GenerellAgent"
 
 #. Template: AdminGenericAgent
 msgid "Add job"
@@ -4584,6 +4596,10 @@ msgstr ""
 
 #. Template: AdminGenericAgent
 msgid "Delete this Event Trigger"
+msgstr ""
+
+#. Template: AdminGenericAgent
+msgid "Remove selection"
 msgstr ""
 
 #. Template: AdminGenericAgent
@@ -7805,7 +7821,7 @@ msgstr "Rätt att skapa ärenden i denna grupp/Kö."
 
 #. Template: AdminRoleGroup
 msgid "note"
-msgstr ""
+msgstr "Notering"
 
 #. Template: AdminRoleGroup
 msgid "Permissions to add notes to tickets in this group/queue."
@@ -8408,7 +8424,7 @@ msgstr "NavigationsRad"
 
 #. Template: AdminSysConfigEdit
 msgid "LinkOption"
-msgstr ""
+msgstr "Länk"
 
 #. Template: AdminSysConfigEdit
 msgid "Block"
@@ -9545,6 +9561,26 @@ msgstr "Hämta alla"
 msgid "E-Mail Outbound"
 msgstr "E-post utgående"
 
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: update time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time will be over in %s/%s!"
+msgstr ""
+
 #. Template: AgentTicketForward
 msgid "Forward ticket: %s - %s"
 msgstr ""
@@ -9937,7 +9973,7 @@ msgstr "Olästa artiklar"
 
 #. Template: AgentTicketZoom
 msgid "No."
-msgstr ""
+msgstr "Nr."
 
 #. Template: AgentTicketZoom
 msgid "Important"
@@ -10143,13 +10179,17 @@ msgstr ""
 msgid "Edit personal preferences"
 msgstr "Ändra personliga inställningar"
 
+#. Template: CustomerNavigationBar
+msgid "Logout %s %s"
+msgstr ""
+
 #. Template: CustomerRichTextEditor
 msgid "Split Quote"
 msgstr ""
 
 #. Template: CustomerTicketMessage
 msgid "Service level agreement"
-msgstr ""
+msgstr "SLA"
 
 #. Template: CustomerTicketOverview
 msgid "Welcome!"
@@ -10391,6 +10431,12 @@ msgid "Please enter at least one search value or * to find anything."
 msgstr ""
 
 #. Template: FooterJS
+msgid ""
+"Please remove the following words from your search as they cannot be "
+"searched for:"
+msgstr ""
+
+#. Template: FooterJS
 msgid "Please check the fields marked as red for valid inputs."
 msgstr ""
 
@@ -10423,6 +10469,10 @@ msgid "General Specifications and Mail Settings"
 msgstr ""
 
 #. Template: Installer
+msgid "Welcome to %s"
+msgstr ""
+
+#. Template: Installer
 msgid "Web site"
 msgstr ""
 
@@ -10440,7 +10490,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Outbound mail type"
-msgstr ""
+msgstr "Typ"
 
 #. Template: InstallerConfigureMail
 msgid "Select outbound mail type."
@@ -10492,7 +10542,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail type"
-msgstr ""
+msgstr "Typ"
 
 #. Template: InstallerConfigureMail
 msgid "Select inbound mail type."
@@ -10508,7 +10558,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail user"
-msgstr ""
+msgstr "Användare"
 
 #. Template: InstallerConfigureMail
 msgid "User for inbound mail."
@@ -10516,7 +10566,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail password"
-msgstr ""
+msgstr "Lösenord"
 
 #. Template: InstallerConfigureMail
 msgid "Password for inbound mail."
@@ -10770,6 +10820,10 @@ msgstr "utskrivet av"
 #. Template: Test
 msgid "OTRS Test Page"
 msgstr "OTRS Test-sida"
+
+#. Template: Test
+msgid "Welcome %s %s"
+msgstr ""
 
 #. Template: Test
 msgid "Counter"
@@ -13779,6 +13833,12 @@ msgid ""
 "be reinstalled and the current basic configuration will be used to pre-"
 "populate the questions within the installer script. If not active, it also "
 "disables the GenericAgent, PackageManager and SQL Box."
+msgstr ""
+
+#. SysConfig
+msgid ""
+"Display a warning and prevent search when using stop words within fulltext "
+"search."
 msgstr ""
 
 #. SysConfig

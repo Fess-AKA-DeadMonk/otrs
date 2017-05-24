@@ -1,6 +1,5 @@
 # --
-# Admin.t - frontend tests for admin area
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -87,7 +86,7 @@ $Selenium->RunTest(
         ADMINMODULE:
         for my $AdminModule (@AdminModules) {
 
-            $Selenium->get("${ScriptAlias}index.pl?Action=$AdminModule");
+            $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=$AdminModule");
 
             # Guess if the page content is ok or an error message. Here we
             #   check for the presence of div.SidebarColumn because all Admin
@@ -98,7 +97,7 @@ $Selenium->RunTest(
             #   for error messages and has "Admin" highlighted
             $Selenium->find_element( "li#nav-Admin.Selected", 'css' );
         }
-        }
+    }
 );
 
 1;

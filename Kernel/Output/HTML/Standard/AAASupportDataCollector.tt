@@ -1,6 +1,5 @@
 # --
-# AAASupportDataCollector.tt - $Text variable file
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -211,6 +210,10 @@
 
 # Webserver/Apache/LoadedModules.pm
 [% Translate("Loaded Apache Modules") | html %]
+
+# Webserver/Apache/MPMModel.pm
+[% Translate("MPM model") | html %]
+[% Translate("OTRS requires apache to be run with the 'prefork' MPM model.") | html %]
 
 # Webserver/Apache/Performance.pm
 [% Translate("CGI Accelerator Usage") | html %]

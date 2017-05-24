@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Stats/Dynamic/Ticket.pm - all advice functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -39,8 +38,6 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    $Self->{DBSlaveObject} = $Param{DBSlaveObject} || $Kernel::OM->Get('Kernel::System::DB');
-
     # get the dynamic fields for ticket object
     $Self->{DynamicField} = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         Valid      => 1,
@@ -77,6 +74,7 @@ sub GetObjectAttributes {
     my $StateObject    = $Kernel::OM->Get('Kernel::System::State');
     my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
     my $LockObject     = $Kernel::OM->Get('Kernel::System::Lock');
+    my $DBObject       = $Kernel::OM->Get('Kernel::System::DB');
 
     my $ValidAgent = 0;
     if (
@@ -87,10 +85,12 @@ sub GetObjectAttributes {
         $ValidAgent = 1;
     }
 
-    # get user list
+    # Get user list without the out of office message, because of the caching in the statistics
+    #   and not meaningful with a date selection.
     my %UserList = $UserObject->UserList(
-        Type  => 'Long',
-        Valid => $ValidAgent,
+        Type          => 'Long',
+        Valid         => $ValidAgent,
+        NoOutOfOffice => 1,
     );
 
     # get state list
@@ -372,7 +372,8 @@ sub GetObjectAttributes {
 
         # get service list
         my %Service = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
-            UserID => 1,
+            KeepChildren => $ConfigObject->Get('Ticket::Service::KeepChildren'),
+            UserID       => 1,
         );
 
         # get sla list
@@ -470,13 +471,13 @@ sub GetObjectAttributes {
 
         # Get CustomerID
         # (This way also can be the solution for the CustomerUserID)
-        $Self->{DBSlaveObject}->Prepare(
+        $DBObject->Prepare(
             SQL => "SELECT DISTINCT customer_id FROM ticket",
         );
 
         # fetch the result
         my %CustomerID;
-        while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             if ( $Row[0] ) {
                 $CustomerID{ $Row[0] } = $Row[0];
             }
@@ -631,7 +632,7 @@ sub GetObjectAttributes {
                     Element          => $DynamicFieldStatsParameter->{Element},
                     Block            => $DynamicFieldStatsParameter->{Block},
                     Values           => $DynamicFieldStatsParameter->{Values},
-                    Translation      => 0,
+                    Translation      => $DynamicFieldStatsParameter->{TranslatableValues} || 0,
                     IsDynamicField   => 1,
                     ShowAsTree       => $DynamicFieldConfig->{Config}->{TreeView} || 0,
                 );
@@ -661,12 +662,20 @@ sub GetStatElement {
 
     # get dynamic field backend object
     my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $DBObject                  = $Kernel::OM->Get('Kernel::System::DB');
+    my $ConfigObject              = $Kernel::OM->Get('Kernel::Config');
 
     # escape search attributes for ticket search
     my %AttributesToEscape = (
         'CustomerID' => 1,
         'Title'      => 1,
     );
+
+    # Map the CustomerID search parameter to CustomerIDRaw search parameter for the
+    #   exact search match, if the 'Stats::CustomerIDAsMultiSelect' is active.
+    if ( $ConfigObject->Get('Stats::CustomerIDAsMultiSelect') ) {
+        $Param{CustomerIDRaw} = $Param{CustomerID};
+    }
 
     for my $ParameterName ( sort keys %Param ) {
         if (
@@ -720,19 +729,18 @@ sub GetStatElement {
             if ( ref $Param{$ParameterName} ) {
                 if ( ref $Param{$ParameterName} eq 'ARRAY' ) {
                     $Param{$ParameterName} = [
-                        map { $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $_ ) }
+                        map { $DBObject->QueryStringEscape( QueryString => $_ ) }
                             @{ $Param{$ParameterName} }
                     ];
                 }
             }
             else {
-                $Param{$ParameterName}
-                    = $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $Param{$ParameterName} );
+                $Param{$ParameterName} = $DBObject->QueryStringEscape( QueryString => $Param{$ParameterName} );
             }
         }
     }
 
-    if ( $Kernel::OM->Get('Kernel::Config')->Get('Ticket::ArchiveSystem') ) {
+    if ( $ConfigObject->Get('Ticket::ArchiveSystem') ) {
         $Param{SearchInArchive} ||= '';
         if ( $Param{SearchInArchive} eq 'AllTickets' ) {
             $Param{ArchiveFlags} = [ 'y', 'n' ];

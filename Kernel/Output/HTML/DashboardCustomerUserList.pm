@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/DashboardCustomerUserList.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -89,7 +88,7 @@ sub Run {
     # get customer user object
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
-    my $CustomerIDs = { $CustomerUserObject->CustomerSearch( CustomerID => $Param{CustomerID} ) };
+    my $CustomerIDs = { $CustomerUserObject->CustomerSearch( CustomerIDRaw => $Param{CustomerID} ) };
 
     # add page nav bar
     my $Total = scalar keys %{$CustomerIDs};
@@ -300,17 +299,20 @@ sub Run {
             CacheTTL             => $Self->{Config}->{CacheTTLLocal} * 60,
         );
 
+        my $CustomerKeySQL = $Kernel::OM->Get('Kernel::System::DB')->QueryStringEscape( QueryString => $CustomerKey );
+
         $LayoutObject->Block(
             Name => 'ContentLargeCustomerUserListRowCustomerUserTicketsOpen',
             Data => {
                 %Param,
-                Count       => $TicketCountOpen,
-                CustomerKey => $CustomerKey,
+                Count          => $TicketCountOpen,
+                CustomerKey    => $CustomerKey,
+                CustomerKeySQL => $CustomerKeySQL,
             },
         );
 
         my $TicketCountClosed = $TicketObject->TicketSearch(
-            StateType            => 'Closed',
+            StateType            => 'closed',
             CustomerUserLoginRaw => $CustomerKey,
             Result               => 'COUNT',
             Permission           => $Self->{Config}->{Permission},
@@ -322,8 +324,9 @@ sub Run {
             Name => 'ContentLargeCustomerUserListRowCustomerUserTicketsClosed',
             Data => {
                 %Param,
-                Count       => $TicketCountClosed,
-                CustomerKey => $CustomerKey,
+                Count          => $TicketCountClosed,
+                CustomerKey    => $CustomerKey,
+                CustomerKeySQL => $CustomerKeySQL,
             },
         );
 

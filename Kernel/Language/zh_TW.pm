@@ -1,5 +1,4 @@
 # --
-# Kernel/Language/zh_TW.pm - provides Chinese Traditional language translation
 # Copyright (C) 2009 Bin Du <bindu2008 at gmail.com>
 # Copyright (C) 2009 Yiye Huang <yiyehuang at gmail.com>
 # Copyright (C) 2009 Qingjiu Jia <jiaqj at yahoo.com>
@@ -275,9 +274,14 @@ sub Data {
         'Dispatching by email To: field.' => '按收件人(To:)分派.',
         'Dispatching by selected Queue.' => '按所選隊列分派.',
         'No entry found!' => '無内容!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => '會話無效，請重新登錄.',
         'Session has timed out. Please log in again.' => '會話超時，請重新登錄.',
         'Session limit reached! Please try again later.' => '超過會話數量，請稍後再試.',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => '無權限!',
         '(Click here to add)' => '(點擊此處添加)',
         'Preview' => '預覽',
@@ -289,6 +293,7 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             '您已設置為不在辦公室，是否取消它?',
         'News about OTRS releases!' => '',
+        'Go to dashboard!' => '',
         'Customer %s added' => '用戶%s已添加',
         'Role added!' => '角色已添加！',
         'Role updated!' => '角色已更新！',
@@ -699,6 +704,9 @@ sub Data {
         'Webserver Version' => '',
         'Could not determine webserver version.' => '',
         'Loaded Apache Modules' => '',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => '',
         'You should use FastCGI or mod_perl to increase your performance.' =>
             '',
@@ -862,6 +870,7 @@ sub Data {
         'Create new Email Ticket' => '創建郵件工單',
         'Phone-Ticket' => '電話工單',
         'Search Tickets' => '搜索工單',
+        'Customer Realname' => '',
         'Customer History' => '',
         'Edit Customer Users' => '編輯用戶帳戶',
         'Edit Customer' => '編輯用戶單位',
@@ -980,13 +989,13 @@ sub Data {
         'Ticket Information' => '工單信息',
 
         # Template: AAAWeekDay
-        'Sun' => '',
-        'Mon' => '',
-        'Tue' => '',
+        'Sun' => '日',
+        'Mon' => '一',
+        'Tue' => '三月',
         'Wed' => '',
-        'Thu' => '',
-        'Fri' => '',
-        'Sat' => '',
+        'Thu' => '收件人',
+        'Fri' => '五',
+        'Sat' => '六',
 
         # Template: AdminACL
         'ACL Management' => 'ACL管理',
@@ -1034,7 +1043,7 @@ sub Data {
         'Stop after match' => '匹配後停止',
         'Edit ACL structure' => '編輯ACL結構',
         'Save' => '保存',
-        'or' => '',
+        'or' => '在',
         'Save and finish' => '保存並完成',
         'Do you really want to delete this ACL?' => '您確定要刪除這個ACL嗎？',
         'This item still contains sub items. Are you sure you want to remove this item including its sub items?' =>
@@ -1067,7 +1076,8 @@ sub Data {
         'You can use the following tags' => '您可以使用以下的標記',
         'To get the first 20 character of the subject.' => '顯示主題的前20個字節',
         'To get the first 5 lines of the email.' => '顯示郵件的前五行',
-        'To get the realname of the sender (if given).' => '顯示發件人的真實姓名',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => '信件數據屬性',
         ' e. g.' => '例如',
         'Options of the current customer user data' => '用戶資料屬性',
@@ -1292,6 +1302,7 @@ sub Data {
         'This event is already attached to the job, Please use a different one.' =>
             '',
         'Delete this Event Trigger' => '刪除這個事件觸發器',
+        'Remove selection' => '',
         'Select Tickets' => '',
         '(e. g. 10*5155 or 105658*)' => '  例如: 10*5144 或者 105658*',
         '(e. g. 234321)' => '例如: 234321',
@@ -1369,6 +1380,8 @@ sub Data {
         '%s Tickets affected! What do you want to do?' => '%s 個工單將被影響！您確定要這麼做?',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
             '警告：您選擇了"刪除"指令。所有刪除的工單數據將無法恢復。',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
+            '',
         'Edit job' => '編輯任務',
         'Run job' => '執行任務',
         'Affected Tickets' => '受影響的工單',
@@ -1817,8 +1830,8 @@ sub Data {
         'Download' => '下載',
         'Download file from package!' => '從軟件包中下載這個文件',
         'Required' => '必需的',
-        'PrimaryKey' => '關鍵的Key',
-        'AutoIncrement' => '自動遞增',
+        'Primary Key' => '',
+        'Auto Increment' => '',
         'SQL' => 'SQL',
         'File differences for file %s' => '文件跟%s有差異',
 
@@ -2042,6 +2055,7 @@ sub Data {
             '請注意，修改這個轉向將影響以下流程。',
         'Transition' => '轉向',
         'Transition Name' => '轉向名稱',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => '條件之間的邏輯關系',
         'Remove this Condition' => '刪除這個條件',
         'Type of Linking' => '鏈接類型',
@@ -2259,7 +2273,7 @@ sub Data {
         'Permissions to move tickets into this group/queue.' => '對於組/隊列中的工單具有 \'轉移隊列\' 的權限',
         'create' => '',
         'Permissions to create tickets in this group/queue.' => '對於組/隊列具有 \'創建工單\' 的權限',
-        'note' => '',
+        'note' => '備註',
         'Permissions to add notes to tickets in this group/queue.' => '對於組/隊列具有 \'添加備註\' 的權限',
         'owner' => '',
         'Permissions to change the owner of tickets in this group/queue.' =>
@@ -2330,7 +2344,7 @@ sub Data {
         'Here you can enter SQL to send it directly to the application database. It is not possible to change the content of the tables, only select queries are allowed.' =>
             '',
         'Here you can enter SQL to send it directly to the application database.' =>
-            '',
+            '這裡您可以輸入並運行數據庫SQL的命令。',
         'Only select queries are allowed.' => '',
         'The syntax of your SQL query has a mistake. Please check it.' =>
             'SQL查詢的語法有一個錯誤，請核對。',
@@ -2377,7 +2391,7 @@ sub Data {
             '',
         'The email address for this user is invalid, this option has been disabled.' =>
             '',
-        'Sending' => '',
+        'Sending' => '發件人',
         'The support bundle will be sent to OTRS Group via email automatically.' =>
             '',
         'Download File' => '',
@@ -2823,6 +2837,8 @@ sub Data {
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => '撰寫答復工單',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => '請包括至少一個收件人',
         'Remove Ticket Customer' => '刪除工單用戶',
         'Please remove this entry and enter a new one with the correct value.' =>
@@ -2848,6 +2864,13 @@ sub Data {
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => '',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => '',
@@ -3046,6 +3069,7 @@ sub Data {
         'Incoming Chat Requests' => '',
         'You have unanswered chat requests' => '',
         'Edit personal preferences' => '編輯個人設置',
+        'Logout %s %s' => '',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => '',
@@ -3132,9 +3156,12 @@ sub Data {
             '一個彈出窗口已經打開，是否繼續關閉？',
         'Please enter at least one search value or * to find anything.' =>
             '請至少輸入一個搜索條件或 *。',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            '',
         'Please check the fields marked as red for valid inputs.' => '',
         'Please perform a spell check on the the text first.' => '',
         'Slide the navigation bar' => '',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => '您已登錄為',
@@ -3145,6 +3172,7 @@ sub Data {
         'JavaScript not available' => 'JavaScript沒有啟用',
         'Database Settings' => '數據庫設置',
         'General Specifications and Mail Settings' => '一般設定和郵件配置',
+        'Welcome to %s' => '',
         'Web site' => '網址',
         'Mail check successful.' => '郵件配置檢查完成',
         'Error in the mail settings. Please correct and try again.' => '郵件設置錯誤, 請重新修正.',
@@ -3268,6 +3296,7 @@ sub Data {
 
         # Template: Test
         'OTRS Test Page' => 'OTRS測試頁',
+        'Welcome %s %s' => '',
         'Counter' => '計數器',
 
         # Template: Warning
@@ -3279,6 +3308,7 @@ sub Data {
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => '%s time unit(s) accounted. Now total %s time unit(s).',
         '(UserLogin) Firstname Lastname' => '',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3410,7 +3440,7 @@ sub Data {
             '',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             '',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
             '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             '',
@@ -3479,6 +3509,7 @@ sub Data {
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             '',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             '',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3544,9 +3575,9 @@ sub Data {
             '',
         'Default loop protection module.' => '',
         'Default queue ID used by the system in the agent interface.' => '',
-        'Default skin for OTRS 3.0 interface.' => '',
         'Default skin for the agent interface (slim version).' => '',
         'Default skin for the agent interface.' => '',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             '',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3662,6 +3693,8 @@ sub Data {
         'Defines scheduler PID update time in seconds.' => '',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             '',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             '',
         'Defines the URL CSS path.' => '',
@@ -3684,6 +3717,8 @@ sub Data {
         'Defines the body text for rejected emails.' => '',
         'Defines the boldness of the line drawed by the graph.' => '',
         'Defines the calendar width in percent. Default is 95%.' => '',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => '',
         'Defines the column to store the keys for the preferences table.' =>
             '',
@@ -3957,7 +3992,7 @@ sub Data {
             '',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             '',
-        'Defines the list of possible next actions on an error screen.' =>
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
             '',
         'Defines the list of types for templates.' => '',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
@@ -3993,6 +4028,8 @@ sub Data {
             '',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             '',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             '',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4013,7 +4050,7 @@ sub Data {
         'Defines the name of the key for customer sessions.' => '',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             '',
-        'Defines the name of the table, where the customer preferences are stored.' =>
+        'Defines the name of the table where the user preferences are stored.' =>
             '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             '',
@@ -4142,7 +4179,7 @@ sub Data {
         'Defines the valid state types for a ticket.' => '',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             '',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
             '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             '',
@@ -4196,11 +4233,17 @@ sub Data {
             '',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             '',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
             '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             '',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
+            '',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
             '',
         'Display settings to override defaults for Process Tickets.' => '',
         'Displays the accounted time for an article in the ticket zoom view.' =>
@@ -4533,6 +4576,7 @@ sub Data {
             '',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             '',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             '',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4546,6 +4590,8 @@ sub Data {
             '',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             '',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => '',
         'Lastname, Firstname (UserLogin)' => '',
         'Left' => '',
@@ -4612,6 +4658,7 @@ sub Data {
             '',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             '',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             '',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4867,8 +4914,7 @@ sub Data {
             '',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             '',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            '',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             '',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4877,6 +4923,8 @@ sub Data {
         'Service view' => '',
         'Set sender email addresses for this system.' => '為系統設置發件人的郵件地址.',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
+            '',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
             '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             '',
@@ -4962,6 +5010,8 @@ sub Data {
         'Sets the display order of the different items in the preferences view.' =>
             '',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
+            '',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
             '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             '',
@@ -5065,7 +5115,8 @@ sub Data {
             '',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             '',
-        'Sets the time (in seconds) a user is marked as active.' => '',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => '',
         'Sets the timeout (in seconds) for http/ftp downloads.' => '',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>

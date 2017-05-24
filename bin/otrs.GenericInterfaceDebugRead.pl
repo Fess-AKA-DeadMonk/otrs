@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.GenericInterfaceDebugRead.pl - the global test handle
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -47,7 +46,7 @@ Options:
     -i        RemoteIP          => '192.168.0.1',                       # optional, must be valid IPv4 or IPv6 address
     -w        WebserviceID      => 1,                                   # optional
     -d        WithData          => 1,                                   # optional
-Copyright (C) 2001-2011 OTRS AG, http://otrs.org/
+Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 EOF
 }
 

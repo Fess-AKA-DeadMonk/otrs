@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminSystemAddress.pm - to add/update/delete system addresses
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -96,6 +95,16 @@ sub Run {
             $Errors{ErrorType}   = $CheckItemObject->CheckErrorType();
         }
 
+        # check if a system address exist with this name
+        my $NameExists = $Self->{SystemAddressObject}->NameExistsCheck(
+            Name => $GetParam{Name},
+            ID   => $GetParam{ID}
+        );
+        if ($NameExists) {
+            $Errors{NameInvalid} = 'ServerError';
+            $Errors{ErrorType}   = 'AlreadyUsed';
+        }
+
         # if no errors occurred
         if ( !%Errors ) {
 
@@ -189,6 +198,15 @@ sub Run {
             $Errors{ErrorType}   = $CheckItemObject->CheckErrorType();
         }
 
+        # check if a system address exist with this name
+        my $NameExists = $Self->{SystemAddressObject}->NameExistsCheck(
+            Name => $GetParam{Name},
+        );
+        if ($NameExists) {
+            $Errors{NameInvalid} = 'ServerError';
+            $Errors{ErrorType}   = 'AlreadyUsed';
+        }
+
         # if no errors occurred
         if ( !%Errors ) {
 
@@ -257,8 +275,20 @@ sub _Edit {
     $Self->{LayoutObject}->Block( Name => 'ActionList' );
     $Self->{LayoutObject}->Block( Name => 'ActionOverview' );
 
-    # get valid list
-    my %ValidList        = $Self->{ValidObject}->ValidList();
+    # Get valid list.
+    my %ValidList = $Self->{ValidObject}->ValidList();
+
+    # If there is queue using this system address, disable invalid selection on edit screen.
+    if ( $Param{Action} eq 'Change' && $Self->{SystemAddressObject}->can('SystemAddressIsUsed') ) {
+        $Param{SystemAddressIsUsed} = $Self->{SystemAddressObject}->SystemAddressIsUsed(
+            SystemAddressID => $Param{ID},
+        );
+        if ( $Param{SystemAddressIsUsed} ) {
+            my @ValidIDsList = $Self->{ValidObject}->ValidIDsGet();
+            %ValidList = map { $_ => $ValidList{$_} } @ValidIDsList;
+        }
+    }
+
     my %ValidListReverse = reverse %ValidList;
 
     $Param{ValidOption} = $Self->{LayoutObject}->BuildSelection(

@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/otrs.RegistrationUpdate.pl - rebuild config
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -32,11 +31,9 @@ use Kernel::System::ObjectManager;
 use Kernel::System::Registration;
 
 print "otrs.RegistrationUpdate.pl - send system registration update\n";
-print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
 
-# ---
 # create object manager
-# ---
 local $Kernel::OM = Kernel::System::ObjectManager->new(
     'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.RegistrationUpdate.pl',

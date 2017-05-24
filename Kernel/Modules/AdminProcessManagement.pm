@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminProcessManagement.pm - process management
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -517,10 +516,22 @@ sub Run {
             }
         }
 
-        my $SkinSelected = $Self->{'UserSkin'}
-            || $SkinSelectedHostBased
-            || $Self->{ConfigObject}->Get('Loader::Agent::DefaultSelectedSkin')
-            || 'default';
+        my $SkinSelected = $Self->{'UserSkin'};
+
+        # check if the skin is valid
+        my $SkinValid = 0;
+        if ($SkinSelected) {
+            $SkinValid = $Self->{LayoutObject}->SkinValidate(
+                SkinType => 'Agent',
+                Skin     => $SkinSelected,
+            );
+        }
+
+        if ( !$SkinValid ) {
+            $SkinSelected = $SkinSelectedHostBased
+                || $Self->{ConfigObject}->Get('Loader::Agent::DefaultSelectedSkin')
+                || 'default';
+        }
 
         my %AgentLogo;
 
@@ -1511,8 +1522,11 @@ sub _ShowOverview {
 
     if ( IsHashRefWithData($ProcessList) ) {
 
+        # Sort process list by name instead of ID (bug#12311).
+        my @ProcessIDs = sort { lc $ProcessList->{$a} cmp lc $ProcessList->{$b} } keys %{$ProcessList};
+
         # get each process data
-        for my $ProcessID ( sort keys %{$ProcessList} ) {
+        for my $ProcessID (@ProcessIDs) {
             my $ProcessData = $Self->{ProcessObject}->ProcessGet(
                 ID     => $ProcessID,
                 UserID => $Self->{UserID},

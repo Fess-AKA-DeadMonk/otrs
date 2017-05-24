@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# bin/cgi-bin/app.psgi - Plack startup file for OTRS
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 #
@@ -60,7 +59,7 @@ my $App = CGI::Emulate::PSGI->handler(
         ( $ENV{SCRIPT_NAME} ) = $ENV{PATH_INFO} =~ m{/([A-Za-z\-_]+\.pl)};
 
         # Fallback to agent login if we could not determine handle...
-        if ( !defined $ENV{SCRIPT_NAME} || !-e "bin/cgi-bin/$ENV{SCRIPT_NAME}" ) {
+        if ( !defined $ENV{SCRIPT_NAME} || !-e "$Bin/$ENV{SCRIPT_NAME}" ) {
             $ENV{SCRIPT_NAME} = 'index.pl';
         }
 
@@ -79,7 +78,7 @@ my $App = CGI::Emulate::PSGI->handler(
 
         # Load the requested script
         eval {
-            do "bin/cgi-bin/$ENV{SCRIPT_NAME}";
+            do "$Bin/$ENV{SCRIPT_NAME}";
         };
         if ( $@ && $@ ne "exit called\n" ) {
             warn $@;

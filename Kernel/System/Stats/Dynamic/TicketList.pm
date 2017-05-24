@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Stats/Dynamic/TicketList.pm - reporting via ticket lists
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,6 +17,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::Language',
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
@@ -40,8 +40,6 @@ sub new {
     # allocate new hash for object
     my $Self = {};
     bless( $Self, $Type );
-
-    $Self->{DBSlaveObject} = $Param{DBSlaveObject} || $Kernel::OM->Get('Kernel::System::DB');
 
     # get the dynamic fields for ticket object
     $Self->{DynamicField} = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
@@ -89,10 +87,12 @@ sub GetObjectAttributes {
         $ValidAgent = 1;
     }
 
-    # get user list
+    # Get user list without the out of office message, because of the caching in the statistics
+    #   and not meaningful with a date selection.
     my %UserList = $UserObject->UserList(
-        Type  => 'Long',
-        Valid => $ValidAgent,
+        Type          => 'Long',
+        Valid         => $ValidAgent,
+        NoOutOfOffice => 1,
     );
 
     # get state list
@@ -477,7 +477,8 @@ sub GetObjectAttributes {
 
         # get service list
         my %Service = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
-            UserID => 1,
+            KeepChildren => $ConfigObject->Get('Ticket::Service::KeepChildren'),
+            UserID       => 1,
         );
 
         # get sla list
@@ -571,17 +572,19 @@ sub GetObjectAttributes {
         push @ObjectAttributes, @ObjectAttributeAdd;
     }
 
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
     if ( $ConfigObject->Get('Stats::CustomerIDAsMultiSelect') ) {
 
         # Get CustomerID
         # (This way also can be the solution for the CustomerUserID)
-        $Self->{DBSlaveObject}->Prepare(
+        $DBObject->Prepare(
             SQL => "SELECT DISTINCT customer_id FROM ticket",
         );
 
         # fetch the result
         my %CustomerID;
-        while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             if ( $Row[0] ) {
                 $CustomerID{ $Row[0] } = $Row[0];
             }
@@ -733,7 +736,7 @@ sub GetObjectAttributes {
                     Element          => $DynamicFieldStatsParameter->{Element},
                     Block            => $DynamicFieldStatsParameter->{Block},
                     Values           => $DynamicFieldStatsParameter->{Values},
-                    Translation      => 0,
+                    Translation      => $DynamicFieldStatsParameter->{TranslatableValues} || 0,
                     IsDynamicField   => 1,
                     ShowAsTree       => $DynamicFieldConfig->{Config}->{TreeView} || 0,
                 );
@@ -763,6 +766,8 @@ sub GetStatTable {
     my %TicketAttributes = map { $_ => 1 } @{ $Param{XValue}{SelectedValues} };
     my $SortedAttributesRef = $Self->_SortedAttributes();
 
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
     # check if a enumeration is requested
     my $AddEnumeration = 0;
     if ( $TicketAttributes{Number} ) {
@@ -788,6 +793,12 @@ sub GetStatTable {
         'Title'      => 1,
     );
 
+    # Map the CustomerID search parameter to CustomerIDRaw search parameter for the
+    #   exact search match, if the 'Stats::CustomerIDAsMultiSelect' is active.
+    if ( $Kernel::OM->Get('Kernel::Config')->Get('Stats::CustomerIDAsMultiSelect') ) {
+        $Param{Restrictions}->{CustomerIDRaw} = $Param{Restrictions}->{CustomerID};
+    }
+
     ATTRIBUTE:
     for my $Key ( sort keys %{ $Param{Restrictions} } ) {
 
@@ -796,13 +807,13 @@ sub GetStatTable {
         if ( ref $Param{Restrictions}->{$Key} ) {
             if ( ref $Param{Restrictions}->{$Key} eq 'ARRAY' ) {
                 $Param{Restrictions}->{$Key} = [
-                    map { $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $_ ) }
+                    map { $DBObject->QueryStringEscape( QueryString => $_ ) }
                         @{ $Param{Restrictions}->{$Key} }
                 ];
             }
         }
         else {
-            $Param{Restrictions}->{$Key} = $Self->{DBSlaveObject}->QueryStringEscape(
+            $Param{Restrictions}->{$Key} = $DBObject->QueryStringEscape(
                 QueryString => $Param{Restrictions}->{$Key}
             );
         }
@@ -1067,7 +1078,7 @@ sub GetStatTable {
 
         $SQL = 'SELECT ticket_id, state_id, create_time FROM ticket_history WHERE ' . $SQL;
 
-        $Self->{DBSlaveObject}->Prepare( SQL => $SQL );
+        $DBObject->Prepare( SQL => $SQL );
 
         # Structure:
         # Stores the last TicketState:
@@ -1075,7 +1086,7 @@ sub GetStatTable {
         my %FoundTickets;
 
         # fetch the result
-        while ( my @Row = $Self->{DBSlaveObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             if ( $Row[0] ) {
                 my $TicketID    = $Row[0];
                 my $StateID     = $Row[1];
@@ -1231,6 +1242,13 @@ sub GetStatTable {
         ATTRIBUTE:
         for my $Attribute ( @{$SortedAttributesRef} ) {
             next ATTRIBUTE if !$TicketAttributes{$Attribute};
+
+            if ( $Attribute =~ /Owner|Responsible/ ) {
+                $Ticket{$Attribute} = $Kernel::OM->Get('Kernel::System::User')->UserName(
+                    User => $Ticket{$Attribute},
+                );
+            }
+
             push @ResultRow, $Ticket{$Attribute};
         }
         push @StatArray, \@ResultRow;
@@ -1266,10 +1284,13 @@ sub GetHeaderLine {
     my $SortedAttributesRef = $Self->_SortedAttributes();
     my @HeaderLine;
 
+    # get language object
+    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
     ATTRIBUTE:
     for my $Attribute ( @{$SortedAttributesRef} ) {
         next ATTRIBUTE if !$SelectedAttributes{$Attribute};
-        push @HeaderLine, $TicketAttributes->{$Attribute};
+        push @HeaderLine, $LanguageObject->Translate( $TicketAttributes->{$Attribute} );
     }
     return \@HeaderLine;
 }
@@ -1468,7 +1489,7 @@ sub _TicketAttributes {
 
         #CreateTimeUnix => 'CreateTimeUnix',
         CustomerUserID => 'Customer User',
-        Lock           => 'lock',
+        Lock           => 'Lock',
 
         #LockID         => 'LockID',
         UnlockTimeout       => 'UnlockTimeout',

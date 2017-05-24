@@ -1,6 +1,5 @@
 # --
-# Ticket/UnlockOnAway.t - automatic ticket unlocking test script
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -79,6 +78,11 @@ $UserObject->SetPreferences(
 my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTime2Date(
     SystemTime => $TimeObject->SystemTime(),
 );
+
+# Special case for leap years. There is no Feb 29 in the next and previous years in this case.
+if ( $Month == 2 && $Day == 29 ) {
+    $Day--;
+}
 
 $UserObject->SetPreferences(
     UserID => $Ticket{OwnerID},

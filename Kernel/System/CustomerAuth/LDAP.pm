@@ -1,6 +1,5 @@
 # --
-# Kernel/System/CustomerAuth/LDAP.pm - provides the ldap authentication
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +12,7 @@ use strict;
 use warnings;
 
 use Net::LDAP;
+use Net::LDAP::Util qw(escape_filter_value);
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -195,14 +195,8 @@ sub Auth {
         return;
     }
 
-    # user quote
-    my $UserQuote = $Param{User};
-    $UserQuote =~ s/\\/\\\\/g;
-    $UserQuote =~ s/\(/\\(/g;
-    $UserQuote =~ s/\)/\\)/g;
-
     # build filter
-    my $Filter = "($Self->{UID}=$UserQuote)";
+    my $Filter = "($Self->{UID}=" . escape_filter_value( $Param{User} ) . ')';
 
     # prepare filter
     if ( $Self->{AlwaysFilter} ) {
@@ -246,12 +240,6 @@ sub Auth {
         return;
     }
 
-    # DN quote
-    my $UserDNQuote = $UserDN;
-    $UserDNQuote =~ s/\\/\\\\/g;
-    $UserDNQuote =~ s/\(/\\(/g;
-    $UserDNQuote =~ s/\)/\\)/g;
-
     # check if user need to be in a group!
     if ( $Self->{AccessAttr} && $Self->{GroupDN} ) {
 
@@ -266,10 +254,10 @@ sub Auth {
         # search if we're allowed to
         my $Filter2 = '';
         if ( $Self->{UserAttr} eq 'DN' ) {
-            $Filter2 = "($Self->{AccessAttr}=$UserDNQuote)";
+            $Filter2 = "($Self->{AccessAttr}=" . escape_filter_value($UserDN) . ')';
         }
         else {
-            $Filter2 = "($Self->{AccessAttr}=$UserQuote)";
+            $Filter2 = "($Self->{AccessAttr}=" . escape_filter_value( $Param{User} ) . ')';
         }
         my $Result2 = $LDAP->search(
             base   => $Self->{GroupDN},

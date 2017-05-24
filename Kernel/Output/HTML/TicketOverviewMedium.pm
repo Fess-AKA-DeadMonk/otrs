@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/TicketOverviewMedium.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -157,7 +156,7 @@ sub ActionRow {
                     Name => $Item->{Block},
                     Data => {
                         ID          => $Item->{ID},
-                        Name        => $Self->{LayoutObject}->{LanguageObject}->Translate( $Item->{Name} ),
+                        Name        => $Item->{Name},
                         Link        => $Self->{LayoutObject}->{Baselink} . $Item->{Link},
                         Description => $Item->{Description},
                         Block       => $Item->{Block},

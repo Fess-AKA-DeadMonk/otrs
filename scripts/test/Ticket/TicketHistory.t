@@ -1,6 +1,5 @@
 # --
-# TicketHistory.t - ticket module testscript
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,6 +17,12 @@ my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
 my $TypeObject   = $Kernel::OM->Get('Kernel::System::Type');
 my $StateObject  = $Kernel::OM->Get('Kernel::System::State');
+
+# Turn on the ticket type feature.
+$Kernel::OM->Get('Kernel::Config')->Set(
+    Key   => 'Ticket::Type',
+    Value => 1,
+);
 
 $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
@@ -86,6 +91,19 @@ my @Tests = (
                         HistoryType => 'NewTicket',
                         Type        => 'Unclassified',
                     },
+
+                    # Bug 12702 - TicketHistoryGet() initial ticket type update
+                    {
+                        CreateBy    => 1,
+                        HistoryType => 'TypeUpdate',
+                        Queue       => 'Raw',
+                        OwnerID     => 1,
+                        PriorityID  => 3,
+                        State       => 'new',
+                        Type        => 'Unclassified',
+                        TypeID      => '1',
+                    },
+
                     {
                         CreateBy    => 1,
                         HistoryType => 'CustomerUpdate',
@@ -305,6 +323,7 @@ for my $Test (@Tests) {
 
             my %LookForHistoryTypes = (
                 NewTicket      => 1,
+                TypeUpdate     => 1,
                 OwnerUpdate    => 1,
                 CustomerUpdate => 1,
             );

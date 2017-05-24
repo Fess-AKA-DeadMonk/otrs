@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminSystemMaintenance.pm - to control all system maintenance actions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -603,9 +602,9 @@ sub _GetParams {
         Comment LoginMessage ShowLoginMessage NotifyMessage ValidID )
         )
     {
-        my $EmptyValue = ( $ParamName eq 'ShowLoginMessage' ? 0 : undef );
-        $GetParam->{$ParamName} = $Self->{ParamObject}->GetParam( Param => $ParamName ) || $EmptyValue;
+        $GetParam->{$ParamName} = $Self->{ParamObject}->GetParam( Param => $ParamName );
     }
+    $Param{ShowLoginMessage} ||= 0;
 
     ITEM:
     for my $Item (qw(StartDate StopDate)) {

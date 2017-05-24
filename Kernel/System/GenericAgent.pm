@@ -1,6 +1,5 @@
 # --
-# Kernel/System/GenericAgent.pm - generic agent system module
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -286,13 +285,13 @@ sub JobRun {
         PREFERENCE:
         for my $Preference ( @{$SearchFieldPreferences} ) {
 
-            if (
-                !$DynamicFieldSearchTemplate{
-                    'Search_DynamicField_'
-                        . $DynamicFieldConfig->{Name}
-                        . $Preference->{Type}
-                }
-                )
+            my $DynamicFieldTemp = $DynamicFieldSearchTemplate{
+                'Search_DynamicField_'
+                    . $DynamicFieldConfig->{Name}
+                    . $Preference->{Type}
+            };
+
+            if ( !defined($DynamicFieldTemp) )
             {
                 next PREFERENCE;
             }
@@ -321,6 +320,9 @@ sub JobRun {
 
     # escalation tickets
     my %Tickets;
+
+    # get ticket limit on job run
+    my $RunLimit = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::GenericAgentRunLimit');
     if ( $Job{Escalation} ) {
 
         # Find all tickets which will escalate within the next five days.
@@ -328,7 +330,7 @@ sub JobRun {
         my @Tickets = $TicketObject->TicketSearch(
             %Job,
             Result                           => 'ARRAY',
-            Limit                            => $Job{Limit} || 100,
+            Limit                            => $Job{Limit} || $Param{Limit} || 100,
             TicketEscalationTimeOlderMinutes => $Job{TicketEscalationTimeOlderMinutes}
                 || -( 5 * 24 * 60 ),
             Permission => 'rw',
@@ -367,7 +369,7 @@ sub JobRun {
                     %DynamicFieldSearchParameters,
                     ConditionInline => 1,
                     StateType       => $Type,
-                    Limit           => $Param{Limit} || 4000,
+                    Limit           => $Param{Limit} || $RunLimit,
                     UserID          => $Param{UserID},
                 ),
                 %Tickets
@@ -385,7 +387,7 @@ sub JobRun {
                         ConditionInline => 1,
                         Queues          => [$_],
                         StateType       => $Type,
-                        Limit           => $Param{Limit} || 4000,
+                        Limit           => $Param{Limit} || $RunLimit,
                         UserID          => $Param{UserID},
                     ),
                     %Tickets
@@ -400,7 +402,7 @@ sub JobRun {
                     ConditionInline => 1,
                     StateType       => $Type,
                     Queues          => [ $Job{Queue} ],
-                    Limit           => $Param{Limit} || 4000,
+                    Limit           => $Param{Limit} || $RunLimit,
                     UserID          => $Param{UserID},
                 ),
                 %Tickets
@@ -452,7 +454,7 @@ sub JobRun {
                 %Job,
                 %DynamicFieldSearchParameters,
                 ConditionInline => 1,
-                Limit           => $Param{Limit} || 4000,
+                Limit           => $Param{Limit} || $RunLimit,
                 UserID          => $Param{UserID},
             );
         }
@@ -467,7 +469,7 @@ sub JobRun {
                         %DynamicFieldSearchParameters,
                         ConditionInline => 1,
                         Queues          => [$_],
-                        Limit           => $Param{Limit} || 4000,
+                        Limit           => $Param{Limit} || $RunLimit,
                         UserID          => $Param{UserID},
                     ),
                     %Tickets
@@ -480,7 +482,7 @@ sub JobRun {
                 %DynamicFieldSearchParameters,
                 ConditionInline => 1,
                 Queues          => [ $Job{Queue} ],
-                Limit           => $Param{Limit} || 4000,
+                Limit           => $Param{Limit} || $RunLimit,
                 UserID          => $Param{UserID},
             );
         }
@@ -937,9 +939,7 @@ sub _JobRunTicket {
     my $Ticket = "($Param{TicketNumber}/$Param{TicketID})";
 
     # disable sending emails
-    if ( $Param{Config}->{New}->{SendNoNotification} ) {
-        $TicketObject->{SendNoNotification} = 1;
-    }
+    $TicketObject->{SendNoNotification} = $Param{Config}->{New}->{SendNoNotification} ? 1 : 0;
 
     # move ticket
     if ( $Param{Config}->{New}->{Queue} ) {

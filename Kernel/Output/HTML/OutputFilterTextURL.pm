@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/OutputFilterTextURL.pm - auto URL detection filter
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -45,15 +44,17 @@ sub Pre {
     ${ $Param{Data} } =~ s{
         ( > | < | &gt; | &lt; | )  # $1 greater-than and less-than sign
 
-        (                                              #2
+        (                                            # $2
             (?:                                      # http or only www
-                (?: (?: http s? | ftp ) :\/\/) |        # http://,https:// and ftp://
-                (?: (?: \w*www | ftp ) \. \w+ )                 # www.something and ftp.something
+                (?: (?: http s? | ftp ) :\/\/)|      # http://, https:// and ftp://
+                (?: [a-z0-9\-]* \.?                  # allow for sub-domain or prefixes bug#12472
+                    (?: www | ftp ) \. \w+           # www.something and ftp.something
+                )
             )
-            .*?               # this part should be better defined!
+            .*?                           # this part should be better defined!
         )
-        (                               # $3
-            [\?,;!\.\)\]] (?: \s | $ )    # \)\s this construct is because of bug#2450 and bug#7288
+        (                                 # $3
+            [\?,;!\.] (?: \s | $ )        # this construct is because of bug#2450 and bug#7288
             | \s
             | \"
             | &quot;
@@ -63,7 +64,7 @@ sub Pre {
             | <                           # "
             | &gt;                        # "
             | &lt;                        # "
-            | $                           # bug# 2715
+            | $                           # bug#2715
         )        }
     {
         my $Start = $1;

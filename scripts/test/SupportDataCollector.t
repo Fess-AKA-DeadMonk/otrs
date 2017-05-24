@@ -1,6 +1,5 @@
 # --
-# SupportDataCollector.t - SupportDataCollector tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,26 +12,98 @@ use utf8;
 
 use vars (qw($Self));
 
+use File::Basename;
 use Time::HiRes ();
 
 use Kernel::System::SupportDataCollector::PluginBase;
 
-# get needed objects
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreSystemConfiguration => 1,
+    },
+);
 my $HelperObject               = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $SysConfigObject            = $Kernel::OM->Get('Kernel::System::SysConfig');
 my $CacheObject                = $Kernel::OM->Get('Kernel::System::Cache');
+my $MainObject                 = $Kernel::OM->Get('Kernel::System::Main');
 my $SupportDataCollectorObject = $Kernel::OM->Get('Kernel::System::SupportDataCollector');
+
+$SysConfigObject->ConfigItemUpdate(
+    Valid => 1,
+    Key   => 'SupportDataCollector::DisablePlugins',
+    Value => [
+        'Kernel::System::SupportDataCollector::Plugin::OTRS::PackageDeployment',
+    ],
+);
+$SysConfigObject->ConfigItemUpdate(
+    Valid => 1,
+    Key   => 'SupportDataCollector::IdentifierFilterBlacklist',
+    Value => [
+        'Kernel::System::SupportDataCollector::Plugin::OTRS::TimeSettings::UserDefaultTimeZone',
+    ],
+);
+
+my $TimeStart = [ Time::HiRes::gettimeofday() ];
+
+my $Success = $SupportDataCollectorObject->CollectAsynchronous();
+
+$Self->Is(
+    $Success,
+    1,
+    "Asynchronous data collection status",
+);
+
+my $TimeElapsed = Time::HiRes::tv_interval($TimeStart);
+
+# Look for all plugins in the FS
+my @PluginFiles = $MainObject->DirectoryRead(
+    Directory => $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        . "/Kernel/System/SupportDataCollector/PluginAsynchronous",
+    Filter    => "*.pm",
+    Recursive => 1,
+);
+
+# Execute all Plugins
+for my $PluginFile (@PluginFiles) {
+
+    # Convert file name => package name
+    $PluginFile =~ s{^.*(Kernel/System.*)[.]pm$}{$1}xmsg;
+    $PluginFile =~ s{/+}{::}xmsg;
+
+    if ( !$MainObject->Require($PluginFile) ) {
+        return (
+            Success      => 0,
+            ErrorMessage => "Could not load $PluginFile!",
+        );
+    }
+    my $PluginObject = $PluginFile->new( %{$Self} );
+
+    my $AsynchronousData = $PluginObject->_GetAsynchronousData();
+
+    $Self->True(
+        defined $AsynchronousData,
+        "$PluginFile - asychronous data exists.",
+    );
+}
+
+$Self->True(
+    $TimeElapsed < 180,
+    "CollectAsynchronous() - Should take less than 120 seconds, it took $TimeElapsed"
+);
+
+# test the support data collect function
 
 $CacheObject->CleanUp(
     Type => 'SupportDataCollector',
 );
 
-my $TimeStart = [ Time::HiRes::gettimeofday() ];
+$TimeStart = [ Time::HiRes::gettimeofday() ];
 
 my %Result = $SupportDataCollectorObject->Collect(
     WebTimeout => 40,
 );
 
-my $TimeElapsed = Time::HiRes::tv_interval($TimeStart);
+$TimeElapsed = Time::HiRes::tv_interval($TimeStart);
 
 $Self->Is(
     $Result{Success},
@@ -77,6 +148,23 @@ for my $ResultEntry ( @{ $Result{Result} || [] } ) {
         "$ResultEntry->{Identifier} - identifier only used once.",
     );
 }
+
+# Check if the identifier from the disabled plugions are not present.
+for my $DisabledPluginsIdentifier (
+    qw(Kernel::System::SupportDataCollector::Plugin::OTRS::PackageDeployment Kernel::System::SupportDataCollector::Plugin::OTRS::PackageDeployment::Verification Kernel::System::SupportDataCollector::Plugin::OTRS::PackageDeployment::FrameworkVersion)
+    )
+{
+    $Self->False(
+        $SeenIdentifier{$DisabledPluginsIdentifier},
+        "Collect() - SupportDataCollector::DisablePlugins - $DisabledPluginsIdentifier should not be present"
+    );
+}
+
+# Check if the identifiers from the identifier filter blacklist are not present.
+$Self->False(
+    $SeenIdentifier{'Kernel::System::SupportDataCollector::Plugin::OTRS::TimeSettings::UserDefaultTimeZone'},
+    "Collect() - SupportDataCollector::IdentifierFilterBlacklist - Kernel::System::SupportDataCollector::Plugin::OTRS::TimeSettings::UserDefaultTimeZone should not be present"
+);
 
 # cache tests
 my $CacheResult = $CacheObject->Get(

@@ -1,6 +1,5 @@
 # --
-# Kernel/GenericInterface/Operation/Ticket/TicketGet.pm - GenericInterface Ticket Get operation backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -70,24 +69,26 @@ one or more ticket entries in one call.
 
     my $Result = $OperationObject->Run(
         Data => {
-            UserLogin         => 'some agent login',                            # UserLogin or CustomerUserLogin or SessionID is
-                                                                                #   required
-            CustomerUserLogin => 'some customer login',
-            SessionID         => 123,
+            UserLogin            => 'some agent login',                            # UserLogin or CustomerUserLogin or SessionID is
+                                                                                   #   required
+            CustomerUserLogin    => 'some customer login',
+            SessionID            => 123,
 
-            Password          => 'some password',                                       # if UserLogin or customerUserLogin is sent then
-                                                                                #   Password is required
-            TicketID          => '32,33',                                       # required, could be coma separated IDs or an Array
-            DynamicFields     => 0,                                             # Optional, 0 as default. Indicate if Dynamic Fields
-                                                                                # should be included or not on the ticket content.
-            Extended          => 1,                                             # Optional, 0 as default
-            AllArticles       => 1,                                             # Optional, 0 as default. Set as 1 will include articles
-                                                                                # for tickets.
-            ArticleSenderType => [ $ArticleSenderType1, $ArticleSenderType2 ],  # Optional, only requested article sender types
-            ArticleOrder      => 'DESC',                                        # Optional, DESC,ASC - default is ASC
-            ArticleLimit      => 5,                                             # Optional
-            Attachments       => 1,                                             # Optional, 1 as default. If it's set with the value 1,
-                                                                                # attachments for articles will be included on ticket data
+            Password             => 'some password',                               # if UserLogin or customerUserLogin is sent then
+                                                                                   #   Password is required
+            TicketID             => '32,33',                                       # required, could be coma separated IDs or an Array
+            DynamicFields        => 0,                                             # Optional, 0 as default. Indicate if Dynamic Fields
+                                                                                   #     should be included or not on the ticket content.
+            Extended             => 1,                                             # Optional, 0 as default
+            AllArticles          => 1,                                             # Optional, 0 as default. Set as 1 will include articles
+                                                                                   #     for tickets.
+            ArticleSenderType    => [ $ArticleSenderType1, $ArticleSenderType2 ],  # Optional, only requested article sender types
+            ArticleOrder         => 'DESC',                                        # Optional, DESC,ASC - default is ASC
+            ArticleLimit         => 5,                                             # Optional
+            Attachments          => 1,                                             # Optional, 1 as default. If it's set with the value 1,
+                                                                                   # attachments for articles will be included on ticket data
+            HTMLBodyAsAttachment => 1                                              # Optional, If enabled the HTML body version of each article
+                                                                                   #    is added to the attachments list
         },
     );
 
@@ -279,6 +280,15 @@ sub Run {
         );
     }
 
+    # Get the list of dynamic fields for object ticket.
+    my $TicketDynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldList(
+        ObjectType => 'Ticket',
+        ResultType => 'HASH',
+    );
+
+    # Crate a lookup list for easy search
+    my %TicketDynamicFieldLookup = reverse %{$TicketDynamicFieldList};
+
     TICKET:
     for my $TicketID (@TicketIDs) {
 
@@ -296,17 +306,27 @@ sub Run {
         );
     }
 
-    my $DynamicFields     = $Param{Data}->{DynamicFields}     || 0;
-    my $Extended          = $Param{Data}->{Extended}          || 0;
-    my $AllArticles       = $Param{Data}->{AllArticles}       || 0;
-    my $ArticleSenderType = $Param{Data}->{ArticleSenderType} || '';
-    my $ArticleOrder      = $Param{Data}->{ArticleOrder}      || 'ASC';
-    my $ArticleLimit      = $Param{Data}->{ArticleLimit}      || 0;
-    my $Attachments       = $Param{Data}->{Attachments}       || 0;
-    my $ReturnData        = {
+    my $DynamicFields = $Param{Data}->{DynamicFields} || 0;
+    my $Extended      = $Param{Data}->{Extended}      || 0;
+    my $AllArticles   = $Param{Data}->{AllArticles}   || 0;
+    my $ArticleOrder  = $Param{Data}->{ArticleOrder}  || 'ASC';
+    my $ArticleLimit  = $Param{Data}->{ArticleLimit}  || 0;
+    my $Attachments   = $Param{Data}->{Attachments}   || 0;
+    my $ReturnData    = {
         Success => 1,
     };
     my @Item;
+
+    my $ArticleSenderType = '';
+    if ( IsArrayRefWithData( $Param{Data}->{ArticleSenderType} ) ) {
+        $ArticleSenderType = $Param{Data}->{ArticleSenderType};
+    }
+    elsif ( IsStringWithData( $Param{Data}->{ArticleSenderType} ) ) {
+        $ArticleSenderType = [ $Param{Data}->{ArticleSenderType} ]
+    }
+
+    # By default does not include HYML body as attachment (3) unless is explicitly requested (2).
+    my $StripPlainBodyAsAttachment = $Param{Data}->{HTMLBodyAsAttachment} ? 2 : 3;
 
     # start ticket loop
     TICKET:
@@ -344,9 +364,14 @@ sub Run {
             next TICKET;
         }
 
+        my $ArticleTypes;
+        if ( $UserType eq 'Customer' ) {
+            $ArticleTypes = [ $TicketObject->ArticleTypeList( Type => 'Customer' ) ];
+        }
         my @ArticleBox = $TicketObject->ArticleGet(
             TicketID          => $TicketID,
             ArticleSenderType => $ArticleSenderType,
+            ArticleType       => $ArticleTypes,
             DynamicFields     => $DynamicFields,
             Extended          => $Extended,
             Order             => $ArticleOrder,
@@ -364,7 +389,7 @@ sub Run {
             my %AtmIndex = $TicketObject->ArticleAttachmentIndex(
                 ContentPath                => $Article->{ContentPath},
                 ArticleID                  => $Article->{ArticleID},
-                StripPlainBodyAsAttachment => 3,
+                StripPlainBodyAsAttachment => $StripPlainBodyAsAttachment,
                 Article                    => $Article,
                 UserID                     => $UserID,
             );
@@ -395,6 +420,21 @@ sub Run {
 
         # set Ticket entry data
         if (@ArticleBox) {
+
+            for my $ArticleRaw (@ArticleBox) {
+
+                # remove all ticket dynamic fields form main article hash.
+                ATTRIBUTE:
+                for my $Attribute ( sort keys %{$ArticleRaw} ) {
+                    if ( $Attribute =~ m{\A DynamicField_(.*) \z}msx ) {
+
+                        if ( $TicketDynamicFieldLookup{$1} ) {
+                            delete $ArticleRaw->{$Attribute};
+                        }
+                    }
+                }
+            }
+
             $TicketBundle->{Article} = \@ArticleBox;
         }
 

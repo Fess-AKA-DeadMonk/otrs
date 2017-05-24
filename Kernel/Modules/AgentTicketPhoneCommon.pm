@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketPhoneCommon.pm - phone calls for existing tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -143,19 +142,20 @@ sub Run {
                 Lock     => 'lock',
                 UserID   => $Self->{UserID},
             );
-            if (
-                $Self->{TicketObject}->TicketOwnerSet(
-                    TicketID  => $Self->{TicketID},
-                    UserID    => $Self->{UserID},
-                    NewUserID => $Self->{UserID},
-                )
-                )
-            {
+            my $Success = $Self->{TicketObject}->TicketOwnerSet(
+                TicketID  => $Self->{TicketID},
+                UserID    => $Self->{UserID},
+                NewUserID => $Self->{UserID},
+            );
 
-                # show lock state
-                $OutputNotify = $Self->{LayoutObject}->Notify(
-                    Data => "$Ticket{TicketNumber}: "
-                        . $Self->{LayoutObject}->{LanguageObject}->Translate("Ticket locked."),
+            # show lock state
+            if ($Success) {
+                $Self->{LayoutObject}->Block(
+                    Name => 'PropertiesLock',
+                    Data => {
+                        %Param,
+                        TicketID => $Self->{TicketID},
+                    },
                 );
             }
         }
@@ -454,20 +454,24 @@ sub Run {
         );
 
         # check if date is valid
-        my %StateData = $Self->{StateObject}->StateGet( ID => $GetParam{NextStateID} );
-        if ( $StateData{TypeName} =~ /^pending/i ) {
-            if ( !$Self->{TimeObject}->Date2SystemTime( %GetParam, Second => 0 ) ) {
-                if ( $IsUpload == 0 ) {
-                    $Error{'DateInvalid'} = ' ServerError';
+        my %StateData;
+        $GetParam{NextStateID} ||= '';
+        if ( $GetParam{NextStateID} ) {
+            %StateData = $Self->{StateObject}->StateGet( ID => $GetParam{NextStateID} );
+            if ( $StateData{TypeName} =~ /^pending/i ) {
+                if ( !$Self->{TimeObject}->Date2SystemTime( %GetParam, Second => 0 ) ) {
+                    if ( $IsUpload == 0 ) {
+                        $Error{'DateInvalid'} = ' ServerError';
+                    }
                 }
-            }
-            if (
-                $Self->{TimeObject}->Date2SystemTime( %GetParam, Second => 0 )
-                < $Self->{TimeObject}->SystemTime()
-                )
-            {
-                if ( $IsUpload == 0 ) {
-                    $Error{'DateInvalid'} = ' ServerError';
+                if (
+                    $Self->{TimeObject}->Date2SystemTime( %GetParam, Second => 0 )
+                    < $Self->{TimeObject}->SystemTime()
+                    )
+                {
+                    if ( $IsUpload == 0 ) {
+                        $Error{'DateInvalid'} = ' ServerError';
+                    }
                 }
             }
         }
@@ -780,15 +784,16 @@ sub Run {
             }
 
             # set state
-            $Self->{TicketObject}->TicketStateSet(
-                TicketID  => $Self->{TicketID},
-                ArticleID => $ArticleID,
-                StateID   => $GetParam{NextStateID},
-                UserID    => $Self->{UserID},
-            );
+            if ( $StateData{ID} ) {
+                $Self->{TicketObject}->TicketStateSet(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $ArticleID,
+                    StateID   => $StateData{ID},
+                    UserID    => $Self->{UserID},
+                );
+            }
 
             # should i set an unlock? yes if the ticket is closed
-            my %StateData = $Self->{StateObject}->StateGet( ID => $GetParam{NextStateID} );
             if ( $StateData{TypeName} =~ /^close/i ) {
 
                 # set lock
@@ -837,7 +842,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -957,11 +961,12 @@ sub Run {
         my $JSON = $Self->{LayoutObject}->BuildSelectionJSON(
             [
                 {
-                    Name        => 'NextStateID',
-                    Data        => $NextStates,
-                    SelectedID  => $GetParam{NextStateID},
-                    Translation => 1,
-                    Max         => 100,
+                    Name         => 'NextStateID',
+                    Data         => $NextStates,
+                    SelectedID   => $GetParam{NextStateID},
+                    Translation  => 1,
+                    PossibleNone => 1,
+                    Max          => 100,
                 },
                 @DynamicFieldAJAX,
                 @TemplateAJAX,
@@ -1096,20 +1101,23 @@ sub _MaskPhone {
     elsif ( $Self->{Config}->{State} ) {
         $Selected{SelectedValue} = $Self->{Config}->{State};
     }
-    else {
-        $Param{NextStates}->{''} = '-';
-    }
     $Param{NextStatesStrg} = $Self->{LayoutObject}->BuildSelection(
-        Data => $Param{NextStates},
-        Name => 'NextStateID',
+        Data         => $Param{NextStates},
+        Name         => 'NextStateID',
+        Class        => 'Modernize',
+        Translation  => 1,
+        PossibleNone => 1,
         %Selected,
     );
 
     # customer info string
     if ( $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerInfoCompose') ) {
         $Param{CustomerTable} = $Self->{LayoutObject}->AgentCustomerViewTable(
-            Data => $Param{CustomerData},
-            Max  => $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerInfoComposeMaxSize'),
+            Data => {
+                %{ $Param{CustomerData} },
+                TicketID => $Self->{TicketID},
+            },
+            Max => $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerInfoComposeMaxSize'),
         );
         $Self->{LayoutObject}->Block(
             Name => 'CustomerTable',

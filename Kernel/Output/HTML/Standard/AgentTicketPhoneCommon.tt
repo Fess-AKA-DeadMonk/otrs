@@ -1,6 +1,5 @@
 # --
-# AgentTicketPhoneCommon.tt - provides HTML form for phone
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -23,6 +22,14 @@
                 <a class="CancelClosePopup" href="#">[% Translate("Cancel & close window") | html %]</a>
             </p>
 [% RenderBlockEnd("TicketBack") %]
+[% RenderBlockStart("PropertiesLock") %]
+            <p>
+                [% Translate("The ticket has been locked") | html %].
+                <a class="UndoClosePopup" href="[% Env("Baselink") %]Action=AgentTicketLock;Subaction=Unlock;TicketID=[% Data.TicketID %];[% Env("ChallengeTokenParam") | html %]">
+                    [% Translate("Undo & close") | html %]
+                </a>
+            </p>
+[% RenderBlockEnd("PropertiesLock") %]
 
         </div>
 
@@ -79,7 +86,10 @@
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
     $('#StandardTemplateID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($(this).closest('form'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        var $TemplateSelect = $(this);
+        Core.Agent.TicketAction.ConfirmTemplateOverwrite('RichText', $TemplateSelect, function () {
+            Core.AJAX.FormUpdate($TemplateSelect.closest('form'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
+        });
         return false;
     });
 //]]></script>

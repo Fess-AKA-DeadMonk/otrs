@@ -1,6 +1,5 @@
 # --
-# CustomerUser.t - CustomerUser tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -30,13 +29,32 @@ $ConfigObject->Set(
     Value => 0,
 );
 
-my $DatabaseCaseSensitive                = $DBObject->{Backend}->{'DB::CaseSensitive'};
-my $CustomerDatabaseCaseSensitiveDefault = $ConfigObject->{CustomerUser}->{Params}->{CaseSensitive};
+my $DatabaseCaseSensitive      = $DBObject->{Backend}->{'DB::CaseSensitive'};
+my $SearchCaseSensitiveDefault = $ConfigObject->{CustomerUser}->{Params}->{SearchCaseSensitive};
 
 my $UserID = '';
-for my $Key ( 1 .. 3, 'ä', 'カス' ) {
+for my $Key ( 1 .. 3, 'ä', 'カス', '_', '&' ) {
 
-    my $UserRand = 'Example-Customer-User' . $Key . int( rand(1000000) );
+    # create non existing customer user login
+    my $UserRand;
+    TRY:
+    for my $Try ( 1 .. 20 ) {
+
+        $UserRand = 'unittest-' . $Key . int rand 1_000_000;
+
+        my %UserData = $CustomerUserObject->CustomerUserDataGet(
+            User => $UserRand,
+        );
+
+        last TRY if !%UserData;
+
+        next TRY if $Try ne 20;
+
+        $Self->True(
+            0,
+            'Find non existing customer user login.',
+        );
+    }
 
     $UserID = $UserRand;
     my $UserID = $CustomerUserObject->CustomerUserAdd(
@@ -160,18 +178,88 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
         "CustomerUserGet() - uc() - $UserID",
     );
 
-    # search
+    # search by CustomerID
     my %List = $CustomerUserObject->CustomerSearch(
         CustomerID => $UserRand . '-Customer-Update-Id',
         ValidID    => 1,
     );
     $Self->True(
         $List{$UserID},
-        "CustomerSearch() - CustomerID - $UserID",
+        "CustomerSearch() - CustomerID=\'$UserRand-Customer-Update-Id\' - $UserID is found",
+    );
+
+    # search by CustomerIDRaw
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerIDRaw => $UserRand . '-Customer-Update-Id',
+        ValidID       => 1,
+    );
+    $Self->True(
+        $List{$UserID},
+        "CustomerSearch() - CustomerIDRaw=\'$UserRand-Customer-Update-Id\' - $UserID is found",
+    );
+
+    # search by CustomerIDRaw with asterisk
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerIDRaw => '*',
+        ValidID       => 1,
+    );
+    $Self->False(
+        $List{$UserID},
+        "CustomerSearch() - CustomerIDRaw=\'*\' - $UserID is not found",
+    );
+
+    # search by CustomerID with asterisk
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerID => $UserRand . '-Customer*',
+        ValidID    => 1,
+    );
+    $Self->True(
+        $List{$UserID},
+        "CustomerSearch() - CustomerID=\'$UserRand-Customer*\' - $UserID is found",
+    );
+
+    # search by CustomerIDRaw with asterisk
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerIDRaw => $UserRand . '-Customer*',
+        ValidID       => 1,
+    );
+    $Self->False(
+        $List{$UserID},
+        "CustomerSearch() - CustomerIDRaw=\'$UserRand-Customer*\' - $UserID is not found",
+    );
+
+    # search by CustomerIDRaw with %
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerIDRaw => '%',
+        ValidID       => 1,
+    );
+    $Self->False(
+        $List{$UserID},
+        "CustomerSearch() - CustomerIDRaw=\'%\' - $UserID is not found",
+    );
+
+    # search by CustomerID with %
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerID => $UserRand . '-Customer%',
+        ValidID    => 1,
+    );
+    $Self->True(
+        $List{$UserID},
+        "CustomerSearch() - CustomerID=\'$UserRand-Customer%\' - $UserID is found",
+    );
+
+    # search by CustomerIDRaw with %
+    %List = $CustomerUserObject->CustomerSearch(
+        CustomerIDRaw => $UserRand . '-Customer%',
+        ValidID       => 1,
+    );
+    $Self->False(
+        $List{$UserID},
+        "CustomerSearch() - CustomerIDRaw=\'$UserRand-Customer%\' - $UserID is not found",
     );
 
     # START CaseSensitive
-    $ConfigObject->{CustomerUser}->{Params}->{CaseSensitive} = 1;
+    $ConfigObject->{CustomerUser}->{Params}->{SearchCaseSensitive} = 1;
 
     $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::CustomerUser'] );
     $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
@@ -188,13 +276,13 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
 
         $Self->False(
             $List{$UserID},
-            "CustomerSearch() - CustomerID - $UserID (CaseSensitive = 1)",
+            "CustomerSearch() - CustomerID - $UserID (SearchCaseSensitive = 1)",
         );
     }
     else {
         $Self->True(
             $List{$UserID},
-            "CustomerSearch() - CustomerID - $UserID (CaseSensitive = 1)",
+            "CustomerSearch() - CustomerID - $UserID (SearchCaseSensitive = 1)",
         );
     }
 
@@ -209,18 +297,18 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
         $Self->IsNotDeeply(
             \@List,
             [ $UserRand . '-Customer-Update-Id' ],
-            "CustomerIDList() - no SearchTerm - $UserID (CaseSensitive = 1)",
+            "CustomerIDList() - no SearchTerm - $UserID (SearchCaseSensitive = 1)",
         );
     }
     else {
         $Self->IsDeeply(
             \@List,
             [ $UserRand . '-Customer-Update-Id' ],
-            "CustomerIDList() - no SearchTerm - $UserID (CaseSensitive = 1)",
+            "CustomerIDList() - no SearchTerm - $UserID (SearchCaseSensitive = 1)",
         );
     }
 
-    $ConfigObject->{CustomerUser}->{Params}->{CaseSensitive} = 0;
+    $ConfigObject->{CustomerUser}->{Params}->{SearchCaseSensitive} = 0;
 
     $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::CustomerUser'] );
     $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
@@ -234,7 +322,7 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
     );
     $Self->True(
         $List{$UserID},
-        "CustomerSearch() - CustomerID - $UserID (CaseSensitive = 0)",
+        "CustomerSearch() - CustomerID - $UserID (SearchCaseSensitive = 0)",
     );
 
     # CustomerIDList
@@ -246,10 +334,10 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
     $Self->IsDeeply(
         \@List,
         [ $UserRand . '-Customer-Update-Id' ],
-        "CustomerIDList() - no SearchTerm - $UserID (CaseSensitive = 0)",
+        "CustomerIDList() - no SearchTerm - $UserID (SearchCaseSensitive = 0)",
     );
 
-    $ConfigObject->{CustomerUser}->{Params}->{CaseSensitive} = $CustomerDatabaseCaseSensitiveDefault;
+    $ConfigObject->{CustomerUser}->{Params}->{SearchCaseSensitive} = $SearchCaseSensitiveDefault;
 
     # END CaseSensitive
 
@@ -476,6 +564,15 @@ for my $Key ( 1 .. 3, 'ä', 'カス' ) {
     $Self->True(
         $List{$UserID},
         "CustomerSearch() - Search uc('*\$User') - $UserID",
+    );
+
+    %List = $CustomerUserObject->CustomerSearch(
+        Search  => uc("*$UserID*"),
+        ValidID => 1,
+    );
+    $Self->True(
+        $List{$UserID},
+        "CustomerSearch() - Search uc('*\$User*') - $UserID",
     );
 
     %List = $CustomerUserObject->CustomerSearch(

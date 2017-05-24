@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Time.pm - time functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -372,24 +371,53 @@ returns the current time stamp in RFC 2822 format to be used in email headers:
 sub MailTimeStamp {
     my ( $Self, %Param ) = @_;
 
+    # According to RFC 2822, section 3.3
+
+    # The date and time-of-day SHOULD express local time.
+    #
+    # The zone specifies the offset from Coordinated Universal Time (UTC,
+    # formerly referred to as "Greenwich Mean Time") that the date and
+    # time-of-day represent.  The "+" or "-" indicates whether the
+    # time-of-day is ahead of (i.e., east of) or behind (i.e., west of)
+    # Universal Time.  The first two digits indicate the number of hours
+    # difference from Universal Time, and the last two digits indicate the
+    # number of minutes difference from Universal Time.  (Hence, +hhmm
+    # means +(hh * 60 + mm) minutes, and -hhmm means -(hh * 60 + mm)
+    # minutes).  The form "+0000" SHOULD be used to indicate a time zone at
+    # Universal Time.  Though "-0000" also indicates Universal Time, it is
+    # used to indicate that the time was generated on a system that may be
+    # in a local time zone other than Universal Time and therefore
+    # indicates that the date-time contains no information about the local
+    # time zone.
+
     my @DayMap   = qw/Sun Mon Tue Wed Thu Fri Sat/;
     my @MonthMap = qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
 
-    # calculate offset - should be '+0200', '-0600', '+0000' or '+0530'
-    my $Diff = Time::Local::timegm_nocheck( localtime( time() ) ) - time();
-    my $Direction = $Diff < 0 ? '-' : '+';
-    $Diff = abs $Diff;
-    my $OffsetHours   = int( $Diff / 3600 );
-    my $OffsetMinutes = int( $Diff / 60 - $OffsetHours * 60 );
+    # Here we cannot use the OTRS "TimeZone" because OTRS uses localtime()
+    #   and does not know if that is UTC or another time zone.
+    #   Therefore OTRS cannot generate the correct offset for the mail timestamp.
+    #   So we need to use the real time configuration of the server to determine this properly.
+
+    my $ServerTime      = time();
+    my $ServerLocalTime = Time::Local::timegm_nocheck( localtime($ServerTime) );
+
+    # Check if local time and UTC time are different
+    my $ServerTimeDiff = $ServerLocalTime - $ServerTime;
+
+    # calculate offset - should be '+0200', '-0600', '+0545' or '+0000'
+    my $Direction   = $ServerTimeDiff < 0 ? '-' : '+';
+    my $DiffHours   = abs int( $ServerTimeDiff / 3600 );
+    my $DiffMinutes = abs int( ( $ServerTimeDiff % 3600 ) / 60 );
 
     my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $Self->SystemTime2Date(
-        SystemTime => $Self->SystemTime(),
+        SystemTime => $ServerTime,
     );
+
     my $TimeString = sprintf "%s, %d %s %d %02d:%02d:%02d %s%02d%02d",
         $DayMap[$WeekDay],    # 'Sat'
         $Day, $MonthMap[ $Month - 1 ], $Year,    # '2', 'Aug', '2014'
-        $Hour,      $Min,         $Sec,              # '12', '34', '36'
-        $Direction, $OffsetHours, $OffsetMinutes;    # '+', '02', '00'
+        $Hour,      $Min,       $Sec,            # '12', '34', '36'
+        $Direction, $DiffHours, $DiffMinutes;    # '+', '02', '00'
 
     return $TimeString;
 }
@@ -466,13 +494,29 @@ sub WorkingTime {
     $BYear  += 1900;
     $BMonth += 1;
     my $BDate = "$BYear-$BMonth-$BDay";
+    my $NextDay;
 
     while ( $Param{StartTime} < $Param{StopTime} ) {
+
         my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WDay ) = localtime $Param{StartTime};       ## no critic
         $Year  += 1900;
         $Month += 1;
         my $CDate   = "$Year-$Month-$Day";
         my $CTime00 = $Param{StartTime} - ( ( $Hour * 60 + $Min ) * 60 + $Sec );                  # 00:00:00
+
+        # compensate for switching to/from daylight saving time
+        # in case daylight saving time from 00:00:00 turned backward 1 hour to 23:00:00
+        if ( $NextDay && $Hour == 23 ) {
+            $Param{StartTime} += 3600;
+            $CTime00 = $Param{StartTime};
+
+            # get $Year, $Month, $Day for $CDate
+            # there is needed next day, but $Day++ would be wrong in case it was end of month
+            ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WDay ) = localtime $Param{StartTime} + 1;
+            $Year  += 1900;
+            $Month += 1;
+            $CDate = "$Year-$Month-$Day";
+        }
 
         # count nothing because of vacation
         if (
@@ -530,6 +574,10 @@ sub WorkingTime {
             Minute => 59,
             Second => 59,
         ) + 1;
+
+        # it will be used for checking daylight saving time
+        $NextDay = 1;
+
     }
     return $Counted;
 }
@@ -613,6 +661,7 @@ sub DestinationTime {
     );
 
     my $LoopCounter;
+    my $DayLightSaving;
 
     LOOP:
     while ( $Param{Time} > 1 ) {
@@ -623,6 +672,20 @@ sub DestinationTime {
         $Year  += 1900;
         $Month += 1;
         my $CTime00 = $CTime - ( ( $Hour * 60 + $Minute ) * 60 + $Second );               # 00:00:00
+
+        # compensate for switching to/from daylight saving time
+        # in case daylight saving time from 00:00:00 turned backward 1 hour to 23:00:00
+        if ( $DayLightSaving && $Hour == 23 ) {
+            $CTime += 3600;
+            $CTime00 = $CTime;
+
+            # there is needed next day, but $Day++ would be wrong in case it was end of month
+            ( $Second, $Minute, $Hour, $Day, $Month, $Year, $WDay ) = localtime $CTime + 1;
+            $Year  += 1900;
+            $Month += 1;
+
+            $DestinationTime += 3600;
+        }
 
         # Skip vacation days, or days without working hours, do not count.
         if (
@@ -649,8 +712,8 @@ sub DestinationTime {
 
                 # Check if we have a working hour
                 if ( grep { $H == $_ } @{ $TimeWorkingHours->{ $LDay{$WDay} } } ) {
-                    if ( $Param{Time} > 60 * 60 ) {
-                        my $RestOfHour = 3600 - ( $Minute * 60 + $Second );
+                    my $RestOfHour = 3600 - ( $Minute * 60 + $Second );
+                    if ( $Param{Time} > $RestOfHour ) {
                         $DestinationTime += $RestOfHour;
                         $Param{Time} -= $RestOfHour;
                     }
@@ -687,6 +750,7 @@ sub DestinationTime {
         if ( $NewCTime != $CTime00 + 24 * 60 * 60 ) {
             my $Diff = $NewCTime - $CTime00 - 24 * 60 * 60;
             $DestinationTime += $Diff;
+            $DayLightSaving = 1;
         }
 
         # Set next loop time to 00:00:00 of next day.

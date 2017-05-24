@@ -1,6 +1,5 @@
 # --
-# TicketUpdate.t - GenericInterface TicketCreate tests for TicketConnector backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -30,6 +29,9 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+# get a random number
+my $RandomID = int rand 1_000_000_000;
+
 # create a new user for current test
 my $UserLogin = $HelperObject->TestUserCreate(
     Groups => ['users'],
@@ -54,6 +56,92 @@ my $CustomerPassword  = $CustomerUserLogin;
 # create a customer that will not have permissions
 my $CustomerUserLogin2 = $HelperObject->TestCustomerUserCreate();
 my $CustomerPassword2  = $CustomerUserLogin2;
+
+# create dynamic field object
+my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+# add text dynamic field
+my %DynamicFieldTextConfig = (
+    Name       => "DFT1$RandomID",
+    FieldOrder => 9991,
+    FieldType  => 'Text',
+    ObjectType => 'Ticket',
+    Label      => 'Description',
+    ValidID    => 1,
+    Config     => {
+        DefaultValue => '',
+    },
+);
+my $FieldTextID = $DynamicFieldObject->DynamicFieldAdd(
+    %DynamicFieldTextConfig,
+    UserID  => 1,
+    Reorder => 0,
+);
+$Self->True(
+    $FieldTextID,
+    "Dynamic Field $FieldTextID",
+);
+
+# add ID
+$DynamicFieldTextConfig{ID} = $FieldTextID;
+
+# add dropdown dynamic field
+my %DynamicFieldDropdownConfig = (
+    Name       => "DFT2$RandomID",
+    FieldOrder => 9992,
+    FieldType  => 'Dropdown',
+    ObjectType => 'Ticket',
+    Label      => 'Description',
+    ValidID    => 1,
+    Config     => {
+        PossibleValues => [
+            1 => 'One',
+            2 => 'Two',
+            3 => 'Three',
+        ],
+    },
+);
+my $FieldDropdownID = $DynamicFieldObject->DynamicFieldAdd(
+    %DynamicFieldDropdownConfig,
+    UserID  => 1,
+    Reorder => 0,
+);
+$Self->True(
+    $FieldDropdownID,
+    "Dynamic Field $FieldDropdownID",
+);
+
+# add ID
+$DynamicFieldDropdownConfig{ID} = $FieldDropdownID;
+
+# add multiselect dynamic field
+my %DynamicFieldMultiselectConfig = (
+    Name       => "DFT3$RandomID",
+    FieldOrder => 9993,
+    FieldType  => 'Multiselect',
+    ObjectType => 'Ticket',
+    Label      => 'Multiselect label',
+    ValidID    => 1,
+    Config     => {
+        PossibleValues => [
+            1 => 'Value9ßüß',
+            2 => 'DifferentValue',
+            3 => '1234567',
+        ],
+    },
+);
+my $FieldMultiselectID = $DynamicFieldObject->DynamicFieldAdd(
+    %DynamicFieldMultiselectConfig,
+    UserID  => 1,
+    Reorder => 0,
+);
+$Self->True(
+    $FieldMultiselectID,
+    "Dynamic Field $FieldMultiselectID",
+);
+
+# add ID
+$DynamicFieldMultiselectConfig{ID} = $FieldMultiselectID;
 
 # create ticket object
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -88,8 +176,55 @@ my %Ticket = $TicketObject->TicketGet(
 # remember ticket id
 push @TicketIDs, $TicketID1;
 
-#get a random id
-my $RandomID = int rand 1_000_000_000;
+# create backed object
+my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+$Self->Is(
+    ref $BackendObject,
+    'Kernel::System::DynamicField::Backend',
+    'Backend object was created successfully',
+);
+
+# set text field value
+my $Result = $BackendObject->ValueSet(
+    DynamicFieldConfig => \%DynamicFieldTextConfig,
+    ObjectID           => $TicketID1,
+    Value              => 'ticket1_field1',
+    UserID             => 1,
+);
+
+# sanity check
+$Self->True(
+    $Result,
+    "Text ValueSet() for Ticket $TicketID1",
+);
+
+# set dropdown field value
+$Result = $BackendObject->ValueSet(
+    DynamicFieldConfig => \%DynamicFieldDropdownConfig,
+    ObjectID           => $TicketID1,
+    Value              => 1,
+    UserID             => 1,
+);
+
+# sanity check
+$Self->True(
+    $Result,
+    "Multiselect ValueSet() for Ticket $TicketID1",
+);
+
+# set multiselect field value
+$Result = $BackendObject->ValueSet(
+    DynamicFieldConfig => \%DynamicFieldMultiselectConfig,
+    ObjectID           => $TicketID1,
+    Value              => [ 2, 3 ],
+    UserID             => 1,
+);
+
+# sanity check
+$Self->True(
+    $Result,
+    "Dropdown ValueSet() for Ticket $TicketID1",
+);
 
 # set web-service name
 my $WebserviceName = '-Test-' . $RandomID;
@@ -398,6 +533,126 @@ my @Tests = (
         },
         Operation => 'TicketUpdate',
     },
+
+    {
+        Name           => 'Update Text DynamicField (with empty value)',
+        SuccessRequest => '1',
+        RequestData    => {
+            TicketID     => $TicketID1,
+            DynamicField => [
+                {
+                    Name  => "DFT1$RandomID",
+                    Value => '',
+                },
+                {
+                    Name  => "DFT2$RandomID",
+                    Value => '',
+                },
+                {
+                    Name  => "DFT3$RandomID",
+                    Value => '',
+                },
+            ],
+        },
+        Auth => {
+            SessionID => $NewSessionID,
+        },
+        ExpectedReturnRemoteData => {
+            Success => 1,
+            Data    => {
+                TicketID     => $Ticket{TicketID},
+                TicketNumber => $Ticket{TicketNumber},
+            },
+        },
+        ExpectedReturnLocalData => {
+            Success => 1,
+            Data    => {
+                TicketID     => $Ticket{TicketID},
+                TicketNumber => $Ticket{TicketNumber},
+            },
+        },
+        Operation => 'TicketUpdate',
+    },
+
+    {
+        Name           => 'Update Text DynamicField (with not empty value)',
+        SuccessRequest => '1',
+        RequestData    => {
+            TicketID     => $TicketID1,
+            DynamicField => [
+                {
+                    Name  => "DFT1$RandomID",
+                    Value => 'Value9ßüß-カスタ1234',
+                },
+                {
+                    Name  => "DFT2$RandomID",
+                    Value => '2',
+                },
+                {
+                    Name  => "DFT3$RandomID",
+                    Value => [ 1, 2 ],
+                },
+            ],
+        },
+        Auth => {
+            SessionID => $NewSessionID,
+        },
+        ExpectedReturnRemoteData => {
+            Success => 1,
+            Data    => {
+                TicketID     => $Ticket{TicketID},
+                TicketNumber => $Ticket{TicketNumber},
+            },
+        },
+        ExpectedReturnLocalData => {
+            Success => 1,
+            Data    => {
+                TicketID     => $Ticket{TicketID},
+                TicketNumber => $Ticket{TicketNumber},
+            },
+        },
+        Operation => 'TicketUpdate',
+    },
+
+    {
+        Name           => 'Update Text DynamicField (with wrong value)',
+        SuccessRequest => '1',
+        RequestData    => {
+            TicketID     => $TicketID1,
+            DynamicField => [
+                {
+                    Name  => "DFT1$RandomID",
+                    Value => { Wrong => 'Value' },    # value type depends on the dynamic field
+                },
+                {
+                    Name  => "DFT2$RandomID",
+                    Value => { Wrong => 'Value' },    # value type depends on the dynamic field
+                },
+            ],
+        },
+        Auth => {
+            SessionID => $NewSessionID,
+        },
+        ExpectedReturnRemoteData => {
+            Success => 1,
+            Data    => {
+                Error => {
+                    ErrorCode    => 'TicketUpdate.MissingParameter',
+                    ErrorMessage => 'TicketUpdate: DynamicField->Value parameter is missing!'
+                },
+            },
+        },
+        ExpectedReturnLocalData => {
+            Success => 1,
+            Data    => {
+                Error => {
+                    ErrorCode    => 'TicketUpdate.MissingParameter',
+                    ErrorMessage => 'TicketUpdate: DynamicField->Value parameter is missing!'
+                },
+            },
+        },
+        Operation => 'TicketUpdate',
+    },
 );
 
 # debugger object
@@ -519,7 +774,176 @@ for my $Test (@Tests) {
     }
 }
 
-# clean up
+# UnlockOnAway tests
+$ConfigObject->Set(
+    Key   => 'Ticket::UnlockOnAway',
+    Value => 1,
+);
+
+my $UserLoginOutOfOffice = $HelperObject->TestUserCreate(
+    Groups => ['users'],
+);
+my $UserIDOutOfOffice = $UserObject->UserLookup(
+    UserLogin => $UserLoginOutOfOffice,
+);
+my $UserIDNoOutOfOffice = $UserObject->UserLookup(
+    UserLogin => $UserLogin,
+);
+
+# set a user out of office
+my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+my ( $SSec, $SMin, $SHour, $SDay, $SMonth, $SYear, $SWeekDay ) = $TimeObject->SystemTime2Date(
+    SystemTime => $TimeObject->SystemTime() - ( 24 * 60 * 60 ),
+);
+my ( $ESec, $EMin, $EHour, $EDay, $EMonth, $EYear, $EWeekDay ) = $TimeObject->SystemTime2Date(
+    SystemTime => $TimeObject->SystemTime() + ( 24 * 60 * 60 ),
+);
+my %OutOfOfficeParams = (
+    OutOfOffice           => 1,
+    OutOfOfficeStartYear  => $SYear,
+    OutOfOfficeStartMonth => $SMonth,
+    OutOfOfficeStartDay   => $SDay,
+    OutOfOfficeEndYear    => $EYear,
+    OutOfOfficeEndMonth   => $EMonth,
+    OutOfOfficeEndDay     => $EDay,
+);
+for my $Key ( sort keys %OutOfOfficeParams ) {
+    $UserObject->SetPreferences(
+        UserID => $UserIDOutOfOffice,
+        Key    => $Key,
+        Value  => $OutOfOfficeParams{$Key},
+    );
+}
+
+my $TicketIDNoOutOfOffice = $TicketObject->TicketCreate(
+    Title        => 'Ticket One Title',
+    Queue        => 'Raw',
+    Lock         => 'lock',
+    Priority     => '3 normal',
+    State        => 'new',
+    CustomerID   => $CustomerUserLogin,
+    CustomerUser => 'unittest@otrs.com',
+    OwnerID      => $UserIDNoOutOfOffice,
+    UserID       => 1,
+);
+push @TicketIDs, $TicketIDNoOutOfOffice;
+
+my $TicketIDOutOfOffice = $TicketObject->TicketCreate(
+    Title        => 'Ticket One Title',
+    Queue        => 'Raw',
+    Lock         => 'lock',
+    Priority     => '3 normal',
+    State        => 'new',
+    CustomerID   => $CustomerUserLogin,
+    CustomerUser => 'unittest@otrs.com',
+    OwnerID      => $UserIDOutOfOffice,
+    UserID       => 1,
+);
+push @TicketIDs, $TicketIDOutOfOffice;
+
+@Tests = (
+    {
+        Name        => 'Add Article, Ticket NoOutOfOffice',
+        RequestData => {
+            TicketID => $TicketIDNoOutOfOffice,
+            Article  => {
+                Subject     => 'some subject',
+                Body        => 'some body',
+                ContentType => 'text/plain; charset=UTF8',
+            },
+
+        },
+        Lock => 'lock',
+    },
+    {
+        Name        => 'Add Article, Ticket OutOfOffice',
+        RequestData => {
+            TicketID => $TicketIDOutOfOffice,
+            Article  => {
+                Subject     => 'some subject',
+                Body        => 'some body',
+                ContentType => 'text/plain; charset=UTF8',
+            },
+        },
+        Lock => 'unlock',
+    },
+
+    {
+        Name        => 'Add Article / Change Owner, Ticket NoOutOfOffice',
+        RequestData => {
+            TicketID => $TicketIDNoOutOfOffice,
+            Ticket   => {
+                OwnerID => $UserIDOutOfOffice,
+            },
+            Article => {
+                Subject     => 'some subject',
+                Body        => 'some body',
+                ContentType => 'text/plain; charset=UTF8',
+            },
+        },
+        Lock => 'lock',
+    },
+    {
+        Name        => 'Add Article / Change Owner, Ticket OutOfOffice',
+        RequestData => {
+            TicketID => $TicketIDOutOfOffice,
+            Ticket   => {
+                OwnerID => $UserIDNoOutOfOffice,
+            },
+            Article => {
+                Subject     => 'some subject',
+                Body        => 'some body',
+                ContentType => 'text/plain; charset=UTF8',
+            },
+        },
+        Lock => 'lock',
+    },
+);
+
+for my $Test (@Tests) {
+
+    # create local object
+    my $LocalObject = "Kernel::GenericInterface::Operation::Ticket::TicketUpdate"->new(
+        %{$Self},
+        DebuggerObject => $DebuggerObject,
+        WebserviceID   => $WebserviceID,
+        ConfigObject   => $ConfigObject,
+    );
+
+    my %Auth = (
+        UserLogin => $UserLogin,
+        Password  => $Password,
+    );
+
+    # start requester with our web-service
+    my $LocalResult = $LocalObject->Run(
+        WebserviceID => $WebserviceID,
+        Invoker      => 'TicketUpdate',
+        Data         => {
+            %Auth,
+            %{ $Test->{RequestData} },
+        },
+    );
+
+    my %Ticket = $TicketObject->TicketGet(
+        TicketID => $Test->{RequestData}->{TicketID},
+        UserID   => 1,
+    );
+
+    $Self->Is(
+        $Ticket{Lock},
+        $Test->{Lock},
+        "$Test->{Name} Lock attribute",
+    );
+
+    my $Success = $TicketObject->TicketLockSet(
+        Lock     => 'lock',
+        TicketID => $Test->{RequestData}->{TicketID},
+        UserID   => 1,
+    );
+}
+
+# cleanup
 
 # clean up web-service
 my $WebserviceDelete = $WebserviceObject->WebserviceDelete(

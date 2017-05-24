@@ -1,6 +1,5 @@
 # --
-# AdminSysConfigEdit.tt - provides HTML form for SysConfig
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -507,6 +506,9 @@
 
             FullText  = $(this).text();
             $(this).text(FullText.substr(0, MaxLength) + '...');
+
+            // Repair string for correct displaying the overlay message - bug#11913
+            FullText = FullText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             $(this)
                 .append('&nbsp;<a href="#" class="DescriptionOverlay">' + LinkText + '</a>')

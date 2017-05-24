@@ -1,6 +1,5 @@
 # --
-# AgentTicketOverviewMedium.tt - provides HTML Ticket Overview
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -63,7 +62,7 @@
 [% RenderBlockStart("InlineActionRow") %]
             <ul class="Actions InlineActions">
 [% RenderBlockStart("InlineActionRowItem") %]
-                <li><a id="[% Data.ID | html %][% Data.TicketID | html %]" class="[% Data.Class | html %]" href="[% Data.Link | Interpolate | html %]" title="[% Data.Description | Interpolate | html %]">[% Data.Name | Interpolate | html %]</a></li>
+                <li><a id="[% Data.ID | html %][% Data.TicketID | html %]" class="[% Data.Class | html %]" href="[% Data.Link | Interpolate | html %]" title="[% Translate(Data.Description) | html %]">[% Translate(Data.Name) | html %]</a></li>
 [% RenderBlockEnd("InlineActionRowItem") %]
 [% RenderBlockStart("InlineActionRowItemHTML") %]
                 [% Data.HTML %]
@@ -317,6 +316,25 @@
             return false;
         }
     });
+
+    $('.OverviewMedium li').on('mouseenter', function() {
+        $(this).find('ul.InlineActions').css('top', '0px');
+    });
+    $('.OverviewMedium li').on('mouseleave', function(Event) {
+
+        // Workaround for bug#12403: The inlineActions would hide if hovering
+        // over the queue selection due to a bug in IE. As this is working fine
+        // in MS Edge with the former pure css solution, this whole function
+        // TargetNS.InitInlineActions could be dropped as soon as IE11 support is
+        // ceased for OTRS. Remember to re-add the needed css in this case:
+        //      .OverviewLarge > li:hover ul.InlineActions { top: 0px; }    (Core.OverviewLarge.css)
+        //      .OverviewPreview > li:hover ul.InlineActions { top: 0px; }  (Core.OverviewMedium.css)
+        if (Event.target.tagName.toLowerCase() === 'select') {
+            return false;
+        }
+        $(this).find('ul.InlineActions').css('top', '-30px');
+    });
+
 //]]></script>
 [% RenderBlockEnd("DocumentReadyStart") %]
 [% END %]

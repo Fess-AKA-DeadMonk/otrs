@@ -1,6 +1,5 @@
 # --
-# Kernel/System/SLA.pm - all sla functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -184,7 +183,7 @@ sub SLAGet {
         if ( !$Param{$Argument} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => "Need $Argument!"
+                Message  => "Need $Argument!",
             );
             return;
         }
@@ -338,7 +337,7 @@ sub SLALookup {
         );
 
         # fetch the result
-        my $Name;
+        my $Name = '';
         while ( my @Row = $DBObject->FetchrowArray() ) {
             $Name = $Row[0];
         }
@@ -377,7 +376,7 @@ sub SLALookup {
         );
 
         # fetch the result
-        my $SLAID;
+        my $SLAID = '';
         while ( my @Row = $DBObject->FetchrowArray() ) {
             $SLAID = $Row[0];
         }

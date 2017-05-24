@@ -1,6 +1,5 @@
 # --
-# Simple.t - Mapping tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -696,7 +695,7 @@ for my $Test (@MappingTests) {
         $Self->Is(
             ref $MappingObject,
             'Kernel::GenericInterface::Mapping',
-            'MappingObject was correctly instantiated',
+            $Test->{Name} . ' MappingObject was correctly instantiated',
         );
         next TEST if ref $MappingObject ne 'Kernel::GenericInterface::Mapping';
     }
@@ -704,7 +703,7 @@ for my $Test (@MappingTests) {
         $Self->IsNot(
             ref $MappingObject,
             'Kernel::GenericInterface::Mapping',
-            'MappingObject was not correctly instantiated',
+            $Test->{Name} . ' MappingObject was not correctly instantiated',
         );
         next TEST;
     }
@@ -715,8 +714,10 @@ for my $Test (@MappingTests) {
         my $EndSeconds = $TimeObject->SystemTime();
         $Self->True(
             ( $EndSeconds - $StartSeconds ) < 5,
-            'Mapping - Performance on large data set: ' .
-                ( $EndSeconds - $StartSeconds ) . ' second(s)',
+            $Test->{Name}
+                . ' Mapping - Performance on large data set: '
+                . ( $EndSeconds - $StartSeconds )
+                . ' second(s)',
         );
     }
 
@@ -746,6 +747,21 @@ for my $Test (@MappingTests) {
             $Test->{Name} . ' error message found',
         );
     }
+
+    # instantiate another object
+    my $SecondMappingObject = Kernel::GenericInterface::Mapping->new(
+        DebuggerObject => $DebuggerObject,
+        MappingConfig  => {
+            Type   => 'Simple',
+            Config => $Test->{Config},
+        },
+    );
+
+    $Self->Is(
+        ref $SecondMappingObject,
+        'Kernel::GenericInterface::Mapping',
+        $Test->{Name} . ' SecondMappingObject was correctly instantiated',
+    );
 }    # end tests
 
 # delete webservice

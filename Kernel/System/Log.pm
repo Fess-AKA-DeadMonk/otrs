@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Log.pm - log wapper
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -266,6 +265,9 @@ sub GetLog {
         shmread( $Self->{Key}, $String, 0, $Self->{IPCSize} ) || die "$!";
     }
 
+    # Remove \0 bytes that shmwrite adds for padding.
+    $String =~ s{\0}{}smxg;
+
     # encode the string
     $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$String );
 
@@ -293,6 +295,9 @@ sub CleanUp {
         );
         return;
     }
+
+    # Re-initialize SHM segment.
+    $Self->{Key} = shmget( $Self->{IPCKey}, $Self->{IPCSize}, oct(1777) );
 
     return 1;
 }

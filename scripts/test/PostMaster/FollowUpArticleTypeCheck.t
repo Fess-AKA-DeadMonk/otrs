@@ -1,6 +1,5 @@
 # --
-# FollowUpArticleTypeCheck.t - FollowUpArticleTypeCheck tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -181,12 +180,12 @@ Some Content in Body",
 for my $Test (@Tests) {
 
     $ConfigObject->Set(
-        Key   => 'PostMaster::PostFilterModule',
+        Key   => 'PostMaster::PreCreateFilterModule',
         Value => {},
     );
 
     $ConfigObject->Set(
-        Key   => 'PostMaster::PostFilterModule',
+        Key   => 'PostMaster::PreCreateFilterModule',
         Value => {
             '000-FollowUpArticleTypeCheck' => {
                 %{ $Test->{JobConfig} }

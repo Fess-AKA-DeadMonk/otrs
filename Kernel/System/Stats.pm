@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Stats.pm - all stats core functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -22,6 +21,7 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::Language',
     'Kernel::System::Cache',
+    'Kernel::System::DB',
     'Kernel::System::Encode',
     'Kernel::System::Group',
     'Kernel::System::Log',
@@ -762,7 +762,7 @@ sub SumBuild {
     my @Data = @{ $Param{Array} };
 
     # add sum y
-    if ( $Param{SumRow} ) {
+    if ( $Param{SumCol} ) {
 
         push @{ $Data[1] }, 'Sum';
 
@@ -793,7 +793,7 @@ sub SumBuild {
     }
 
     # add sum x
-    if ( $Param{SumCol} ) {
+    if ( $Param{SumRow} ) {
 
         my @SumRow = ();
         $SumRow[0] = 'Sum';
@@ -2005,29 +2005,15 @@ sub StatsRun {
         return;
     }
 
-    # get config object
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    # use the mirror db if configured
-    if ( $ConfigObject->Get('Core::MirrorDB::DSN') ) {
-        my $ExtraDatabaseObject = Kernel::System::DB->new(
-            DatabaseDSN  => $ConfigObject->Get('Core::MirrorDB::DSN'),
-            DatabaseUser => $ConfigObject->Get('Core::MirrorDB::User'),
-            DatabasePw   => $ConfigObject->Get('Core::MirrorDB::Password'),
-        );
-        if ( !$ExtraDatabaseObject ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => 'There is no MirroDB!',
-            );
-            return;
-        }
-        $Self->{DBSlaveObject} = $ExtraDatabaseObject;
-    }
+    # TODO: remove this code for OTRS5, it is kept here for backards compatibility only
+    $Self->{DBSlaveObject} = $Kernel::OM->Get('Kernel::System::DB');
 
     my $Stat = $Self->StatsGet( StatID => $Param{StatID} );
     my %GetParam = %{ $Param{GetParam} };
     my @Result;
+
+    # Perform calculations on the slave DB, if configured.
+    local $Kernel::System::DB::UseSlaveDB = 1;
 
     # get data if it is a static stats
     if ( $Stat->{StatType} eq 'static' ) {
@@ -2753,9 +2739,8 @@ sub _GenerateStaticStats {
 
         # these two lines are requirements of me, perhaps this
         # information is needed for former static stats
-        Format       => $Param{Format}->[0],
-        Module       => $Param{ObjectModule},
-        UserLanguage => $User{UserLanguage},
+        Format => $Param{Format}->[0],
+        Module => $Param{ObjectModule},
     );
 
     $Result[0]->[0] = $Param{Title} . ' ' . $Result[0]->[0];
@@ -2869,7 +2854,7 @@ sub _GenerateDynamicStats {
                         $Element->{TimeStart} = sprintf( "%04d-%02d-%02d %02d:%02d:%02d", $Y, $M, 1, 0, 0, 0 );
                     }
                     elsif ( $Element->{TimeRelativeUnit} eq 'Week' ) {
-                        ( $Y, $M, $D ) = Add_Delta_YMD( $Y, $M, $D, 0, 0, 0 );
+                        ( $Y, $M, $D ) = Add_Delta_YMD( $Y, $M, $D, 0, 0, -1 );
                         $Element->{TimeStop} = sprintf(
                             "%04d-%02d-%02d %02d:%02d:%02d",
                             $Y, $M, $D, 23, 59, 59
@@ -3184,7 +3169,9 @@ sub _GenerateDynamicStats {
         # build the headerline
 
         for my $Valuename ( @{ $Xvalue->{SelectedValues} } ) {
-            push @HeaderLine, $LanguageObject->Translate( $Xvalue->{Values}{$Valuename} );
+
+            # Do not translate the values, please see bug#12384 for more information.
+            push @HeaderLine, $Xvalue->{Values}{$Valuename};
         }
     }
 
@@ -3201,7 +3188,9 @@ sub _GenerateDynamicStats {
         if ( $Ref1->{Block} ne 'Time' ) {
             my %SelectedValues;
             for my $Ref2 ( @{ $Ref1->{SelectedValues} } ) {
-                $SelectedValues{$Ref2} = $LanguageObject->Translate( $Ref1->{Values}{$Ref2} );
+
+                # Do not translate the values, please see bug#12384 for more information.
+                $SelectedValues{$Ref2} = $Ref1->{Values}{$Ref2};
             }
             push(
                 @ArraySelected,
@@ -3346,11 +3335,13 @@ sub _GenerateDynamicStats {
                 );
                 $TimeStop = sprintf( "%04d-%02d-%02d 23:59:59", $ToYear, $ToMonth, $ToDay );
 
+                my $TranslateMonth = $LanguageObject->Translate( $MonthArrayRef->[$VSMonth] );
+
                 #                    if ($Count == 1) {
                 $ValueSeries{
                     $VSYear . '-'
                         . sprintf( "%02d", $VSMonth ) . ' '
-                        . $MonthArrayRef->[$VSMonth]
+                        . $TranslateMonth
                     } = {
                     $Ref1->{Values}{TimeStop}  => $TimeStop,
                     $Ref1->{Values}{TimeStart} => $TimeStart
@@ -3782,7 +3773,12 @@ sub _CreateStaticResultCacheFilename {
         Type     => 'md5',
     );
 
-    return 'Stats' . $Param{StatID} . '-' . $MD5Key . '.cache';
+    return
+        'Stats'
+        . $Param{StatID} . '-'
+        . $Kernel::OM->Get('Kernel::Language')->{UserLanguage} . '-'
+        . $MD5Key
+        . '.cache';
 }
 
 =item _SetResultCache()
@@ -3953,27 +3949,37 @@ with the given parameters.
 
 sub _GetCacheString {
     my ( $Self, %Param ) = @_;
-    my $CacheString = '';
+
+    # add the Language to the cache key
+    my $Result = 'Language:' . $Kernel::OM->Get('Kernel::Language')->{UserLanguage};
 
     for my $Use (qw(UseAsXvalue UseAsValueSeries UseAsRestriction)) {
-        USEREF:
-        for my $UseRef ( @{ $Param{$Use} } ) {
-            $CacheString .= '__' . $UseRef->{Name} . '_';
-            if ( $UseRef->{SelectedValues} ) {
-                $CacheString .= join( '_', sort @{ $UseRef->{SelectedValues} } )
+        $Result .= "$Use:";
+        for my $Element ( @{ $Param{$Use} } ) {
+            $Result .= "Name:$Element->{Name}:";
+            if ( $Element->{Block} eq 'Time' ) {
+                if ( $Element->{SelectedValues}[0] && $Element->{TimeScaleCount} ) {
+                    $Result .= "TimeScaleUnit:$Element->{SelectedValues}[0]:";
+                    $Result .= "TimeScaleCount:$Element->{TimeScaleCount}:";
+                }
+
+                if ( $Element->{TimeStart} && $Element->{TimeStop} ) {
+                    $Result .= "TimeStart:$Element->{TimeStart}:TimeStop:$Element->{TimeStop}:";
+                }
             }
-            elsif ( $UseRef->{TimeStart} && $UseRef->{TimeStop} ) {
-                $CacheString .= $UseRef->{TimeStart} . '-' . $UseRef->{TimeStop};
+            if ( $Element->{SelectedValues} ) {
+                $Result .= "SelectedValues:" . join( ',', sort @{ $Element->{SelectedValues} } ) . ':';
             }
         }
     }
 
-    my $MD5Key = $Kernel::OM->Get('Kernel::System::Main')->FilenameCleanUp(
-        Filename => $CacheString,
+    # Convert to MD5 (not sure if this is needed any more).
+    $Result = $Kernel::OM->Get('Kernel::System::Main')->FilenameCleanUp(
+        Filename => $Result,
         Type     => 'md5',
     );
 
-    return $MD5Key;
+    return $Result;
 }
 
 1;

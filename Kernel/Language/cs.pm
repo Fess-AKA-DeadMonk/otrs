@@ -1,6 +1,6 @@
 # --
 # Kernel/Language/cs.pm - provides Czech language translation
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2003 Lukas Vicanek alias networ <lulka at centrum dot cz>
 # Copyright (C) 2004 BENETA.cz, s.r.o. (Marta Macalkova, Vadim Buzek, Petr Ocasek) <info at beneta dot cz>
 # Copyright (C) 2010 O2BS.com, s r.o. Jakub Hanus
@@ -279,9 +279,14 @@ sub Data {
         'Dispatching by email To: field.' => 'Přiřadit podle emailu - pole KOMU:.',
         'Dispatching by selected Queue.' => 'Přiřadit do vybrané fronty.',
         'No entry found!' => 'Nebyl nalezen žádný záznam!',
+        'Please note that the session limit is almost reached.' => '',
+        'You have exceeded the number of concurrent agents - contact sales@otrs.com.' =>
+            '',
         'Session invalid. Please log in again.' => 'Neplatné ID relace. Prosím, přihlašte se znovu.',
         'Session has timed out. Please log in again.' => 'Relace vypršela. Prosím, přihlašte se znovu.',
         'Session limit reached! Please try again later.' => 'Dosažen limit relací. Zkuste to prosím později.',
+        'Login rejected! You have exceeded the maximum number of concurrent Agents! Contact sales@otrs.com immediately!' =>
+            '',
         'No Permission!' => 'Nemáte oprávnění!',
         '(Click here to add)' => '(Pro přidání klikněte zde)',
         'Preview' => 'Zobrazit',
@@ -293,6 +298,7 @@ sub Data {
         'You have Out of Office enabled, would you like to disable it?' =>
             'Máte nastaveno "Mimo kancelář". Přejete si to vypnout?',
         'News about OTRS releases!' => 'Novinky o OTRS verzích!',
+        'Go to dashboard!' => '',
         'Customer %s added' => 'Zákazník %s přidán',
         'Role added!' => 'Role přidána!',
         'Role updated!' => 'Role aktualizována!',
@@ -601,7 +607,7 @@ sub Data {
         'Setting character_set_database needs to be UNICODE or UTF8.' => 'Nastavení character_set_database musi být UNICODE nebo UTF8.',
         'Table Charset' => '',
         'There were tables found which do not have utf8 as charset.' => 'Jsou zde tabulky, které nemají nastavenou kódovou stránku UTF8.',
-        'InnoDB Log File Size' => '',
+        'InnoDB Log File Size' => 'Velikost InnoDB logu',
         'The setting innodb_log_file_size must be at least 256 MB.' => '',
         'Maximum Query Size' => 'Maximální velikost SQL dotazu',
         'The setting \'max_allowed_packet\' must be higher than 20 MB.' =>
@@ -662,7 +668,7 @@ sub Data {
         'Invalid Dynamic Fields' => '',
         'Invalid Dynamic Field Values' => '',
         'GenericInterface Webservices' => '',
-        'Processes' => '',
+        'Processes' => 'Procesy',
         'Months Between First And Last Ticket' => '',
         'Tickets Per Month (avg)' => 'Tiketů za měsíc ( prům.)',
         'Default SOAP Username and Password' => '',
@@ -703,6 +709,9 @@ sub Data {
         'Webserver Version' => 'Verze webového serveru',
         'Could not determine webserver version.' => '',
         'Loaded Apache Modules' => 'Aktivní Apache moduly',
+        'MPM model' => '',
+        'OTRS requires apache to be run with the \'prefork\' MPM model.' =>
+            '',
         'CGI Accelerator Usage' => '',
         'You should use FastCGI or mod_perl to increase your performance.' =>
             'Použijte FastCGI nebo mod_perl pro zvýšení výkonu',
@@ -866,6 +875,7 @@ sub Data {
         'Create new Email Ticket' => 'Vytvořit nový Email Tiket',
         'Phone-Ticket' => 'Telefonní Tiket',
         'Search Tickets' => 'Vyhledávání Tiketů',
+        'Customer Realname' => '',
         'Customer History' => 'Historie zákazníka',
         'Edit Customer Users' => 'Editace uživatelů zákazníka',
         'Edit Customer' => 'Upravit zákazníka',
@@ -879,7 +889,7 @@ sub Data {
         'Overview of all open Tickets' => 'Přehled všech otevřených tiketů',
         'Locked Tickets' => 'Uzamčené tikety',
         'My Locked Tickets' => 'Moje zamčené tikety',
-        'My Watched Tickets' => '',
+        'My Watched Tickets' => 'Mé sledované tikety',
         'My Responsible Tickets' => '',
         'Watched Tickets' => 'Zobrazené tikety',
         'Watched' => 'Zobrazené',
@@ -921,7 +931,7 @@ sub Data {
         'Reply All' => 'Odpovědět všem',
         'Direction' => '',
         'Agent (All with write permissions)' => '',
-        'Agent (Owner)' => '',
+        'Agent (Owner)' => 'Agent (Vlastník)',
         'Agent (Responsible)' => '',
         'New ticket notification' => 'Oznámení o novém Tiketu',
         'Send me a notification if there is a new ticket in "My Queues".' =>
@@ -976,7 +986,7 @@ sub Data {
         'All open tickets, these tickets have already been worked on, but need a response' =>
             '',
         'All new tickets, these tickets have not been worked on yet' => '',
-        'All escalated tickets' => '',
+        'All escalated tickets' => 'Všechny eskalované tikety',
         'All tickets with a reminder set where the reminder date has been reached' =>
             '',
         'Archived tickets' => 'Archivované tikety',
@@ -1071,7 +1081,8 @@ sub Data {
         'You can use the following tags' => '',
         'To get the first 20 character of the subject.' => 'pro získáni prvních 20ti znaků z předmětu',
         'To get the first 5 lines of the email.' => 'pro získáni prvních 5ti řádků z emailu',
-        'To get the realname of the sender (if given).' => 'Pro získání Jména Odesílatele (je-li dáno)',
+        'To get the realname of the ticket\'s customer user (if given).' =>
+            '',
         'To get the article attribute' => 'Získat atributy článku',
         ' e. g.' => '',
         'Options of the current customer user data' => '',
@@ -1260,7 +1271,7 @@ sub Data {
         'Send' => 'Odeslat',
 
         # Template: AdminGenericAgent
-        'Generic Agent' => '',
+        'Generic Agent' => 'Obecný Prostředek',
         'Add job' => '',
         'Last run' => 'Naposledy Spuštěno',
         'Run Now!' => 'Spustit Teď',
@@ -1296,6 +1307,7 @@ sub Data {
         'This event is already attached to the job, Please use a different one.' =>
             '',
         'Delete this Event Trigger' => '',
+        'Remove selection' => '',
         'Select Tickets' => '',
         '(e. g. 10*5155 or 105658*)' => '(např. 10*5155 or 105658*)',
         '(e. g. 234321)' => '(např. 234321)',
@@ -1359,7 +1371,7 @@ sub Data {
         'Time units' => 'Jednotky času',
         'Execute Ticket Commands' => '',
         'Send agent/customer notifications on changes' => 'Odeslat upozornění Řešiteli/Zákazníkovi při změně',
-        'CMD' => '',
+        'CMD' => 'Příkaz bude proveden. ARG[0] bude číslo Tiketu. ARG[1] ID Tiketu',
         'This command will be executed. ARG[0] will be the ticket number. ARG[1] the ticket id.' =>
             'Příkaz bude proveden. ARG[0] bude číslo Tiketu. ARG[1] ID Tiketu',
         'Delete tickets' => 'Vymazat Tikety',
@@ -1372,6 +1384,8 @@ sub Data {
         'Results' => 'Výsledky',
         '%s Tickets affected! What do you want to do?' => '',
         'Warning: You used the DELETE option. All deleted tickets will be lost!' =>
+            '',
+        'Warning: There are %s tickets affected but only %s may be modified during one job execution!' =>
             '',
         'Edit job' => '',
         'Run job' => '',
@@ -1821,9 +1835,9 @@ sub Data {
         'Download' => 'Stáhnout',
         'Download file from package!' => 'Stáhnout souboru z balíčku!',
         'Required' => 'Vyžadováno',
-        'PrimaryKey' => 'Primární Klíč',
-        'AutoIncrement' => 'Automatický Přírůstek',
-        'SQL' => '',
+        'Primary Key' => '',
+        'Auto Increment' => '',
+        'SQL' => 'Limit',
         'File differences for file %s' => '',
 
         # Template: AdminPerformanceLog
@@ -2046,6 +2060,7 @@ sub Data {
             '',
         'Transition' => '',
         'Transition Name' => '',
+        'Conditions can only operate on non-empty fields.' => '',
         'Type of Linking between Conditions' => '',
         'Remove this Condition' => '',
         'Type of Linking' => '',
@@ -2381,7 +2396,7 @@ sub Data {
             '',
         'The email address for this user is invalid, this option has been disabled.' =>
             '',
-        'Sending' => '',
+        'Sending' => 'Odesílatel',
         'The support bundle will be sent to OTRS Group via email automatically.' =>
             '',
         'Download File' => '',
@@ -2455,7 +2470,7 @@ sub Data {
         'New Loader File' => '',
         'NavBarName' => 'Jméno Navigační Lišty',
         'NavBar' => 'Navigační Lišta',
-        'LinkOption' => '',
+        'LinkOption' => 'Spárovat',
         'Block' => 'Brzdová Destička',
         'AccessKey' => 'Přístupový Klíč',
         'Add NavBar entry' => '',
@@ -2644,7 +2659,7 @@ sub Data {
         'Undo & close window' => 'Krok zpět & zavřít okno',
 
         # Template: AgentInfo
-        'Info' => '',
+        'Info' => 'Informace',
         'To accept some news, a license or some changes.' => '',
 
         # Template: AgentLinkObject
@@ -2827,6 +2842,8 @@ sub Data {
 
         # Template: AgentTicketCompose
         'Compose answer for ticket' => 'Sestavit odpověď pro tiket',
+        'This address is registered as system address and cannot be used: %s' =>
+            '',
         'Please include at least one recipient' => 'Prosíme, uveďte alespoň jednoho příjemce',
         'Remove Ticket Customer' => '',
         'Please remove this entry and enter a new one with the correct value.' =>
@@ -2852,6 +2869,13 @@ sub Data {
 
         # Template: AgentTicketEmailOutbound
         'E-Mail Outbound' => 'Odchozí e-mail',
+
+        # Template: AgentTicketEscalation
+        'Ticket %s: first response time is over (%s/%s)!' => '',
+        'Ticket %s: first response time will be over in %s/%s!' => '',
+        'Ticket %s: update time will be over in %s/%s!' => '',
+        'Ticket %s: solution time is over (%s/%s)!' => '',
+        'Ticket %s: solution time will be over in %s/%s!' => '',
 
         # Template: AgentTicketForward
         'Forward ticket: %s - %s' => 'Přeposlat tiket: %s - %s',
@@ -2979,7 +3003,7 @@ sub Data {
         'Show all articles' => 'Zobrazit všechny zprávy',
         'Show Ticket Timeline View' => '',
         'Unread articles' => '',
-        'No.' => '',
+        'No.' => 'Ne',
         'Important' => '',
         'Unread Article!' => '',
         'Incoming message' => 'Příchozí zpráva',
@@ -3050,12 +3074,13 @@ sub Data {
         'Incoming Chat Requests' => '',
         'You have unanswered chat requests' => '',
         'Edit personal preferences' => 'Nastavení účtu',
+        'Logout %s %s' => '',
 
         # Template: CustomerRichTextEditor
         'Split Quote' => '',
 
         # Template: CustomerTicketMessage
-        'Service level agreement' => '',
+        'Service level agreement' => 'SLA',
 
         # Template: CustomerTicketOverview
         'Welcome!' => 'Vítejte!',
@@ -3136,9 +3161,12 @@ sub Data {
             '',
         'Please enter at least one search value or * to find anything.' =>
             '',
+        'Please remove the following words from your search as they cannot be searched for:' =>
+            '',
         'Please check the fields marked as red for valid inputs.' => '',
         'Please perform a spell check on the the text first.' => '',
         'Slide the navigation bar' => '',
+        'Do you really want to continue?' => '',
 
         # Template: Header
         'You are logged in as' => 'Jste přihlášen jako',
@@ -3149,13 +3177,14 @@ sub Data {
         'JavaScript not available' => '',
         'Database Settings' => '',
         'General Specifications and Mail Settings' => '',
+        'Welcome to %s' => '',
         'Web site' => '',
         'Mail check successful.' => '',
         'Error in the mail settings. Please correct and try again.' => '',
 
         # Template: InstallerConfigureMail
         'Configure Outbound Mail' => '',
-        'Outbound mail type' => '',
+        'Outbound mail type' => 'Typ',
         'Select outbound mail type.' => '',
         'Outbound mail port' => '',
         'Select outbound mail port.' => '',
@@ -3168,13 +3197,13 @@ sub Data {
         'SMTP auth password' => '',
         'Password for SMTP auth.' => '',
         'Configure Inbound Mail' => '',
-        'Inbound mail type' => '',
+        'Inbound mail type' => 'Typ',
         'Select inbound mail type.' => '',
         'Inbound mail host' => '',
         'Inbound mail host.' => '',
-        'Inbound mail user' => '',
+        'Inbound mail user' => 'Uživatel',
         'User for inbound mail.' => '',
-        'Inbound mail password' => '',
+        'Inbound mail password' => 'Heslo',
         'Password for inbound mail.' => '',
         'Result of mail configuration check' => '',
         'Check mail configuration' => '',
@@ -3272,6 +3301,7 @@ sub Data {
 
         # Template: Test
         'OTRS Test Page' => 'Testovací OTRS stránka',
+        'Welcome %s %s' => '',
         'Counter' => 'Počítadlo',
 
         # Template: Warning
@@ -3283,6 +3313,7 @@ sub Data {
         '%s' => '%s',
         '%s time unit(s) accounted. Now total %s time unit(s).' => '%s napočítaných časových jednotek. Součet všech je %s.',
         '(UserLogin) Firstname Lastname' => '',
+        '(UserLogin) Lastname Firstname' => '',
         '(UserLogin) Lastname, Firstname' => '',
         'A Website' => '',
         'A list of dynamic fields that are merged into the main ticket during a merge operation. Only dynamic fields that are empty in the main ticket will be set.' =>
@@ -3414,7 +3445,7 @@ sub Data {
             '',
         'Automatically lock and set owner to current Agent after selecting for an Bulk Action.' =>
             '',
-        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled).' =>
+        'Automatically sets the owner of a ticket as the responsible for it (if ticket responsible feature is enabled). This will only work by manually actions of the logged in user. It does not work for automated actions e.g. GenericAgent, Postmaster and GenericInterface.' =>
             '',
         'Automatically sets the responsible of a ticket (if it is not set yet) after the first owner update.' =>
             '',
@@ -3483,6 +3514,7 @@ sub Data {
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             '',
+        'Controls if CutomerID is editable in the agent interface.' => '',
         'Controls if customers have the ability to sort their tickets.' =>
             '',
         'Controls if more than one from entry can be set in the new phone ticket in the agent interface.' =>
@@ -3548,9 +3580,9 @@ sub Data {
             '',
         'Default loop protection module.' => '',
         'Default queue ID used by the system in the agent interface.' => '',
-        'Default skin for OTRS 3.0 interface.' => '',
         'Default skin for the agent interface (slim version).' => '',
         'Default skin for the agent interface.' => '',
+        'Default skin for the customer interface.' => '',
         'Default ticket ID used by the system in the agent interface.' =>
             '',
         'Default ticket ID used by the system in the customer interface.' =>
@@ -3666,6 +3698,8 @@ sub Data {
         'Defines scheduler PID update time in seconds.' => '',
         'Defines scheduler sleep time in seconds after processing all available tasks (floating point number).' =>
             '',
+        'Defines the HTTP hostname for the support data collection with the public module \'PublicSupportDataCollector\' (e.g. used from the OTRS Daemon).' =>
+            '',
         'Defines the IP regular expression for accessing the local repository. You need to enable this to have access to your local repository and the package::RepositoryList is required on the remote host.' =>
             '',
         'Defines the URL CSS path.' => '',
@@ -3688,6 +3722,8 @@ sub Data {
         'Defines the body text for rejected emails.' => '',
         'Defines the boldness of the line drawed by the graph.' => '',
         'Defines the calendar width in percent. Default is 95%.' => '',
+        'Defines the cluster node identifier. This is only used in cluster configurations where there is more than one OTRS frontend system. Note: only values from 1 to 99 are allowed.' =>
+            '',
         'Defines the colors for the graphs.' => '',
         'Defines the column to store the keys for the preferences table.' =>
             '',
@@ -3961,7 +3997,7 @@ sub Data {
             '',
         'Defines the list of online repositories. Another installations can be used as repository, for example: Key="http://example.com/otrs/public.pl?Action=PublicRepository;File=" and Content="Some Name".' =>
             '',
-        'Defines the list of possible next actions on an error screen.' =>
+        'Defines the list of possible next actions on an error screen, a full path is required, then is possible to add external links if needed.' =>
             '',
         'Defines the list of types for templates.' => '',
         'Defines the location to get online repository list for additional packages. The first available result will be used.' =>
@@ -3997,6 +4033,8 @@ sub Data {
             '',
         'Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.' =>
             '',
+        'Defines the module to display a notification in the agent interface, if the agent session limit prior warning is reached.' =>
+            '',
         'Defines the module to display a notification in the agent interface, if the system is used by the admin user (normally you shouldn\'t work as admin).' =>
             '',
         'Defines the module to generate html refresh headers of html sites, in the customer interface.' =>
@@ -4017,7 +4055,7 @@ sub Data {
         'Defines the name of the key for customer sessions.' => '',
         'Defines the name of the session key. E.g. Session, SessionID or OTRS.' =>
             '',
-        'Defines the name of the table, where the customer preferences are stored.' =>
+        'Defines the name of the table where the user preferences are stored.' =>
             '',
         'Defines the next possible states after composing / answering a ticket in the ticket compose screen of the agent interface.' =>
             '',
@@ -4146,7 +4184,7 @@ sub Data {
         'Defines the valid state types for a ticket.' => '',
         'Defines the valid states for unlocked tickets. To unlock tickets the script "bin/otrs.UnlockTickets.pl" can be used.' =>
             '',
-        'Defines the viewable locks of a ticket. Default: unlock, tmp_lock.' =>
+        'Defines the viewable locks of a ticket. NOTE: When you change this setting, make sure to delete the cache in order to use the new value. Default: unlock, tmp_lock.' =>
             '',
         'Defines the width for the rich text editor component for this screen. Enter number (pixels) or percent value (relative).' =>
             '',
@@ -4200,11 +4238,17 @@ sub Data {
             '',
         'Determines which queues will be valid for ticket\'s recepients in the customer interface.' =>
             '',
-        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE8.' =>
+        'Disable HTTP header "Content-Security-Policy" to allow loading of external script contents. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!' =>
+            '',
+        'Disable restricted security for IFrames in IE. May be required for SSO to work in IE.' =>
             '',
         'Disables sending reminder notifications to the responsible agent of a ticket (Ticket::Responsible needs to be activated).' =>
             '',
         'Disables the web installer (http://yourhost.example.com/otrs/installer.pl), to prevent the system from being hijacked. If set to "No", the system can be reinstalled and the current basic configuration will be used to pre-populate the questions within the installer script. If not active, it also disables the GenericAgent, PackageManager and SQL Box.' =>
+            '',
+        'Display a warning and prevent search when using stop words within fulltext search.' =>
             '',
         'Display settings to override defaults for Process Tickets.' => '',
         'Displays the accounted time for an article in the ticket zoom view.' =>
@@ -4537,6 +4581,7 @@ sub Data {
             '',
         'Ignore article with system sender type for new article feature (e. g. auto responses or email notifications).' =>
             '',
+        'Include unknown customers in ticket filter.' => '',
         'Includes article create times in the ticket search of the agent interface.' =>
             '',
         'IndexAccelerator: to choose your backend TicketViewAccelerator module. "RuntimeDB" generates each queue view on the fly from ticket table (no performance problems up to approx. 60.000 tickets in total and 6.000 open tickets in the system). "StaticDB" is the most powerful module, it uses an extra ticket-index table that works like a view (recommended if more than 80.000 and 6.000 open tickets are stored in the system). Use the script "bin/otrs.RebuildTicketIndex.pl" for initial index update.' =>
@@ -4550,6 +4595,8 @@ sub Data {
             '',
         'It is possible to configure different themes, for example to distinguish between agents and customers, to be used on a per-domain basis within the application. Using a regular expression (regex), you can configure a Key/Content pair to match a domain. The value in "Key" should match the domain, and the value in "Content" should be a valid theme on your system. Please see the example entries for the proper form of the regex.' =>
             '',
+        'Lastname Firstname' => '',
+        'Lastname Firstname (UserLogin)' => '',
         'Lastname, Firstname' => '',
         'Lastname, Firstname (UserLogin)' => '',
         'Left' => '',
@@ -4616,6 +4663,7 @@ sub Data {
             '',
         'Maximal size in KBytes for mails that can be fetched via POP3/POP3S/IMAP/IMAPS (KBytes).' =>
             '',
+        'Maximum Number of a calendar shown in a dropdown.' => '',
         'Maximum length (in characters) of the dynamic field in the article of the ticket zoom view.' =>
             '',
         'Maximum length (in characters) of the dynamic field in the sidebar of the ticket zoom view.' =>
@@ -4871,8 +4919,7 @@ sub Data {
             '',
         'Sends all outgoing email via bcc to the specified address. Please use this only for backup reasons.' =>
             '',
-        'Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.' =>
-            '',
+        'Sends customer notifications just to the mapped customer.' => '',
         'Sends reminder notifications of unlocked ticket after reaching the reminder date (only sent to ticket owner).' =>
             '',
         'Sends the notifications which are configured in the admin interface under "Notfication (Event)".' =>
@@ -4881,6 +4928,8 @@ sub Data {
         'Service view' => 'Zobrazit službu',
         'Set sender email addresses for this system.' => '',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
+            '',
+        'Set the limit of tickets that will be executed on a single genericagent job execution.' =>
             '',
         'Set the maximum height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             '',
@@ -4966,6 +5015,8 @@ sub Data {
         'Sets the display order of the different items in the preferences view.' =>
             '',
         'Sets the inactivity time (in seconds) to pass before a session is killed and a user is loged out.' =>
+            '',
+        'Sets the maximum number of active agents within the timespan defined in SessionActiveTime before a prior warning will be visible for the logged in agents.' =>
             '',
         'Sets the maximum number of active agents within the timespan defined in SessionActiveTime.' =>
             '',
@@ -5069,7 +5120,8 @@ sub Data {
             '',
         'Sets the ticket type in the ticket responsible screen of the agent interface (Ticket::Type needs to be activated).' =>
             '',
-        'Sets the time (in seconds) a user is marked as active.' => '',
+        'Sets the time (in seconds) a user is marked as active (minimum active time is 300 seconds).' =>
+            '',
         'Sets the time type which should be shown.' => '',
         'Sets the timeout (in seconds) for http/ftp downloads.' => '',
         'Sets the timeout (in seconds) for package downloads. Overwrites "WebUserAgent::Timeout".' =>

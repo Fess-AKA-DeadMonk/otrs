@@ -1,6 +1,5 @@
 # --
-# AdminSystemAddress.tt - provides HTML form for AdminSystemAddress
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -138,6 +137,9 @@ $('.MasterAction').bind('click', function (Event) {
 [% RenderBlockStart("EmailInvalidSyntaxServerErrorMsg") %]
                                 <p>[% Translate("The syntax of this email address is incorrect.") | html %]</p>
 [% RenderBlockEnd("EmailInvalidSyntaxServerErrorMsg") %]
+[% RenderBlockStart("EmailAlreadyUsedServerErrorMsg") %]
+                                <p>[% Translate("This email address is already used as system email address.") | html %]</p>
+[% RenderBlockEnd("EmailAlreadyUsedServerErrorMsg") %]
                             </div>
                         </div>
 
@@ -179,6 +181,11 @@ $('.MasterAction').bind('click', function (Event) {
                             <div id="ValidIDServerError" class="TooltipErrorMessage">
                                 <p>[% Translate("This field is required.") | html %]</p>
                             </div>
+                            [% IF Data.SystemAddressIsUsed %]
+                                <p class="FieldExplanation">
+                                    [% Translate("This system address cannot be set to invalid, because it is used in one or more queue(s).") | html %]
+                                </p>
+                            [% END %]
                         </div>
                         <div class="Clear"></div>
 

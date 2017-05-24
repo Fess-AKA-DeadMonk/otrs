@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentBook.pm - addressbook module
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +12,7 @@ use strict;
 use warnings;
 
 use Kernel::System::CustomerUser;
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -38,7 +38,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # get params
-    for (qw(ToCustomer CcCustomer BccCustomer)) {
+    for (qw(ToCustomer CcCustomer BccCustomer CustomerData)) {
         $Param{$_} = $Self->{ParamObject}->GetParam( Param => $_ );
     }
 
@@ -56,7 +56,10 @@ sub Run {
             User => $_,
         );
         if ( $CustomerUserData{UserEmail} ) {
-            $List{ $CustomerUserData{UserEmail} } = $CustomerUserList{$_};
+            $List{ $CustomerUserData{UserEmail} } = {
+                Email       => $CustomerUserList{$_},
+                CustomerKey => $_
+            };
         }
     }
 
@@ -71,13 +74,15 @@ sub Run {
         );
 
         my $Count = 1;
-        for ( reverse sort { $List{$b} cmp $List{$a} } keys %List ) {
+        for ( reverse sort { $List{$b}->{Email} cmp $List{$a}->{Email} } keys %List ) {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name  => $List{$_},
-                    Email => $_,
+                    Email => $List{$_}->{Email},
                     Count => $Count,
+                    CustomerDataJSON =>
+                        $Kernel::OM->Get('Kernel::System::JSON')
+                        ->Encode( Data => { $List{$_}->{Email} => $List{$_}->{CustomerKey} } ),
                 },
             );
             $Count++;

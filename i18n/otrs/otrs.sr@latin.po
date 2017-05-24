@@ -5,9 +5,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OTRS\n"
 "POT-Creation-Date: 2014-08-08 19:10+0200\n"
-"PO-Revision-Date: 2015-03-25 21:00+0000\n"
+"PO-Revision-Date: 2015-05-06 17:28+0000\n"
 "Last-Translator: Carlos Rodríguez <carlos.rodriguez@otrs.com>\n"
-"Language-Team: Serbian (Latin) (http://www.transifex.com/projects/p/OTRS/language/sr@latin/)\n"
+"Language-Team: Serbian (Latin) (http://www.transifex.com/otrs/OTRS/language/sr@latin/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2496,6 +2496,14 @@ msgid "Loaded Apache Modules"
 msgstr ""
 
 #. Template: AAASupportDataCollector
+msgid "MPM model"
+msgstr ""
+
+#. Template: AAASupportDataCollector
+msgid "OTRS requires apache to be run with the 'prefork' MPM model."
+msgstr ""
+
+#. Template: AAASupportDataCollector
 msgid "CGI Accelerator Usage"
 msgstr "Upotreba CGI Accelerator"
 
@@ -3123,6 +3131,10 @@ msgstr "Telefonski tiket"
 #. Template: AAATicket
 msgid "Search Tickets"
 msgstr "Traženje tiketa"
+
+#. Template: AAATicket
+msgid "Customer Realname"
+msgstr ""
 
 #. Template: AAATicket
 msgid "Customer History"
@@ -4583,6 +4595,10 @@ msgstr "Ovaj događaj je priložen poslu. Molimo koristite neki drugi."
 #. Template: AdminGenericAgent
 msgid "Delete this Event Trigger"
 msgstr "Obriši ovaj okidač događaja"
+
+#. Template: AdminGenericAgent
+msgid "Remove selection"
+msgstr ""
 
 #. Template: AdminGenericAgent
 msgid "Select Tickets"
@@ -6159,7 +6175,7 @@ msgstr ""
 
 #. Template: AdminOTRSBusinessUninstall
 msgid "Chat"
-msgstr ""
+msgstr "Ćaskanje"
 
 #. Template: AdminOTRSBusinessUninstall
 msgid "Timeline view in ticket zoom"
@@ -8159,7 +8175,7 @@ msgstr ""
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "Sending"
-msgstr ""
+msgstr "Pošiljaoc"
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "The support bundle will be sent to OTRS Group via email automatically."
@@ -9543,6 +9559,26 @@ msgstr "Uzmi sve"
 msgid "E-Mail Outbound"
 msgstr ""
 
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: update time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time will be over in %s/%s!"
+msgstr ""
+
 #. Template: AgentTicketForward
 msgid "Forward ticket: %s - %s"
 msgstr "Prosledi tiket: %s - %s"
@@ -10141,6 +10177,10 @@ msgstr ""
 msgid "Edit personal preferences"
 msgstr "Uredi lične postavke"
 
+#. Template: CustomerNavigationBar
+msgid "Logout %s %s"
+msgstr ""
+
 #. Template: CustomerRichTextEditor
 msgid "Split Quote"
 msgstr ""
@@ -10389,6 +10429,12 @@ msgid "Please enter at least one search value or * to find anything."
 msgstr "Molimo unesite barem jednu vrednost pretrage ili * da bi ste nešto pronašli."
 
 #. Template: FooterJS
+msgid ""
+"Please remove the following words from your search as they cannot be "
+"searched for:"
+msgstr ""
+
+#. Template: FooterJS
 msgid "Please check the fields marked as red for valid inputs."
 msgstr "Molimo proverite polja označena crvenim za važeće unose."
 
@@ -10419,6 +10465,10 @@ msgstr "Podešavanje baze podataka"
 #. Template: Installer
 msgid "General Specifications and Mail Settings"
 msgstr "Opšte specifikacije i podešavanje pošte"
+
+#. Template: Installer
+msgid "Welcome to %s"
+msgstr ""
 
 #. Template: Installer
 msgid "Web site"
@@ -10768,6 +10818,10 @@ msgstr "štampao"
 #. Template: Test
 msgid "OTRS Test Page"
 msgstr "OTRS test strana"
+
+#. Template: Test
+msgid "Welcome %s %s"
+msgstr ""
 
 #. Template: Test
 msgid "Counter"
@@ -13778,6 +13832,12 @@ msgid ""
 "populate the questions within the installer script. If not active, it also "
 "disables the GenericAgent, PackageManager and SQL Box."
 msgstr "Onemogućuje veb instalacionom programu (http://yourhost.example.com/otrs/installer.pl) da zaštiti sistem od nedozvoljenog preuzimanja. Ako podesite na \"Ne\", sistem može biti ponovo instaliran i trenutna osnovna konfiguracija će biti korišćena da unapred popuni pitanja unutar instalacione skripte. Ukoliko nije aktivno, takođe se onemogućuju GenericAgent, PackageManager i SQL Box."
+
+#. SysConfig
+msgid ""
+"Display a warning and prevent search when using stop words within fulltext "
+"search."
+msgstr ""
 
 #. SysConfig
 msgid "Display settings to override defaults for Process Tickets."

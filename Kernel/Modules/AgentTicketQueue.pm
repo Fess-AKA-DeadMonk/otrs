@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketQueue.pm - the queue view of all tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -141,10 +140,12 @@ sub Run {
 
         if ( $ColumnName eq 'CustomerID' ) {
             push @{ $ColumnFilter{$ColumnName} }, $FilterValue;
+            push @{ $ColumnFilter{ $ColumnName . 'Raw' } }, $FilterValue;
             $GetColumnFilter{$ColumnName} = $FilterValue;
         }
         elsif ( $ColumnName eq 'CustomerUserID' ) {
-            push @{ $ColumnFilter{CustomerUserLogin} }, $FilterValue;
+            push @{ $ColumnFilter{CustomerUserLogin} },    $FilterValue;
+            push @{ $ColumnFilter{CustomerUserLoginRaw} }, $FilterValue;
             $GetColumnFilter{$ColumnName} = $FilterValue;
         }
         else {

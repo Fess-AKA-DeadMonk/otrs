@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
-# otrs.ArticleStorageSwitch.pl - to move stored attachments from one backend to other
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -10,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 # or see http://www.gnu.org/licenses/agpl.txt.
 # --
 
@@ -38,7 +37,7 @@ my %Opts;
 getopt( 'sdcCb', \%Opts );
 if ( $Opts{h} ) {
     print "otrs.ArticleStorageSwitch.pl - to move storage content\n";
-    print "Copyright (C) 2001-2015 OTRS AG, http://otrs.com/\n";
+    print "Copyright (C) 2001-2017 OTRS AG, http://otrs.com/\n";
     print
         "usage: otrs.ArticleStorageSwitch.pl -s ArticleStorageDB -d ArticleStorageFS [-c <JUST_SELECT_WHERE_CLOSE_DATE_IS_BEFORE> e. g. -c '2011-06-29 14:00:00' -C <JUST_SELECT_WHERE_CLOSE_IS_OLDER_IN_DAYS] e. g. -C '5' [-b sleeptime per ticket in microseconds] [-l liberal] [-f force]\n";
     exit 1;

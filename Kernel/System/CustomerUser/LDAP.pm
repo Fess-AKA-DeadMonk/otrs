@@ -1,6 +1,5 @@
 # --
-# Kernel/System/CustomerUser/LDAP.pm - some customer user functions in LDAP
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +12,7 @@ use strict;
 use warnings;
 
 use Net::LDAP;
+use Net::LDAP::Util qw(escape_filter_value);
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -219,7 +219,7 @@ sub CustomerName {
     }
 
     # build filter
-    my $Filter = "($Self->{CustomerKey}=$Param{UserLogin})";
+    my $Filter = "($Self->{CustomerKey}=" . escape_filter_value( $Param{UserLogin} ) . ')';
 
     # prepare filter
     if ( $Self->{AlwaysFilter} ) {
@@ -288,6 +288,10 @@ sub CustomerName {
 sub CustomerSearch {
     my ( $Self, %Param ) = @_;
 
+    if ( $Param{CustomerIDRaw} ) {
+        $Param{CustomerID} = $Param{CustomerIDRaw};
+    }
+
     # check needed stuff
     if ( !$Param{Search} && !$Param{UserLogin} && !$Param{PostMasterSearch} && !$Param{CustomerID} )
     {
@@ -312,14 +316,26 @@ sub CustomerSearch {
             $Count++;
 
             if ( $Self->{CustomerUserMap}->{CustomerUserSearchFields} ) {
+
+                # quote LDAP filter value but keep asterisks unescaped (wildcard)
+                $Part =~ s/\*/encodedasterisk20160930/g;
+                $Part = escape_filter_value( $Self->_ConvertTo($Part) );
+                $Part =~ s/encodedasterisk20160930/*/g;
+
                 $Filter .= '(|';
                 for my $Field ( @{ $Self->{CustomerUserMap}->{CustomerUserSearchFields} } ) {
-                    $Filter .= "($Field=" . $Self->_ConvertTo($Part) . ")";
+                    $Filter .= "($Field=" . $Part . ')';
                 }
                 $Filter .= ')';
             }
             else {
-                $Filter .= "($Self->{CustomerKey}=$Part)";
+
+                # quote LDAP filter value but keep asterisks unescaped (wildcard)
+                $Part =~ s/\*/encodedasterisk20160930/g;
+                $Part = escape_filter_value($Part);
+                $Part =~ s/encodedasterisk20160930/*/g;
+
+                $Filter .= "($Self->{CustomerKey}=" . $Part . ')';
             }
         }
 
@@ -330,6 +346,12 @@ sub CustomerSearch {
     elsif ( $Param{PostMasterSearch} ) {
 
         if ( $Self->{CustomerUserMap}->{CustomerUserPostMasterSearchFields} ) {
+
+            # quote LDAP filter value but keep asterisks unescaped (wildcard)
+            $Param{PostMasterSearch} =~ s/\*/encodedasterisk20160930/g;
+            $Param{PostMasterSearch} = escape_filter_value( $Param{PostMasterSearch} );
+            $Param{PostMasterSearch} =~ s/encodedasterisk20160930/*/g;
+
             $Filter = '(|';
             for my $Field ( @{ $Self->{CustomerUserMap}->{CustomerUserPostMasterSearchFields} } ) {
                 $Filter .= "($Field=$Param{PostMasterSearch})";
@@ -338,10 +360,10 @@ sub CustomerSearch {
         }
     }
     elsif ( $Param{UserLogin} ) {
-        $Filter = "($Self->{CustomerKey}=$Param{UserLogin})";
+        $Filter = "($Self->{CustomerKey}=" . escape_filter_value( $Param{UserLogin} ) . ')';
     }
     elsif ( $Param{CustomerID} ) {
-        $Filter = "($Self->{CustomerID}=$Param{CustomerID})";
+        $Filter = "($Self->{CustomerID}=" . escape_filter_value( $Param{CustomerID} ) . ')';
     }
 
     # prepare filter
@@ -418,7 +440,7 @@ sub CustomerSearch {
             my $Result2 = $Self->{LDAP}->search(
                 base      => $Self->{GroupDN},
                 scope     => $Self->{SScope},
-                filter    => 'memberUid=' . $Filter2,
+                filter    => 'memberUid=' . escape_filter_value($Filter2),
                 sizelimit => $Self->{UserSearchListLimit},
                 attrs     => ['1.1'],
             );
@@ -564,6 +586,12 @@ sub CustomerIDList {
         my $SearchFilter = $Self->{SearchPrefix} . $SearchTerm . $Self->{SearchSuffix};
         $SearchFilter =~ s/(\%+)/\%/g;
         $SearchFilter =~ s/(\*+)\*/*/g;
+
+        # quote LDAP filter value but keep asterisks unescaped (wildcard)
+        $SearchFilter =~ s/\*/encodedasterisk20160930/g;
+        $SearchFilter = escape_filter_value($SearchFilter);
+        $SearchFilter =~ s/encodedasterisk20160930/*/g;
+
         $Filter = "($Self->{CustomerID}=$SearchFilter)";
 
     }
@@ -617,7 +645,7 @@ sub CustomerIDList {
             my $Result2 = $Self->{LDAP}->search(
                 base      => $Self->{GroupDN},
                 scope     => $Self->{SScope},
-                filter    => 'memberUid=' . $Filter2,
+                filter    => 'memberUid=' . escape_filter_value($Filter2),
                 sizelimit => $Self->{UserSearchListLimit},
                 attrs     => ['1.1'],
             );
@@ -736,7 +764,7 @@ sub CustomerUserDataGet {
     for my $Entry ( @{ $Self->{CustomerUserMap}->{Map} } ) {
         push( @Attributes, $Entry->[2] );
     }
-    my $Filter = "($Self->{CustomerKey}=$Param{User})";
+    my $Filter = "($Self->{CustomerKey}=" . escape_filter_value( $Param{User} ) . ')';
 
     # prepare filter
     if ( $Self->{AlwaysFilter} ) {

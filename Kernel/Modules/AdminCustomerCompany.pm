@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminCustomerCompany.pm - to add/update/delete customer companies
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -85,7 +84,7 @@ sub Run {
         $GetParam{CustomerCompanyID} = $Self->{ParamObject}->GetParam( Param => 'CustomerCompanyID' );
 
         for my $Entry ( @{ $Self->{ConfigObject}->Get('CustomerCompany')->{Map} } ) {
-            $GetParam{ $Entry->[0] } = $Self->{ParamObject}->GetParam( Param => $Entry->[0] ) || '';
+            $GetParam{ $Entry->[0] } = $Self->{ParamObject}->GetParam( Param => $Entry->[0] ) // '';
 
             # check mandatory fields
             if ( !$GetParam{ $Entry->[0] } && $Entry->[4] ) {
@@ -208,7 +207,7 @@ sub Run {
         my $CustomerCompanyID;
 
         for my $Entry ( @{ $Self->{ConfigObject}->Get('CustomerCompany')->{Map} } ) {
-            $GetParam{ $Entry->[0] } = $Self->{ParamObject}->GetParam( Param => $Entry->[0] ) || '';
+            $GetParam{ $Entry->[0] } = $Self->{ParamObject}->GetParam( Param => $Entry->[0] ) // '';
 
             # check mandatory fields
             if ( !$GetParam{ $Entry->[0] } && $Entry->[4] ) {

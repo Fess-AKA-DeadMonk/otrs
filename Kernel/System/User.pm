@@ -1,6 +1,5 @@
 # --
-# Kernel/System/User.pm - some user functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -210,6 +209,9 @@ sub GetUserData {
         }
     }
 
+    # Store CacheTTL locally so that we can reduce it for users that are out of office.
+    my $CacheTTL = $Self->{CacheTTL};
+
     # check valid, return if there is locked for valid users
     if ( $Param{Valid} ) {
 
@@ -226,7 +228,7 @@ sub GetUserData {
             # set cache
             $Kernel::OM->Get('Kernel::System::Cache')->Set(
                 Type  => $Self->{CacheType},
-                TTL   => $Self->{CacheTTL},
+                TTL   => $CacheTTL,
                 Key   => $CacheKey,
                 Value => {},
             );
@@ -281,6 +283,10 @@ sub GetUserData {
                 $Preferences{OutOfOfficeMessage} = "*** out of office till $TillDate/$Till d ***";
                 $Data{UserLastname} .= ' ' . $Preferences{OutOfOfficeMessage};
             }
+
+            # Reduce CacheTTL to one hour for users that are out of office to make sure the cache expires timely
+            #   even if there is no update action.
+            $CacheTTL = 60 * 60 * 1;
         }
     }
 
@@ -307,7 +313,7 @@ sub GetUserData {
     # set cache
     $Kernel::OM->Get('Kernel::System::Cache')->Set(
         Type  => $Self->{CacheType},
-        TTL   => $Self->{CacheTTL},
+        TTL   => $CacheTTL,
         Key   => $CacheKey,
         Value => \%Data,
     );
@@ -376,6 +382,10 @@ sub UserAdd {
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
+    # Don't store the user's password in plaintext initially. It will be stored in a
+    #   hashed version later with SetPassword().
+    my $RandomPassword = $Self->GenerateRandomPassword();
+
     # sql
     return if !$DBObject->Do(
         SQL => "INSERT INTO $Self->{UserTable} "
@@ -386,7 +396,7 @@ sub UserAdd {
             . " (?, ?, ?, ?, ?, ?, current_timestamp, ?, current_timestamp, ?)",
         Bind => [
             \$Param{UserTitle}, \$Param{UserFirstname}, \$Param{UserLastname},
-            \$Param{UserLogin}, \$Param{UserPw},        \$Param{ValidID},
+            \$Param{UserLogin}, \$RandomPassword, \$Param{ValidID},
             \$Param{ChangeUserID}, \$Param{ChangeUserID},
         ],
     );
@@ -733,7 +743,7 @@ sub SetPassword {
         $CryptedPw = $Pw;
     }
 
-    # crypt with unix crypt
+    # crypt with UNIX crypt
     elsif ( $CryptType eq 'crypt' ) {
 
         # encode output, needed by crypt() only non utf8 signs
@@ -960,7 +970,7 @@ sub UserLookup {
 get user name
 
     my $Name = $UserObject->UserName(
-        UserLogin => 'some-login',
+        User => 'some-login',
     );
 
     or
@@ -1175,10 +1185,14 @@ sub SetPreferences {
         'GetUserData::UserID::' . $Param{UserID} . '::0::' . $FirstnameLastNameOrder . '::1',
         'GetUserData::UserID::' . $Param{UserID} . '::1::' . $FirstnameLastNameOrder . '::0',
         'GetUserData::UserID::' . $Param{UserID} . '::1::' . $FirstnameLastNameOrder . '::1',
-        'UserList::Short::0::' . $FirstnameLastNameOrder,
-        'UserList::Short::1::' . $FirstnameLastNameOrder,
-        'UserList::Long::0::' . $FirstnameLastNameOrder,
-        'UserList::Long::1::' . $FirstnameLastNameOrder,
+        'UserList::Short::0::' . $FirstnameLastNameOrder . '::0',
+        'UserList::Short::0::' . $FirstnameLastNameOrder . '::1',
+        'UserList::Short::1::' . $FirstnameLastNameOrder . '::0',
+        'UserList::Short::1::' . $FirstnameLastNameOrder . '::1',
+        'UserList::Long::0::' . $FirstnameLastNameOrder . '::0',
+        'UserList::Long::0::' . $FirstnameLastNameOrder . '::1',
+        'UserList::Long::1::' . $FirstnameLastNameOrder . '::0',
+        'UserList::Long::1::' . $FirstnameLastNameOrder . '::1',
     );
 
     # get cache object
@@ -1393,7 +1407,20 @@ sub _UserFullname {
             . ') ' . $Param{UserLastname}
             . ', ' . $Param{UserFirstname};
     }
-
+    elsif ( $FirstnameLastNameOrder eq '6' ) {
+        $UserFullname = $Param{UserLastname} . ' '
+            . $Param{UserFirstname};
+    }
+    elsif ( $FirstnameLastNameOrder eq '7' ) {
+        $UserFullname = $Param{UserLastname} . ' '
+            . $Param{UserFirstname} . ' ('
+            . $Param{UserLogin} . ')';
+    }
+    elsif ( $FirstnameLastNameOrder eq '8' ) {
+        $UserFullname = '(' . $Param{UserLogin}
+            . ') ' . $Param{UserLastname}
+            . ' ' . $Param{UserFirstname};
+    }
     return $UserFullname;
 }
 

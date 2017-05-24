@@ -1,6 +1,5 @@
 # --
-# scripts/test/Layout/ASCII2HTML.t - layout testscript
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -284,10 +283,17 @@ my @Tests = (
         Result => "http.<br/>\nsome text http.<br/>\nsome text http. some text<br/>\n",
     },
     {
-        Name   => 'Ascii2Html() - #27 ftp-check',
+        Name   => 'Ascii2Html() - #28 ftp-check',
         String => "ftp.example.com",
         Result =>
             "<a href=\"ftp://ftp.example.com\" target=\"_blank\" title=\"ftp://ftp.example.com\">ftp://ftp.example.com</a>",
+    },
+    {
+        Name   => 'Ascii2Html() - #29 brackets in url',                      # bug#12222
+        String => "http://wwww.exaple.com?Action=ActionName#position(12)",
+        Result =>
+            "<a href=\"http://wwww.exaple.com?Action=ActionName#position(12)\" target=\"_blank\" " .
+            "title=\"http://wwww.exaple.com?Action=ActionName#position(12)\">http://wwww.exaple.com?Action=ActionName#position(12)</a>",
     },
 );
 

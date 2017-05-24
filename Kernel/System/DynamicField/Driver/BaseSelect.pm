@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/BaseSelect.pm - Dynamic field Driver functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -317,7 +316,7 @@ sub EditFieldValueGet {
     my $Value;
 
     # check if there is a Template and retrieve the dynamic field value from there
-    if ( IsHashRefWithData( $Param{Template} ) ) {
+    if ( IsHashRefWithData( $Param{Template} ) && defined $Param{Template}->{$FieldName} ) {
         $Value = $Param{Template}->{$FieldName};
     }
 
@@ -676,7 +675,7 @@ sub StatsFieldParameterBuild {
         Values             => $Values,
         Name               => $Param{DynamicFieldConfig}->{Label},
         Element            => 'DynamicField_' . $Param{DynamicFieldConfig}->{Name},
-        TranslatableValues => $Param{DynamicFieldconfig}->{Config}->{TranslatableValues},
+        TranslatableValues => $Param{DynamicFieldConfig}->{Config}->{TranslatableValues},
         Block              => 'MultiSelectField',
     };
 }

@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/Layout.pm - provides generic HTML output
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -145,6 +144,16 @@ sub new {
                 if ( $BrowserLang =~ /^($Language|$LanguageOtherType)/i ) {
                     $Self->{UserLanguage} = $Language;
                     last LANGUAGE;
+                }
+            }
+            if ( !$Self->{UserLanguage} ) {
+                for my $Language ( reverse sort keys %Data ) {
+
+                    # If Browser requests 'vi', also offer 'vi_VI' even though we don't have 'vi'
+                    if ( $Language =~ m/^$BrowserLang/smxi ) {
+                        $Self->{UserLanguage} = $Language;
+                        last LANGUAGE;
+                    }
                 }
             }
         }
@@ -368,12 +377,10 @@ sub new {
 
     # Check if 'Standard' fallback exists
     if ( !-e $Self->{StandardTemplateDir} ) {
-        $Self->{LogObject}->Log(
-            Priority => 'error',
+        $Self->FatalDie(
             Message =>
-                "No existing template directory found ('$Self->{TemplateDir}')! Check your Home in Kernel/Config.pm",
+                "No existing template directory found ('$Self->{TemplateDir}')! Check your Home in Kernel/Config.pm."
         );
-        $Self->FatalDie();
     }
 
     if ( !-e $Self->{TemplateDir} ) {
@@ -404,7 +411,9 @@ sub new {
                 $File =~ s{\A.*\/(.+?).pm\z}{$1}xms;
                 my $ClassName = "Kernel::Output::HTML::$File";
                 if ( !$Self->{MainObject}->RequireBaseClass($ClassName) ) {
-                    $Self->FatalError();
+                    $Self->FatalDie(
+                        Message => "Could not load class $ClassName.",
+                    );
                 }
             }
         }
@@ -627,6 +636,7 @@ sub Login {
 
     # set Action parameter for the loader
     $Self->{Action} = 'Login';
+    $Param{IsLoginPage} = 1;
 
     my $Output = '';
     if ( $Self->{ConfigObject}->Get('SessionUseCookie') ) {
@@ -1362,13 +1372,6 @@ sub Footer {
         },
     );
 
-    # Banner
-    if ( !$Self->{ConfigObject}->Get('Secure::DisableBanner') ) {
-        $Self->Block(
-            Name => 'Banner',
-        );
-    }
-
     # create & return output
     return $Self->Output(
         TemplateFile => "Footer$Type",
@@ -1481,6 +1484,10 @@ sub PrintHeader {
     if ( $Self->{TextDirection} && $Self->{TextDirection} eq 'rtl' ) {
         $Param{BodyClass} = 'RTL';
     }
+
+    $Self->{DateTimeString} = $Self->{TimeObject}->SystemTime2TimeStamp(
+        SystemTime => $Self->{TimeObject}->SystemTime()
+    );
 
     my $Output = $Self->Output(
         TemplateFile => 'PrintHeader',
@@ -2081,7 +2088,7 @@ sub NoPermission {
             $Self->Block(
                 Name => 'PossibleNextActionRow',
                 Data => {
-                    Link        => $PossibleNextActions->{$Key},
+                    Link        => $Self->{LanguageObject}->Translate( $PossibleNextActions->{$Key} ),
                     Description => $Key,
                 },
             );
@@ -2228,6 +2235,8 @@ returns browser output to display/download a attachment
         Filename    => 'FileName.png',  # optional
         ContentType => 'image/png',
         Content     => $Content,
+        Sandbox     => 1,               # optional, default 0; use content security policy to prohibit external
+                                        #   scripts, flash etc.
     );
 
     or for AJAX html snippets
@@ -2315,7 +2324,25 @@ sub Attachment {
     }
     $Output .= "Content-Length: $Param{Size}\n";
     $Output .= "X-UA-Compatible: IE=edge,chrome=1\n";
-    $Output .= "X-Frame-Options: SAMEORIGIN\n";
+
+    if ( !$Kernel::OM->Get('Kernel::Config')->Get('DisableIFrameOriginRestricted') ) {
+        $Output .= "X-Frame-Options: SAMEORIGIN\n";
+    }
+
+    if ( $Param{Sandbox} && !$Kernel::OM->Get('Kernel::Config')->Get('DisableContentSecurityPolicy') ) {
+
+        # Disallow external and inline scripts, active content, frames, but keep allowing inline styles
+        #   as this is a common use case in emails.
+        # Also disallow referrer headers to prevent referrer leaks.
+        # img-src:    allow external and inline (data:) images
+        # script-src: block all scripts
+        # object-src: allow 'self' so that the browser can load plugins for PDF display
+        # frame-src:  block all frames
+        # style-src:  allow inline styles for nice email display
+        # referrer:   don't send referrers to prevent referrer-leak attacks
+        $Output
+            .= "Content-Security-Policy: default-src *; img-src * data:; script-src 'none'; object-src 'self'; frame-src 'none'; style-src 'unsafe-inline'; referrer no-referrer;\n";
+    }
 
     if ( $Param{Charset} ) {
         $Output .= "Content-Type: $Param{ContentType}; charset=$Param{Charset};\n\n";
@@ -2674,8 +2701,10 @@ sub NavigationBar {
             },
         );
 
-        # show sub menu
+        # show sub menu (only if sub elements available)
         next ITEM if !$Sub;
+        next ITEM if !keys %{$Sub};
+
         $Self->Block(
             Name => 'ItemAreaSub',
             Data => $Item,
@@ -2890,7 +2919,7 @@ sub BuildDateSelection {
             }
         }
         else {
-            for ( $Y - 10 .. $Y + 1 + ( $Param{YearDiff} || 0 ) ) {
+            for ( 2001 .. $Y + 1 + ( $Param{YearDiff} || 0 ) ) {
                 $Year{$_} = $_;
             }
         }
@@ -3120,7 +3149,8 @@ sub CustomerLogin {
     $Param{TitleArea} = $Self->{LanguageObject}->Translate('Login') . ' - ';
 
     # set Action parameter for the loader
-    $Self->{Action} = 'CustomerLogin';
+    $Self->{Action}        = 'CustomerLogin';
+    $Param{IsLoginPage}    = 1;
     $Param{'XLoginHeader'} = 1;
 
     if ( $Self->{ConfigObject}->Get('SessionUseCookie') ) {
@@ -3448,13 +3478,6 @@ sub CustomerFooter {
         );
     }
 
-    # Banner
-    if ( !$Self->{ConfigObject}->Get('Secure::DisableBanner') ) {
-        $Self->Block(
-            Name => 'Banner',
-        );
-    }
-
     # AutoComplete-Config
     my $AutocompleteConfig = $Self->{ConfigObject}->Get('AutoComplete::Customer');
 
@@ -3680,8 +3703,7 @@ sub CustomerNavigationBar {
             # check if we must mark the parent element as selected
             if ( $ItemSub->{Link} ) {
                 if (
-                    !$SelectedFlag
-                    && $ItemSub->{Link} =~ /Action=$Self->{Action}/
+                    $ItemSub->{Link} =~ /Action=$Self->{Action}/
                     && $ItemSub->{Link} =~ /$Self->{Subaction}/    # Subaction can be empty
                     )
                 {
@@ -4081,9 +4103,10 @@ sub RichTextDocumentServe {
         # convert charset
         if ($Charset) {
             $Param{Data}->{Content} = $Self->{EncodeObject}->Convert(
-                Text => $Param{Data}->{Content},
-                From => $Charset,
-                To   => 'utf-8',
+                Text  => $Param{Data}->{Content},
+                From  => $Charset,
+                To    => 'utf-8',
+                Check => 1,
             );
 
             # replace charset in content
@@ -4574,6 +4597,60 @@ sub _BuildSelectionDataRefCreate {
     # if ArrayHashRef was given
     elsif ( ref $DataLocal eq 'ARRAY' && ref $DataLocal->[0] eq 'HASH' ) {
 
+        # get missing parents and mark them for disable later
+        if ( $OptionRef->{Sort} eq 'TreeView' ) {
+
+            # build a list of element longnames
+            my @NewDataLocal;
+
+            my %List;
+            for my $ValueHash ( @{$DataLocal} ) {
+                $List{ $ValueHash->{Value} } = 1;
+            }
+
+            # get each data value hash
+            for my $ValueHash ( @{$DataLocal} ) {
+
+                my $Parents = '';
+
+                # try to split its parents (e.g. Queue or Service) GrandParent::Parent::Son
+                my @Elements = split /::/, $ValueHash->{Value};
+
+                # get each element in the hierarchy
+                for my $Element (@Elements) {
+
+                    # add its own parents for the complete name
+                    my $ElementLongName = $Parents . $Element;
+
+                    # check if element exists in the original data or if it is already marked
+                    if ( !$List{$ElementLongName} && !$DisabledElements{$ElementLongName} ) {
+
+                        # mark element as disabled
+                        $DisabledElements{$ElementLongName} = 1;
+
+                        # push the missing element to the data local array
+                        push @NewDataLocal, {
+                            Key      => $ElementLongName . '_Disabled',
+                            Value    => $ElementLongName,
+                            Disabled => 1,
+                        };
+                    }
+                    $Parents .= $Element . '::';
+                }
+
+                # push the element to the data local array
+                push @NewDataLocal, {
+                    Key      => $ValueHash->{Key},
+                    Value    => $ValueHash->{Value},
+                    Selected => $ValueHash->{Selected} ? 1 : 0,
+                    Disabled => $ValueHash->{Disabled} ? 1 : 0,
+                };
+            }
+
+            # override the data local with the new one
+            @{$DataLocal} = @NewDataLocal;
+        }
+
         # create DataRef
         for my $Row ( @{$DataLocal} ) {
             if ( ref $Row eq 'HASH' && defined $Row->{Key} ) {
@@ -4752,6 +4829,11 @@ sub _BuildSelectionDataRefCreate {
             my @Fragment = split '::', $Row->{Value};
             $Row->{Value} = pop @Fragment;
 
+            # translate the individual tree options
+            if ( $OptionRef->{Translation} ) {
+                $Row->{Value} = $Self->{LanguageObject}->Translate( $Row->{Value} );
+            }
+
             # TODO: Here we are combining Max with HTMLQuote, check below for the REMARK:
             # Max and HTMLQuote needs to be done before spaces insert but after the split of the
             # parents, then it is not possible to do it outside
@@ -4767,7 +4849,10 @@ sub _BuildSelectionDataRefCreate {
                 }
             }
 
-            my $Space = '&nbsp;&nbsp;' x scalar @Fragment;
+            # Use unicode 'NO-BREAK SPACE' since unicode characters doesn't need to be escaped.
+            # Previously, we used '&nbsp;' and we had issue that Option needs to be html encoded
+            # in AJAX, and it was causing issues.
+            my $Space = "\xA0\xA0" x scalar @Fragment;
             $Space ||= '';
 
             $Row->{Value} = $Space . $Row->{Value};
@@ -5008,6 +5093,9 @@ sub WrapPlainText {
     }
 
     my $WorkString = $Param{PlainText};
+
+    # Normalize line endings to avoid problems with \r\n (bug#11078).
+    $WorkString =~ s/\r\n?/\n/g;
     $WorkString =~ s/(^>.+|.{4,$Param{MaxCharacters}})(?:\s|\z)/$1\n/gm;
     return $WorkString;
 }

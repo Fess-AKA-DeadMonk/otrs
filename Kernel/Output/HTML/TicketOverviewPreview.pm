@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/TicketOverviewPreview.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -159,7 +158,7 @@ sub ActionRow {
                     Name => $Item->{Block},
                     Data => {
                         ID          => $Item->{ID},
-                        Name        => $Self->{LayoutObject}->{LanguageObject}->Translate( $Item->{Name} ),
+                        Name        => $Item->{Name},
                         Link        => $Self->{LayoutObject}->{Baselink} . $Item->{Link},
                         Description => $Item->{Description},
                         Block       => $Item->{Block},
@@ -1000,7 +999,25 @@ sub _Show {
 
         # otherwise display the last article in the list as expanded (default)
         else {
-            $ArticleBody[0]->{Class} = 'Active';
+
+            my $ArticleSelected;
+            my $IgnoreSystemSender = $Self->{ConfigObject}->Get('Ticket::NewArticleIgnoreSystemSender');
+
+            ARTICLE:
+            for my $ArticleItem (@ArticleBody) {
+
+                # ignore system sender type
+                next ARTICLE if $IgnoreSystemSender && $ArticleItem->{SenderType} eq 'system';
+
+                $ArticleItem->{Class} = 'Active';
+                $ArticleSelected = 1;
+                last ARTICLE;
+            }
+
+            # set selected article
+            if ( !$ArticleSelected ) {
+                $ArticleBody[0]->{Class} = 'Active';
+            }
         }
 
         $Self->{LayoutObject}->Block(

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/SupportDataCollector/Plugin/Database/mysql/Charset.pm - system data collector plugin
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -71,7 +70,9 @@ sub Run {
     }
 
     my @TablesWithInvalidCharset;
-    $DBObject->Prepare( SQL => 'show table status' );
+
+    # Views have engine == null, ignore those.
+    $DBObject->Prepare( SQL => 'show table status where engine is not null' );
     while ( my @Row = $DBObject->FetchrowArray() ) {
         if ( $Row[14] !~ /^utf8/i ) {
             push @TablesWithInvalidCharset, $Row[0];

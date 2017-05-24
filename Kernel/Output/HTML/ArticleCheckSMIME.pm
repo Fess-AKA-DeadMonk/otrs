@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/ArticleCheckSMIME.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -346,19 +345,6 @@ sub Check {
             && $ContentType =~ /signed/i
             )
         {
-
-            # check if article is already verified
-            if ( $Param{Article}->{Body} ne '- no text message => see attachment -' ) {
-
-                # return result
-                push(
-                    @Return,
-                    {
-                        Key   => 'Signed',
-                        Value => 'Signature verified before!',
-                    }
-                );
-            }
 
             # check sign and get clear content
             %SignCheck = $Self->{CryptObject}->Verify(

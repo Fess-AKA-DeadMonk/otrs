@@ -1,6 +1,5 @@
 # --
-# AdminSession.t - frontend tests for AdminSession
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -65,7 +64,7 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminSession");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSession");
 
         $Self->True(
             index( $Selenium->get_page_source(), $CurrentSessionID ) > -1,
@@ -73,7 +72,7 @@ $Selenium->RunTest(
         );
         $Selenium->find_element( "table", 'css' );
 
-        $Selenium->get(
+        $Selenium->VerifiedGet(
             "${ScriptAlias}index.pl?Action=AdminSession;Subaction=Detail;WantSessionID=$CurrentSessionID"
         );
 
@@ -97,11 +96,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "table", 'css' );
 
         # kill current session, this means a logout effectively
-        $Selenium->find_element( "a#KillThisSession", 'css' )->click();
+        $Selenium->find_element( "a#KillThisSession", 'css' )->VerifiedClick();
 
         # make sure that we now see the login screen
         $Selenium->find_element( "#LoginBox", 'css' );
-        }
+    }
 );
 
 1;

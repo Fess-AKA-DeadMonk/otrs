@@ -1,6 +1,5 @@
 # --
-# User.t - User tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -23,9 +22,28 @@ $ConfigObject->Set(
     Value => 0,
 );
 
-# add users
-my $UserRand1 = 'example-user' . int( rand(1000000) );
+# create non existing user login
+my $UserRand1;
+TRY:
+for my $Try ( 1 .. 20 ) {
 
+    $UserRand1 = 'unittest-' . time() . int rand 1_000_000;
+
+    my $UserID = $UserObject->UserLookup(
+        UserLogin => $UserRand1,
+    );
+
+    last TRY if !$UserID;
+
+    next TRY if $Try ne 20;
+
+    $Self->True(
+        0,
+        'Find non existing user login.',
+    );
+}
+
+# add user
 my $UserID = $UserObject->UserAdd(
     UserFirstname => 'Firstname Test1',
     UserLastname  => 'Lastname Test1',
@@ -477,4 +495,5 @@ $Self->True(
     $UserData{OutOfOfficeMessage},
     'GetUserData() - OutOfOfficeMessage',
 );
+
 1;

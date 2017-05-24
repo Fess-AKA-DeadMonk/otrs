@@ -1,6 +1,5 @@
 # --
-# Kernel/System/CustomerCompany/DB.pm - some customer user functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -72,8 +71,9 @@ sub new {
     # create_by, change_time and change_by fields of OTRS
     $Self->{ForeignDB} = $Self->{CustomerCompanyMap}->{Params}->{ForeignDB} ? 1 : 0;
 
-    # see if database is case sensitive
-    $Self->{CaseSensitive} = $Self->{CustomerCompanyMap}->{Params}->{CaseSensitive} || 0;
+    # defines if the database search will be performend case sensitive (1) or not (0)
+    $Self->{CaseSensitive} = $Self->{CustomerCompanyMap}->{Params}->{SearchCaseSensitive}
+        // $Self->{CustomerCompanyMap}->{Params}->{CaseSensitive} || 0;
 
     return $Self;
 }

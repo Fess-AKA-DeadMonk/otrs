@@ -1,6 +1,5 @@
 // --
-// Core.Agent.CustomerSearch.js - provides the special module functions for the customer search
-// Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -178,6 +177,13 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
         // get customer tickets for AgentTicketCustomer
         if (Core.Config.Get('Action') === 'AgentTicketCustomer') {
             GetCustomerTickets($('#CustomerAutoComplete').val(), $('#CustomerID').val());
+
+            $Element.blur(function () {
+                if ($Element.val() === '') {
+                    TargetNS.ResetCustomerInfo();
+                    $('#CustomerTickets').empty();
+                }
+            });
         }
 
         // get customer tickets for AgentTicketPhone and AgentTicketEmail
@@ -266,7 +272,14 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
                 }
             }, 'CustomerSearch');
 
-            if (Core.Config.Get('Action') !== 'AgentTicketPhone' && Core.Config.Get('Action') !== 'AgentTicketEmail' && Core.Config.Get('Action') !== 'AgentTicketCompose' && Core.Config.Get('Action') !== 'AgentTicketForward' && Core.Config.Get('Action') !== 'AgentTicketEmailOutbound') {
+            if (
+                Core.Config.Get('Action') !== 'AgentTicketCustomer' &&
+                Core.Config.Get('Action') !== 'AgentTicketPhone' &&
+                Core.Config.Get('Action') !== 'AgentTicketEmail' &&
+                Core.Config.Get('Action') !== 'AgentTicketCompose' &&
+                Core.Config.Get('Action') !== 'AgentTicketForward' &&
+                Core.Config.Get('Action') !== 'AgentTicketEmailOutbound'
+                ) {
                 $Element.blur(function () {
                     var FieldValue = $(this).val();
                     if (FieldValue !== BackupData.CustomerEmail && FieldValue !== BackupData.CustomerKey) {
@@ -292,9 +305,13 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
             }
         }
 
-        // On unload remove old selected data. If the page is reloaded (with F5) this data stays in the field and invokes an ajax request otherwise
-        $(window).bind('unload', function () {
-           $('#SelectedCustomerUser').val('');
+        // On unload remove old selected data. If the page is reloaded (with F5) this data
+        // stays in the field and invokes an ajax request otherwise. We need to use beforeunload
+        // here instead of unload because the URL of the window does not change on reload which
+        // doesn't trigger pagehide.
+        $(window).bind('beforeunload.CustomerSearch', function () {
+            $('#SelectedCustomerUser').val('');
+            return; // return nothing to suppress the confirmation message
         });
 
         CheckPhoneCustomerCountLimit();
@@ -392,8 +409,15 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
 
                 // bind click function to remove button
                 $(this).bind('click', function () {
+
                     // remove row
                     TargetNS.RemoveCustomerTicket( $(this) );
+
+                    // clear CustomerHistory table if there are no selected customer users
+                    if ($('#TicketCustomerContent' + Field + ' .CustomerTicketRadio').length === 0) {
+                        $('#CustomerTickets').empty();
+                    }
+
                     return false;
                 });
                 // set button value

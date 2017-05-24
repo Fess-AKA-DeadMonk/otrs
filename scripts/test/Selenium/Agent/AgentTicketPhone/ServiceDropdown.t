@@ -1,6 +1,5 @@
 # --
-# ServiceDropdown.t - frontend test AgentTicketPhone
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -119,7 +118,7 @@ $Selenium->RunTest(
         # real selenium test start
         # open the page that clicking on Split link of the zoom view of the
         # just created ticket would open
-        $Selenium->get(
+        $Selenium->VerifiedGet(
             "${ScriptAlias}index.pl?Action=AgentTicketPhone;TicketID=$TicketID;ArticleID=$ArticleID"
         );
 
@@ -139,7 +138,7 @@ $Selenium->RunTest(
             TicketID => $TicketID,
             UserID   => 1,
         );
-        }
+    }
 );
 
 1;

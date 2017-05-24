@@ -1,6 +1,5 @@
 // --
-// Core.UI.Autocomplete.js - Autocomplete functions
-// Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -26,7 +25,8 @@ Core.UI.Autocomplete = (function (TargetNS) {
             MaxResultsDisplayed: 20
         },
         ConfigElements = ['AutoCompleteActive', 'MinQueryLength', 'QueryDelay', 'MaxResultsDisplayed', 'ButtonText'],
-        Config = {};
+        Config = {},
+        AJAXLoaderPrefix = 'AJAXLoader';
 
     function InitConfig(Type, Options) {
         var TypeConfig = Core.Config.Get('Autocomplete');
@@ -80,7 +80,8 @@ Core.UI.Autocomplete = (function (TargetNS) {
      * @return nothing
      */
     TargetNS.Init = function ($Element, SourceFunction, SelectFunction, Type, Options) {
-        var Config;
+        var Config,
+            $Loader;
 
         // Only start autocompletion, if $Element is valid element
         if (!isJQueryObject($Element) || !$Element.length) {
@@ -89,52 +90,73 @@ Core.UI.Autocomplete = (function (TargetNS) {
 
         Config = InitConfig(Type, Options);
 
-        $Element.autocomplete({
-            minLength: Config.MinQueryLength,
-            delay: Config.QueryDelay,
-            open: function() {
-                // force a higher z-index than the overlay/dialog
-                $Element.autocomplete('widget').addClass('ui-overlay-autocomplete');
-                return false;
-            },
-            source: function (Request, Response) {
-                // if an old ajax request is already running, stop the old request and start the new one
-                if ($Element.data('AutoCompleteXHR')) {
-                    $Element.data('AutoCompleteXHR').abort();
-                    $Element.removeData('AutoCompleteXHR');
-                    // run the response function to hide the request animation
-                    Response({});
-                }
+        $Element.each(function () {
+            var $SingleElement = $(this);
+            $SingleElement.autocomplete({
+                minLength: Config.MinQueryLength,
+                delay: Config.QueryDelay,
+                search: function() {
+                    var FieldID = $SingleElement.attr('id'),
+                        LoaderHTML = '<span id="' + AJAXLoaderPrefix + FieldID + '" class="AJAXLoader"></span>';
 
-                if (SourceFunction) {
-                    SourceFunction(Request, Response);
-                }
+                    $Loader = $('#' + AJAXLoaderPrefix + FieldID);
 
-                /*
-                 * Your SourceFunction must return an array of the data you collected.
-                 * Every array element is an object with the following keys:
-                 * label: the string displayed in the suggestion menu
-                 * value: the string to be inserted in the input field
-                 * You can add more keys, if you want to transport data to the select function
-                 * all keys will be available there via the UI.item object.
-                 *
-                 * If you use an ajax function inside your source, make sure to
-                 * save the XHRObject in a data-value, to control the xhr automatically:
-                 * $Element.data('AutoCompleteXHR', YourCallHere());
-                 * This makes sure, that we can abort old ajax request, if new searches are triggered.
-                 *
-                 * The input value can be found in Request.term. Don't forget to send the MaxResult config
-                 * to the server in your ajax request.
-                 */
-            },
-            select: function (Event, UI) {
-                if (SelectFunction) {
-                    SelectFunction(Event, UI);
-                }
+                    if (!$Loader.length) {
+                        $SingleElement.after(LoaderHTML);
+                        $Loader = $('#' + AJAXLoaderPrefix + FieldID);
+                    }
+                    else {
+                        $Loader.show();
+                    }
+                },
+                response: function() {
+                    // remove loader again
+                    $Loader.hide();
+                },
+                open: function() {
+                    // force a higher z-index than the overlay/dialog
+                    $SingleElement.autocomplete('widget').addClass('ui-overlay-autocomplete');
+                    return false;
+                },
+                source: function (Request, Response) {
+                    // if an old ajax request is already running, stop the old request and start the new one
+                    if ($SingleElement.data('AutoCompleteXHR')) {
+                        $SingleElement.data('AutoCompleteXHR').abort();
+                        $SingleElement.removeData('AutoCompleteXHR');
+                        // run the response function to hide the request animation
+                        Response({});
+                    }
 
-                Event.preventDefault();
-                return false;
-            }
+                    if (SourceFunction) {
+                        SourceFunction(Request, Response);
+                    }
+
+                    /*
+                     * Your SourceFunction must return an array of the data you collected.
+                     * Every array element is an object with the following keys:
+                     * label: the string displayed in the suggestion menu
+                     * value: the string to be inserted in the input field
+                     * You can add more keys, if you want to transport data to the select function
+                     * all keys will be available there via the UI.item object.
+                     *
+                     * If you use an ajax function inside your source, make sure to
+                     * save the XHRObject in a data-value, to control the xhr automatically:
+                     * $Element.data('AutoCompleteXHR', YourCallHere());
+                     * This makes sure, that we can abort old ajax request, if new searches are triggered.
+                     *
+                     * The input value can be found in Request.term. Don't forget to send the MaxResult config
+                     * to the server in your ajax request.
+                     */
+                },
+                select: function (Event, UI) {
+                    if (SelectFunction) {
+                        SelectFunction(Event, UI);
+                    }
+
+                    Event.preventDefault();
+                    return false;
+                }
+            });
         });
 
         if (!Config.AutoCompleteActive) {

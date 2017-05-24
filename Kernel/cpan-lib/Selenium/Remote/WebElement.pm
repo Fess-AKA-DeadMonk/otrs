@@ -1,10 +1,215 @@
 package Selenium::Remote::WebElement;
-{
-  $Selenium::Remote::WebElement::VERSION = '0.17';
+$Selenium::Remote::WebElement::VERSION = '1.11';
+# ABSTRACT: Representation of an HTML Element used by Selenium Remote Driver
+
+use Moo;
+use Carp qw(carp croak);
+
+
+has 'id' => (
+    is => 'ro',
+    required => 1,
+    coerce => sub {
+        my ($value) = @_;
+        if (ref($value) eq 'HASH') {
+            if (exists $value->{ELEMENT}) {
+                # The JSONWireProtocol web element object looks like
+                #
+                #     { "ELEMENT": $INTEGER_ID }
+                return $value->{ELEMENT};
+            }
+            elsif (exists $value->{'element-6066-11e4-a52e-4f735466cecf'}) {
+                # but the WebDriver spec web element uses a magic
+                # string. See the spec for more information:
+                #
+                # https://www.w3.org/TR/webdriver/#elements
+                return $value->{'element-6066-11e4-a52e-4f735466cecf'};
+            }
+            else {
+                croak 'When passing in an object to the WebElement id attribute, it must have at least one of the ELEMENT or element-6066-11e4-a52e-4f735466cecf keys.';
+            }
+        }
+        else {
+            return $value;
+        }
+    }
+);
+
+
+has 'driver' => (
+    is => 'ro',
+    required => 1,
+    handles => [qw(_execute_command)],
+);
+
+
+sub click {
+    my ($self) = @_;
+    my $res = { 'command' => 'clickElement', 'id' => $self->id };
+    return $self->_execute_command($res);
 }
 
-use strict;
-use warnings;
+
+sub submit {
+    my ($self) = @_;
+    my $res = { 'command' => 'submitElement', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub send_keys {
+    my ( $self, @strings ) = @_;
+    croak "no keys to send" unless scalar @strings >= 1;
+    my $res = { 'command' => 'sendKeysToElement', 'id' => $self->id };
+
+    # We need to send an array of single characters to be WebDriver
+    # spec compatible. That is, for @strings = ('hel', 'lo'), the
+    # corresponding value must be ('h', 'e', 'l', 'l', 'o' ). This
+    # format conforms with the Spec AND works with the Selenium
+    # standalone server.
+    my $strings = join('', map { $_ .= "" } @strings);
+    my $params = {
+        'value' => [ split('', $strings) ]
+    };
+    return $self->_execute_command( $res, $params );
+}
+
+
+sub is_selected {
+    my ($self) = @_;
+    my $res = { 'command' => 'isElementSelected', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub set_selected {
+    my ($self) = @_;
+    my $res = { 'command' => 'setElementSelected', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub toggle {
+    my ($self) = @_;
+    my $res = { 'command' => 'toggleElement', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub is_enabled {
+    my ($self) = @_;
+    my $res = { 'command' => 'isElementEnabled', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_element_location {
+    my ($self) = @_;
+    my $res = { 'command' => 'getElementLocation', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_element_location_in_view {
+    my ($self) = @_;
+    my $res = { 'command' => 'getElementLocationInView', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_tag_name {
+    my ($self) = @_;
+    my $res = { 'command' => 'getElementTagName', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub clear {
+    my ($self) = @_;
+    my $res = { 'command' => 'clearElement', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_attribute {
+    my ( $self, $attr_name ) = @_;
+    if ( not defined $attr_name ) {
+        croak 'Attribute name not provided';
+    }
+    my $res = {
+        'command' => 'getElementAttribute',
+        'id'      => $self->id,
+        'name'    => $attr_name,
+    };
+    return $self->_execute_command($res);
+}
+
+
+sub get_value {
+    my ($self) = @_;
+    return $self->get_attribute('value');
+}
+
+
+sub is_displayed {
+    my ($self) = @_;
+    my $res = { 'command' => 'isElementDisplayed', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub is_hidden {
+    my ($self) = @_;
+    return ! $self->is_displayed();
+}
+
+
+sub drag {
+    carp 'drag is no longer available in the JSONWireProtocol.';
+}
+
+
+sub get_size {
+    my ($self) = @_;
+    my $res = { 'command' => 'getElementSize', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_text {
+    my ($self) = @_;
+    my $res = { 'command' => 'getElementText', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+
+sub get_css_attribute {
+    my ( $self, $attr_name ) = @_;
+    if ( not defined $attr_name ) {
+        croak 'CSS attribute name not provided';
+    }
+    my $res = {
+        'command'       => 'getElementValueOfCssProperty',
+        'id'            => $self->id,
+        'property_name' => $attr_name,
+    };
+    return $self->_execute_command($res);
+}
+
+
+sub describe {
+    my ($self) = @_;
+    my $res = { 'command' => 'describeElement', 'id' => $self->id };
+    return $self->_execute_command($res);
+}
+
+1;
+
+__END__
+
+=pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -12,39 +217,67 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.17
-
-=cut
+version 1.11
 
 =head1 DESCRIPTION
 
-Selenium Webdriver represents all the HTML elements as WebElement. This module
-provides a mechanism to represent them as objects & perform various actions on
-the related elements. This module should not be instantiated directly by the end
-user. Selenium::Remote::Driver instantiates this module when required. Typically,
-the find_element method in Selenium::Remote::Driver returns this object on which
-various element related operations can be carried out. 
+Selenium Webdriver represents all the HTML elements as WebElements.
+This module provides a mechanism to represent them as objects &
+perform various actions on the related elements. This module should
+not be instantiated directly by the end user. Selenium::Remote::Driver
+instantiates this module when required. Typically, the find_element
+method in Selenium::Remote::Driver returns this object on which
+various element related operations can be carried out.
 
-=cut
+What is probably most useful on this page is the list of methods below
+that you can perform on an element once you've found one and S::R::D
+has made an instance of this for you.
+
+=head1 ATTRIBUTES
+
+=head2 id
+
+Required: Pass in a string representing the ID of the object. The
+string should be obtained from the response object of making one of
+the C<find_element> calls from L</Selenium::Remote::Driver>.
+
+The attribute is also set up to handle spec compliant element response
+objects via its `coerce` such that any of the following will work and
+are all equivalent:
+
+    my $old_elem = Selenium::Remote::WebElement->new(
+        id => 1,
+        driver => $driver
+    );
+
+    my $new_remote_elem = Selenium::Remote::WebElement->new(
+        id => { ELEMENT => 1 },
+        driver => $driver
+    );
+
+    my $new_spec_elem = Selenium::Remote::WebElement->new(
+        id => { 'element-6066-11e4-a52e-4f735466cecf' => 1 },
+        driver => $driver
+    );
+
+and then after instantiation, all three would give the following for
+`id`:
+
+    print $elem->id; # prints 1
+
+Again, for typical usage of S::R::D and this module, none of this
+matters and it should Just Work without you having to worry about it
+at all. For further reading, the L<W3C
+spec|https://www.w3.org/TR/webdriver/#elements> strictly dictates the
+exact behavior.
+
+=head2 driver
+
+Required: Pass in a Selenium::Remote::Driver instance or one of its
+subclasses. The WebElement needs the appropriate Driver session to
+execute its commands properly.
 
 =head1 FUNCTIONS
-
-=cut
-
-sub new {
-    my ($class, $id, $parent) = @_;
-    my $self = {
-        id => $id,
-        driver => $parent,
-    };
-    bless $self, $class or die "Can't bless $class: $!";
-    return $self;
-}
-
-sub _execute_command {
-    my ($self) = shift;
-    return $self->{driver}->_execute_command(@_);
-}
 
 =head2 click
 
@@ -54,14 +287,6 @@ sub _execute_command {
  Usage:
     $elem->click();
 
-=cut
-
-sub click {
-    my ($self) = @_;
-    my $res = { 'command' => 'clickElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 submit
 
  Description:
@@ -70,14 +295,6 @@ sub click {
 
  Usage:
     $elem->submit();
-
-=cut
-
-sub submit {
-    my ($self) = @_;
-    my $res = { 'command' => 'submitElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
 
 =head2 send_keys
 
@@ -93,26 +310,14 @@ sub submit {
  Usage:
     $elem->send_keys('abcd', 'efg');
     $elem->send_keys('hijk');
-    
+
     or
-    
+
     # include the WDKeys module
     use Selenium::Remote::WDKeys;
     .
     .
     $elem->send_keys(KEYS->{'space'}, KEYS->{'enter'});
-
-=cut
-
-sub send_keys {
-    my ($self, @strings) = @_;
-    my $res = { 'command' => 'sendKeysToElement', 'id' => $self->{id} };
-    map { $_ .= "" } @strings;
-    my $params = {
-        'value' => \@strings,
-    };
-    return $self->_execute_command($res, $params);
-}
 
 =head2 is_selected
 
@@ -126,38 +331,22 @@ sub send_keys {
  Usage:
     $elem->is_selected();
 
-=cut
-
-sub is_selected {
-    my ($self) = @_;
-    my $res = { 'command' => 'isElementSelected', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 set_selected
 
  Description:
-    Select an OPTION element, or an INPUT element of type checkbox or radiobutton. 
+    Select an OPTION element, or an INPUT element of type checkbox or radiobutton.
 
  Usage:
     $elem->set_selected();
 
  Note: DEPRECATED -- use click instead
 
-=cut
-
-sub set_selected {
-    my ($self) = @_;
-    my $res = { 'command' => 'setElementSelected', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 toggle
 
  Description:
     Toggle whether an OPTION element, or an INPUT element of type checkbox or
     radiobutton is currently selected.
-    
+
  Output:
     BOOLEAN - Whether the element is selected after toggling its state.
 
@@ -166,110 +355,62 @@ sub set_selected {
 
  Note: DEPRECATED -- use click instead
 
-=cut
-
-sub toggle {
-    my ($self) = @_;
-    my $res = { 'command' => 'toggleElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 is_enabled
 
  Description:
     Determine if an element is currently enabled.
-    
+
  Output:
     BOOLEAN - Whether the element is enabled.
 
  Usage:
     $elem->is_enabled();
 
-=cut
-
-sub is_enabled {
-    my ($self) = @_;
-    my $res = { 'command' => 'isElementEnabled', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 get_element_location
 
  Description:
    Determine an element's location on the page. The point (0, 0) refers to the
    upper-left corner of the page.
-    
+
  Output:
     HASH - The X and Y coordinates for the element on the page.
 
  Usage:
     $elem->get_element_location();
 
-=cut
-
-sub get_element_location {
-    my ($self) = @_;
-    my $res = { 'command' => 'getElementLocation', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 get_element_location_in_view
 
  Description:
     Determine an element's location on the screen once it has been scrolled
     into view.
-    
+
     Note: This is considered an internal command and should only be used to
     determine an element's location for correctly generating native events.
-    
+
  Output:
     {x:number, y:number} The X and Y coordinates for the element on the page.
 
  Usage:
     $elem->get_element_location_in_view();
 
-=cut
-
-sub get_element_location_in_view {
-    my ($self) = @_;
-    my $res = { 'command' => 'getElementLocationInView', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 get_tag_name
 
  Description:
     Query for an element's tag name.
-    
+
  Output:
     STRING - The element's tag name, as a lowercase string.
 
  Usage:
     $elem->get_tag_name();
 
-=cut
-
-sub get_tag_name {
-    my ($self) = @_;
-    my $res = { 'command' => 'getElementTagName', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
 =head2 clear
 
  Description:
     Clear a TEXTAREA or text INPUT element's value.
-    
+
  Usage:
     $elem->clear();
-
-=cut
-
-sub clear {
-    my ($self) = @_;
-    my $res = { 'command' => 'clearElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
 
 =head2 get_attribute
 
@@ -279,26 +420,12 @@ sub clear {
  Input: 1
     Required:
         STRING - name of the attribute of the element
-    
+
  Output:
     {STRING | NULL} The value of the attribute, or null if it is not set on the element.
 
  Usage:
     $elem->get_attribute('name');
-
-=cut
-
-sub get_attribute {
-    my ($self, $attr_name) = @_;
-    if (not defined $attr_name) {
-        return 'Attribute name not provided';
-    }
-    my $res = {'command' => 'getElementAttribute',
-               'id' => $self->{id},
-               'name' => $attr_name,
-               };
-    return $self->_execute_command($res);
-}
 
 =head2 get_value
 
@@ -311,31 +438,27 @@ sub get_attribute {
  Usage:
     $elem->get_value();
 
-=cut
-
-sub get_value {
-    my ($self) = @_;
-    return $self->get_attribute('value');
-}
-
 =head2 is_displayed
 
  Description:
     Determine if an element is currently displayed.
-    
+
  Output:
     BOOLEAN - Whether the element is displayed.
 
  Usage:
     $elem->is_displayed();
 
-=cut
+=head2 is_hidden
 
-sub is_displayed {
-    my ($self) = @_;
-    my $res = { 'command' => 'isElementDisplayed', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
+ Description:
+    Determine if an element is currently hidden.
+
+ Output:
+    BOOLEAN - Whether the element is hidden.
+
+ Usage:
+    $elem->is_hidden();
 
 =head2 drag
 
@@ -347,24 +470,24 @@ sub is_displayed {
     Required:
         NUMBER - X axis distance in pixels
         NUMBER - Y axis distance in pixels
-    
+
  Usage:
     $elem->drag(216,158);
 
-=cut
+ Note: DEPRECATED - drag is no longer available in the
+ JSONWireProtocol. We are working on an ActionsChains implementation,
+ but drag and drop doesn't currently work on the Webdriver side for
+ HTML5 pages. For reference, see:
 
-sub drag {
-    my ($self, $x, $y) = @_;
-    if ((not defined $x) || (not defined $y)){
-        return 'X & Y pixel coordinates not provided';
-    }
-    my $res = {'command' => 'dragElement','id' => $self->{id}};
-    my $params = {
-        'x' => $x,
-        'y' => $y,
-    };
-    return $self->_execute_command($res, $params);
-}
+ http://elementalselenium.com/tips/39-drag-and-drop
+ https://gist.github.com/rcorreia/2362544
+
+ Check out the mouse_move_to_location, button_down, and button_up
+ functions on Selenium::Remote::Driver.
+
+ https://metacpan.org/pod/Selenium::Remote::Driver#mouse_move_to_location
+ https://metacpan.org/pod/Selenium::Remote::Driver#button_down
+ https://metacpan.org/pod/Selenium::Remote::Driver#button_up
 
 =head2 get_size
 
@@ -374,17 +497,9 @@ sub drag {
 
  Output:
     HASH - The width and height of the element, in pixels.
-    
+
  Usage:
     $elem->get_size();
-
-=cut
-
-sub get_size {
-    my ($self) = @_;
-    my $res = { 'command' => 'getElementSize', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
 
 =head2 get_text
 
@@ -393,17 +508,9 @@ sub get_size {
 
  Output:
     STRING - innerText of an element
-    
+
  Usage:
     $elem->get_text();
-
-=cut
-
-sub get_text {
-    my ($self) = @_;
-    my $res = { 'command' => 'getElementText', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
 
 =head2 get_css_attribute
 
@@ -418,39 +525,9 @@ sub get_text {
 
  Output:
     STRING - Value of the css attribute
-    
+
  Usage:
     $elem->get_css_attribute('background-color');
-
-=cut
-
-sub get_css_attribute {
-    my ($self, $attr_name) = @_;
-    if (not defined $attr_name) {
-        return 'CSS attribute name not provided';
-    }
-    my $res = {'command' => 'getElementValueOfCssProperty',
-               'id' => $self->{id},
-               'property_name' => $attr_name,
-               };
-    return $self->_execute_command($res);
-}
-
-=head2 hover
-
- Description:
-    Move the mouse over an element.
-
- Usage:
-    $elem->hover();
-
-=cut
-
-sub hover {
-    my ($self) = @_;
-    my $res = { 'command' => 'hoverOverElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
 
 =head2 describe
 
@@ -460,45 +537,86 @@ sub hover {
  Usage:
     $elem->describe();
 
-=cut
-sub describe {
-    my ($self) = @_;
-    my $res = { 'command' => 'describeElement', 'id' => $self->{id} };
-    return $self->_execute_command($res);
-}
-
-1;
+ Note: DEPRECATED as of 2.42.2 -- use get_text, get_value, is_displayed, or
+ whatever appropriate WebElement function you need instead
 
 =head1 SEE ALSO
 
-For more information about Selenium , visit the website at
-L<http://code.google.com/p/selenium/>.
+Please see those modules/websites for more information related to this module.
+
+=over 4
+
+=item *
+
+L<Selenium::Remote::Driver|Selenium::Remote::Driver>
+
+=back
 
 =head1 BUGS
 
-The Selenium issue tracking system is available online at
-L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
+Please report any bugs or feature requests on the bugtracker website
+https://github.com/gempesaw/Selenium-Remote-Driver/issues
 
-=head1 CURRENT MAINTAINER
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
 
-Charles Howes C<< <chowes@cpan.org> >>
+=head1 AUTHORS
 
-=head1 AUTHOR
+Current Maintainers:
 
-Perl Bindings for Selenium Remote Driver by Aditya Ivaturi C<< <ivaturi@gmail.com> >>
+=over 4
 
-=head1 LICENSE
+=item *
+
+Daniel Gempesaw <gempesaw@gmail.com>
+
+=item *
+
+Emmanuel Peroumalnaïk <peroumalnaik.emmanuel@gmail.com>
+
+=back
+
+Previous maintainers:
+
+=over 4
+
+=item *
+
+Luke Closs <cpan@5thplane.com>
+
+=item *
+
+Mark Stosberg <mark@stosberg.com>
+
+=back
+
+Original authors:
+
+=over 4
+
+=item *
+
+Aditya Ivaturi <ivaturi@gmail.com>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 2010-2011 Aditya Ivaturi, Gordon Child
+
+Copyright (c) 2014-2016 Daniel Gempesaw
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+=cut

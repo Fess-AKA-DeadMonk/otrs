@@ -1,13 +1,14 @@
 # 
 # Translators:
 # Lauri Jesmin <lauri.jesmin@gmail.com>, 2014
+# Uve Lokk <uvelokk@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OTRS\n"
 "POT-Creation-Date: 2014-08-08 19:10+0200\n"
-"PO-Revision-Date: 2015-03-25 21:00+0000\n"
-"Last-Translator: Carlos Rodríguez <carlos.rodriguez@otrs.com>\n"
-"Language-Team: Estonian (http://www.transifex.com/projects/p/OTRS/language/et/)\n"
+"PO-Revision-Date: 2015-07-13 10:55+0000\n"
+"Last-Translator: Uve Lokk <uvelokk@gmail.com>\n"
+"Language-Team: Estonian (http://www.transifex.com/otrs/OTRS/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -68,7 +69,7 @@ msgstr "Reset"
 
 #. Template: AAABase
 msgid "more than ... ago"
-msgstr ""
+msgstr "enam kui ... tagasi"
 
 #. Template: AAABase
 msgid "in more than ..."
@@ -76,11 +77,11 @@ msgstr ""
 
 #. Template: AAABase
 msgid "within the last ..."
-msgstr ""
+msgstr "viimase ... jooksul"
 
 #. Template: AAABase
 msgid "within the next ..."
-msgstr ""
+msgstr "järgmise ... jooksul"
 
 #. Template: AAABase
 msgid "Created within the last"
@@ -88,7 +89,7 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Created more than ... ago"
-msgstr ""
+msgstr "Loodud enam kui ... tagasi"
 
 #. Template: AAABase
 msgid "Today"
@@ -400,7 +401,7 @@ msgstr "Alam"
 
 #. Template: AAABase
 msgid "Hit"
-msgstr "Hit"
+msgstr "Tabamus"
 
 #. Template: AAABase
 msgid "Hits"
@@ -628,7 +629,7 @@ msgstr "vahel"
 
 #. Template: AAABase
 msgid "before/after"
-msgstr ""
+msgstr "enne/pärast"
 
 #. Template: AAABase
 msgid "Fulltext Search"
@@ -804,7 +805,7 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Please contact your administrator"
-msgstr ""
+msgstr "Palun võta ühendust halduriga"
 
 #. Template: AAABase
 msgid ""
@@ -819,11 +820,11 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Logout"
-msgstr "Lahku"
+msgstr "logi välja"
 
 #. Template: AAABase
 msgid "Logout successful. Thank you for using %s!"
-msgstr ""
+msgstr "Väljalogimine õnnestus. Täname kasutamast!"
 
 #. Template: AAABase
 msgid "Feature not active!"
@@ -855,7 +856,7 @@ msgstr "Valmis"
 
 #. Template: AAABase
 msgid "Install OTRS"
-msgstr ""
+msgstr "Paigalda OTRS"
 
 #. Template: AAABase
 msgid "Intro"
@@ -1020,11 +1021,11 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Attachment added!"
-msgstr ""
+msgstr "Manus lisatud!"
 
 #. Template: AAABase
 msgid "Attachment updated!"
-msgstr ""
+msgstr "Manus uuendatud!"
 
 #. Template: AAABase
 msgid "Response added!"
@@ -1529,7 +1530,7 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Your %s was successfully updated."
-msgstr ""
+msgstr "Teie %s uuendamine õnnestus."
 
 #. Template: AAABase
 msgid "There was a problem during the upgrade of %s."
@@ -1777,11 +1778,11 @@ msgstr "Statistika"
 
 #. Template: AAAStats
 msgid "Sum"
-msgstr ""
+msgstr "summa"
 
 #. Template: AAAStats
 msgid "No (not supported)"
-msgstr ""
+msgstr "Ei (pole toetatud)"
 
 #. Template: AAAStats
 msgid "Days"
@@ -2016,7 +2017,7 @@ msgstr ""
 
 #. Template: AAAStats
 msgid "Number of Articles"
-msgstr ""
+msgstr "Artiklite arv"
 
 #. Template: AAAStats
 msgid "Accounted time by Agent"
@@ -2195,7 +2196,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Date Format"
-msgstr ""
+msgstr "kuupäevavorming"
 
 #. Template: AAASupportDataCollector
 msgid "Setting DateStyle needs to be ISO."
@@ -2211,7 +2212,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Disk Usage"
-msgstr ""
+msgstr "kettakasutus"
 
 #. Template: AAASupportDataCollector
 msgid "The partition where OTRS is located is almost full."
@@ -2223,7 +2224,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Disk Partitions Usage"
-msgstr ""
+msgstr "ketta partitsioonide kasutus"
 
 #. Template: AAASupportDataCollector
 msgid "Distribution"
@@ -2235,7 +2236,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Kernel Version"
-msgstr ""
+msgstr "kerneli versioon"
 
 #. Template: AAASupportDataCollector
 msgid "Could not determine kernel version."
@@ -2243,7 +2244,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "System Load"
-msgstr ""
+msgstr "süsteemi koormus"
 
 #. Template: AAASupportDataCollector
 msgid ""
@@ -2253,7 +2254,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Perl Modules"
-msgstr ""
+msgstr "Perli moodulid"
 
 #. Template: AAASupportDataCollector
 msgid "Not all required Perl modules are correctly installed."
@@ -2261,7 +2262,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Perl Version"
-msgstr ""
+msgstr "Perli versioon"
 
 #. Template: AAASupportDataCollector
 msgid "Free Swap Space (%)"
@@ -2493,6 +2494,14 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Loaded Apache Modules"
+msgstr "Apache'i laaditud moodulid"
+
+#. Template: AAASupportDataCollector
+msgid "MPM model"
+msgstr ""
+
+#. Template: AAASupportDataCollector
+msgid "OTRS requires apache to be run with the 'prefork' MPM model."
 msgstr ""
 
 #. Template: AAASupportDataCollector
@@ -2501,11 +2510,11 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "You should use FastCGI or mod_perl to increase your performance."
-msgstr ""
+msgstr "Jõudluse suurendamiseks kasuta FastCGI'd või mod_perl'i"
 
 #. Template: AAASupportDataCollector
 msgid "mod_deflate Usage"
-msgstr ""
+msgstr "mooduli mod_deflate kasutus"
 
 #. Template: AAASupportDataCollector
 msgid "Please install mod_deflate to improve GUI speed."
@@ -2513,7 +2522,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "mod_filter Usage"
-msgstr ""
+msgstr "mooduli mod_filter kasutus"
 
 #. Template: AAASupportDataCollector
 msgid "Please install mod_filter if mod_deflate is used."
@@ -2521,7 +2530,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "mod_headers Usage"
-msgstr ""
+msgstr "mooduli mod_headers kasutus"
 
 #. Template: AAASupportDataCollector
 msgid "Please install mod_headers to improve GUI speed."
@@ -2529,7 +2538,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Apache::Reload Usage"
-msgstr ""
+msgstr "Apache::Reload kasutus"
 
 #. Template: AAASupportDataCollector
 msgid ""
@@ -2540,7 +2549,7 @@ msgstr ""
 
 #. Template: AAASupportDataCollector
 msgid "Apache::DBI Usage"
-msgstr ""
+msgstr "Apache::DBI kasutus"
 
 #. Template: AAASupportDataCollector
 msgid ""
@@ -2722,7 +2731,7 @@ msgstr "Saatja"
 
 #. Template: AAATicket
 msgid "Article"
-msgstr "Intsident"
+msgstr "artikkel"
 
 #. Template: AAATicket
 msgid "Ticket"
@@ -2870,7 +2879,7 @@ msgstr "Teate lõpp"
 
 #. Template: AAATicket
 msgid "Forwarded message from"
-msgstr "Teade edastatud kasutajalt"
+msgstr "Edastatud teade kasutajalt"
 
 #. Template: AAATicket
 msgid "End forwarded message"
@@ -2934,19 +2943,19 @@ msgstr "sulgub ise ebaedukalt"
 
 #. Template: AAATicket
 msgid "email-external"
-msgstr "sisemine ekiri"
-
-#. Template: AAATicket
-msgid "email-internal"
 msgstr "avalik ekiri"
 
 #. Template: AAATicket
+msgid "email-internal"
+msgstr "sisemine ekiri"
+
+#. Template: AAATicket
 msgid "note-external"
-msgstr "sisemine märkus"
+msgstr "avalik märkus"
 
 #. Template: AAATicket
 msgid "note-internal"
-msgstr "avalik märkus"
+msgstr "sisemine märkus"
 
 #. Template: AAATicket
 msgid "note-report"
@@ -3094,7 +3103,7 @@ msgstr "Näidata suletud intsidente"
 
 #. Template: AAATicket
 msgid "New Article"
-msgstr "Uus intsident"
+msgstr "Uus artikkel"
 
 #. Template: AAATicket
 msgid "Unread article(s) available"
@@ -3102,7 +3111,7 @@ msgstr ""
 
 #. Template: AAATicket
 msgid "Remove from list of watched tickets"
-msgstr ""
+msgstr "Eemalda vaadatud piletite nimekirjast"
 
 #. Template: AAATicket
 msgid "Add to list of watched tickets"
@@ -3123,6 +3132,10 @@ msgstr "Telefonist"
 #. Template: AAATicket
 msgid "Search Tickets"
 msgstr "Otsi intsidente"
+
+#. Template: AAATicket
+msgid "Customer Realname"
+msgstr "Kliendi pärisnimi"
 
 #. Template: AAATicket
 msgid "Customer History"
@@ -3360,7 +3373,7 @@ msgstr "Saada mulle teavitus, kui \"Minu järjekordades\" on uusi intsidente."
 
 #. Template: AAATicket
 msgid "Send new ticket notifications"
-msgstr ""
+msgstr "Saada uue pileti teavitus"
 
 #. Template: AAATicket
 msgid "Ticket follow up notification"
@@ -3591,11 +3604,11 @@ msgstr "L"
 
 #. Template: AdminACL
 msgid "ACL Management"
-msgstr ""
+msgstr "Pääsuloendi haldus"
 
 #. Template: AdminACL
 msgid "Filter for ACLs"
-msgstr ""
+msgstr "Pääsuloendi filter"
 
 #. Template: AdminACL
 msgid "Filter"
@@ -3603,7 +3616,7 @@ msgstr "Filter"
 
 #. Template: AdminACL
 msgid "ACL Name"
-msgstr ""
+msgstr "Pääsuloendi nimi"
 
 #. Template: AdminACL
 msgid "Actions"
@@ -3611,15 +3624,15 @@ msgstr "Tegevused"
 
 #. Template: AdminACL
 msgid "Create New ACL"
-msgstr ""
+msgstr "Loo uus pääsuloend"
 
 #. Template: AdminACL
 msgid "Deploy ACLs"
-msgstr ""
+msgstr "Kehtesta pääsuloend"
 
 #. Template: AdminACL
 msgid "Export ACLs"
-msgstr ""
+msgstr "Ekspordi pääsuloend"
 
 #. Template: AdminACL
 msgid "Configuration import"
@@ -3637,7 +3650,7 @@ msgstr "See väli on nõutav"
 
 #. Template: AdminACL
 msgid "Overwrite existing ACLs?"
-msgstr ""
+msgstr "Kirjutada olemasolev pääsuloend üle?"
 
 #. Template: AdminACL
 msgid "Upload ACL configuration"
@@ -3673,7 +3686,7 @@ msgstr ""
 
 #. Template: AdminACL
 msgid "ACL name"
-msgstr ""
+msgstr "Pääsuloendi nimi"
 
 #. Template: AdminACL
 msgid "Validity"
@@ -3689,7 +3702,7 @@ msgstr "Andmeid ei leitud."
 
 #. Template: AdminACLEdit
 msgid "Edit ACL %s"
-msgstr ""
+msgstr "Muuda pääsuloendit %s"
 
 #. Template: AdminACLEdit
 msgid "Go to overview"
@@ -3697,11 +3710,11 @@ msgstr "Mine ülevaatesse"
 
 #. Template: AdminACLEdit
 msgid "Delete ACL"
-msgstr ""
+msgstr "Kustuta pääsuloend"
 
 #. Template: AdminACLEdit
 msgid "Delete Invalid ACL"
-msgstr ""
+msgstr "Kustuta vigane pääsuloend"
 
 #. Template: AdminACLEdit
 msgid "Match settings"
@@ -3738,7 +3751,7 @@ msgstr ""
 
 #. Template: AdminACLEdit
 msgid "Edit ACL information"
-msgstr ""
+msgstr "Muuda pääsuloendi teavet"
 
 #. Template: AdminACLEdit
 msgid "Stop after match"
@@ -3746,7 +3759,7 @@ msgstr ""
 
 #. Template: AdminACLEdit
 msgid "Edit ACL structure"
-msgstr ""
+msgstr "Muuda pääsuloendi struktuuri"
 
 #. Template: AdminACLEdit
 msgid "Save"
@@ -4135,7 +4148,7 @@ msgstr "Dünaamiliste väljade haldamine"
 
 #. Template: AdminDynamicField
 msgid "Add new field for object"
-msgstr ""
+msgstr "Lisa uus väli objektile"
 
 #. Template: AdminDynamicField
 msgid ""
@@ -4582,6 +4595,10 @@ msgstr ""
 
 #. Template: AdminGenericAgent
 msgid "Delete this Event Trigger"
+msgstr ""
+
+#. Template: AdminGenericAgent
+msgid "Remove selection"
 msgstr ""
 
 #. Template: AdminGenericAgent
@@ -5922,7 +5939,7 @@ msgstr ""
 
 #. Template: AdminNotificationEvent
 msgid "Article Filter"
-msgstr ""
+msgstr "Artikli filter"
 
 #. Template: AdminNotificationEvent
 msgid "Only for ArticleCreate and ArticleSend event"
@@ -5930,7 +5947,7 @@ msgstr ""
 
 #. Template: AdminNotificationEvent
 msgid "Article type"
-msgstr "Intsidendi tüüp"
+msgstr "Artikli tüüp"
 
 #. Template: AdminNotificationEvent
 msgid ""
@@ -6207,7 +6224,7 @@ msgstr ""
 
 #. Template: AdminPGP
 msgid "Result"
-msgstr "Vastus"
+msgstr "Tulemus"
 
 #. Template: AdminPGP
 msgid "Identifier"
@@ -6288,7 +6305,7 @@ msgstr "Võrguallikas"
 
 #. Template: AdminPackageManager
 msgid "Module documentation"
-msgstr ""
+msgstr "Mooduli dokumentatsioon"
 
 #. Template: AdminPackageManager
 msgid "Upgrade"
@@ -7067,7 +7084,7 @@ msgstr ""
 
 #. Template: AdminProcessManagementProcessPrint
 msgid "Module name"
-msgstr ""
+msgstr "Mooduli nimi"
 
 #. Template: AdminProcessManagementProcessPrint
 msgid "Configuration"
@@ -7097,7 +7114,7 @@ msgstr ""
 
 #. Template: AdminProcessManagementTransition
 msgid "Remove this Condition"
-msgstr ""
+msgstr "Eemalda see tingimus"
 
 #. Template: AdminProcessManagementTransition
 msgid "Type of Linking"
@@ -7105,7 +7122,7 @@ msgstr ""
 
 #. Template: AdminProcessManagementTransition
 msgid "Remove this Field"
-msgstr ""
+msgstr "Eemalda see väli"
 
 #. Template: AdminProcessManagementTransition
 msgid "And can't be repeated on the same condition."
@@ -7143,7 +7160,7 @@ msgstr ""
 
 #. Template: AdminProcessManagementTransitionAction
 msgid "Remove this Parameter"
-msgstr ""
+msgstr "Eemalda see parameeter"
 
 #. Template: AdminProcessManagementTransitionAction
 msgid "Add a new Parameter"
@@ -7282,15 +7299,15 @@ msgstr ""
 
 #. Template: AdminQueueTemplates
 msgid "Manage Template-Queue Relations"
-msgstr ""
+msgstr "Halda mallide <-> järjekordade seoseid"
 
 #. Template: AdminQueueTemplates
 msgid "Filter for Templates"
-msgstr ""
+msgstr "Mallide filter"
 
 #. Template: AdminQueueTemplates
 msgid "Templates"
-msgstr ""
+msgstr "Mallid"
 
 #. Template: AdminQueueTemplates
 msgid "Change Queue Relations for Template"
@@ -7380,7 +7397,7 @@ msgstr ""
 
 #. Template: AdminRegistration
 msgid "Read more"
-msgstr ""
+msgstr "Loe lisaks"
 
 #. Template: AdminRegistration
 msgid "You need to log in with your OTRS-ID to register your system."
@@ -7803,7 +7820,7 @@ msgstr "Õigus tekitada sellesse rühma/järjekorda intsidente."
 
 #. Template: AdminRoleGroup
 msgid "note"
-msgstr ""
+msgstr "Märkus"
 
 #. Template: AdminRoleGroup
 msgid "Permissions to add notes to tickets in this group/queue."
@@ -8084,7 +8101,7 @@ msgstr ""
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "Update Result"
-msgstr ""
+msgstr "Uuendamise tulemus"
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "Currently this data is only shown in this system."
@@ -8159,7 +8176,7 @@ msgstr ""
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "Sending"
-msgstr ""
+msgstr "Saatja"
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "The support bundle will be sent to OTRS Group via email automatically."
@@ -8190,11 +8207,11 @@ msgstr "Sessioonihaldus"
 
 #. Template: AdminSession
 msgid "All sessions"
-msgstr ""
+msgstr "Kõik seansid"
 
 #. Template: AdminSession
 msgid "Agent sessions"
-msgstr ""
+msgstr "Töötaja seansid"
 
 #. Template: AdminSession
 msgid "Customer sessions"
@@ -8210,19 +8227,19 @@ msgstr ""
 
 #. Template: AdminSession
 msgid "Kill all sessions"
-msgstr "Hävita kõik sessioonid"
+msgstr "Tapa kõik seansid"
 
 #. Template: AdminSession
 msgid "Kill this session"
-msgstr ""
+msgstr "Tapa see seanss"
 
 #. Template: AdminSession
 msgid "Session"
-msgstr "Sessioon"
+msgstr "Seanss"
 
 #. Template: AdminSession
 msgid "Kill"
-msgstr ""
+msgstr "Tapa"
 
 #. Template: AdminSession
 msgid "Detail View for SessionID"
@@ -8406,7 +8423,7 @@ msgstr "NavBar"
 
 #. Template: AdminSysConfigEdit
 msgid "LinkOption"
-msgstr ""
+msgstr "Viide"
 
 #. Template: AdminSysConfigEdit
 msgid "Block"
@@ -8438,11 +8455,11 @@ msgstr ""
 
 #. Template: AdminSysConfigEdit
 msgid "Invalid month"
-msgstr ""
+msgstr "Vigane kuu"
 
 #. Template: AdminSysConfigEdit
 msgid "Invalid day"
-msgstr ""
+msgstr "Vigane päev"
 
 #. Template: AdminSysConfigEdit
 msgid "Show more"
@@ -8528,7 +8545,7 @@ msgstr ""
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Date invalid!"
-msgstr "Kuupäev ebasobiv!"
+msgstr "Vigane kuupäev!"
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Login message"
@@ -8544,19 +8561,19 @@ msgstr ""
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Manage Sessions"
-msgstr ""
+msgstr "Halda seansse"
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "All Sessions"
-msgstr ""
+msgstr "Kõik seansid"
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Agent Sessions"
-msgstr ""
+msgstr "Töötaja seansid"
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Customer Sessions"
-msgstr ""
+msgstr "Kliendi seansid"
 
 #. Template: AdminSystemMaintenanceEdit
 msgid "Kill all Sessions, except for your own"
@@ -8564,11 +8581,11 @@ msgstr ""
 
 #. Template: AdminTemplate
 msgid "Manage Templates"
-msgstr ""
+msgstr "Halda malle"
 
 #. Template: AdminTemplate
 msgid "Add template"
-msgstr ""
+msgstr "Lisa mall"
 
 #. Template: AdminTemplate
 msgid ""
@@ -8582,11 +8599,11 @@ msgstr ""
 
 #. Template: AdminTemplate
 msgid "Add Template"
-msgstr ""
+msgstr "Lisa mall"
 
 #. Template: AdminTemplate
 msgid "Edit Template"
-msgstr ""
+msgstr "Muuda malli"
 
 #. Template: AdminTemplate
 msgid "A standard template with this name already exists!"
@@ -8594,7 +8611,7 @@ msgstr ""
 
 #. Template: AdminTemplate
 msgid "Template"
-msgstr ""
+msgstr "Mall"
 
 #. Template: AdminTemplate
 msgid "Create type templates only supports this smart tags"
@@ -8602,7 +8619,7 @@ msgstr ""
 
 #. Template: AdminTemplate
 msgid "Example template"
-msgstr ""
+msgstr "Näidismall"
 
 #. Template: AdminTemplate
 msgid "The current ticket state is"
@@ -8614,7 +8631,7 @@ msgstr "Teie e-posti aadress on"
 
 #. Template: AdminTemplateAttachment
 msgid "Manage Templates <-> Attachments Relations"
-msgstr ""
+msgstr "Halda mallide <-> manuste seoseid"
 
 #. Template: AdminTemplateAttachment
 msgid "Filter for Attachments"
@@ -8911,11 +8928,11 @@ msgstr ""
 
 #. Template: AgentDashboardUserOnline
 msgid "out of office"
-msgstr ""
+msgstr "töölt eemal"
 
 #. Template: AgentDashboardUserOutOfOffice
 msgid "until"
-msgstr ""
+msgstr "kuni"
 
 #. Template: AgentHTMLReferencePageLayout
 msgid "The ticket has been locked"
@@ -8989,7 +9006,7 @@ msgstr ""
 
 #. Template: AgentSchedulerInfo
 msgid "Make sure that %s exists (without .dist extension)"
-msgstr ""
+msgstr "Veendu, et %s on olemas (.dist laiendita)"
 
 #. Template: AgentSchedulerInfo
 msgid "Check that cron deamon is running in the system"
@@ -9108,11 +9125,11 @@ msgstr "If you use a graph as output format you have to select at least one grap
 
 #. Template: AgentStatsEditSpecification
 msgid "Sum rows"
-msgstr "Summaread"
+msgstr "Ridade summa"
 
 #. Template: AgentStatsEditSpecification
 msgid "Sum columns"
-msgstr "Summaveerud"
+msgstr "Veergude summa"
 
 #. Template: AgentStatsEditSpecification
 msgid "Use cache"
@@ -9335,7 +9352,7 @@ msgstr "Intsidendi vastutaja muutmine"
 
 #. Template: AgentTicketActionCommon
 msgid "All fields marked with an asterisk (*) are mandatory."
-msgstr ""
+msgstr "Kõik tärniga (*) märgitud väljad peavad olema täidetud."
 
 #. Template: AgentTicketActionCommon
 msgid "Service invalid."
@@ -9371,7 +9388,7 @@ msgstr ""
 
 #. Template: AgentTicketActionCommon
 msgid "Spell check"
-msgstr ""
+msgstr "Õigekirjakontroll"
 
 #. Template: AgentTicketActionCommon
 msgid "Text Template"
@@ -9493,11 +9510,11 @@ msgstr ""
 
 #. Template: AgentTicketCompose
 msgid "Address book"
-msgstr ""
+msgstr "Aadressiraamat"
 
 #. Template: AgentTicketCompose
 msgid "Date Invalid!"
-msgstr ""
+msgstr "Vigane kuupäev!"
 
 #. Template: AgentTicketCustomer
 msgid "Change customer of ticket"
@@ -9513,7 +9530,7 @@ msgstr ""
 
 #. Template: AgentTicketEmail
 msgid "Example Template"
-msgstr ""
+msgstr "Näidismall"
 
 #. Template: AgentTicketEmail
 msgid "From queue"
@@ -9541,6 +9558,26 @@ msgstr ""
 
 #. Template: AgentTicketEmailOutbound
 msgid "E-Mail Outbound"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: update time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time will be over in %s/%s!"
 msgstr ""
 
 #. Template: AgentTicketForward
@@ -9725,7 +9762,7 @@ msgstr ""
 
 #. Template: AgentTicketSearch
 msgid "Filters in use"
-msgstr ""
+msgstr "kasutatavad filtrid"
 
 #. Template: AgentTicketSearch
 msgid "Additional filters"
@@ -9737,7 +9774,7 @@ msgstr "Lisa parameeter"
 
 #. Template: AgentTicketSearch
 msgid "Output"
-msgstr "Tulemuste formaat"
+msgstr "Väljund"
 
 #. Template: AgentTicketSearch
 msgid "Fulltext"
@@ -9759,7 +9796,7 @@ msgstr "Kliendi kasutajanimi"
 
 #. Template: AgentTicketSearch
 msgid "Attachment Name"
-msgstr ""
+msgstr "Manuse nimi"
 
 #. Template: AgentTicketSearch
 msgid "(e. g. m*file or myfi*)"
@@ -10103,7 +10140,7 @@ msgstr "Kasutajanimi"
 
 #. Template: CustomerLogin
 msgid "A new password will be sent to your email address."
-msgstr ""
+msgstr "Uus salasõna saadetakse Teie e-posti aadressile,"
 
 #. Template: CustomerLogin
 msgid "Create Account"
@@ -10141,13 +10178,17 @@ msgstr ""
 msgid "Edit personal preferences"
 msgstr "Muuda isiklikke eelistusi"
 
+#. Template: CustomerNavigationBar
+msgid "Logout %s %s"
+msgstr "Logi välja %s %s"
+
 #. Template: CustomerRichTextEditor
 msgid "Split Quote"
 msgstr ""
 
 #. Template: CustomerTicketMessage
 msgid "Service level agreement"
-msgstr ""
+msgstr "Teenustaseme leping"
 
 #. Template: CustomerTicketOverview
 msgid "Welcome!"
@@ -10155,11 +10196,11 @@ msgstr "Tere tulemast!"
 
 #. Template: CustomerTicketOverview
 msgid "Please click the button below to create your first ticket."
-msgstr ""
+msgstr "Pileti loomiseks vajuta allolevat nuppu."
 
 #. Template: CustomerTicketOverview
 msgid "Create your first ticket"
-msgstr ""
+msgstr "Loo uus pilet"
 
 #. Template: CustomerTicketPrint
 msgid "Ticket Print"
@@ -10187,7 +10228,7 @@ msgstr ""
 
 #. Template: CustomerTicketSearch
 msgid "Carbon Copy"
-msgstr ""
+msgstr "Koopia"
 
 #. Template: CustomerTicketSearch
 msgid "e. g. m*file or myfi*"
@@ -10219,31 +10260,31 @@ msgstr ""
 
 #. Template: CustomerTicketSearch
 msgid "Save search as template?"
-msgstr ""
+msgstr "Salvesta otsing kui mall?"
 
 #. Template: CustomerTicketSearch
 msgid "Save as Template?"
-msgstr ""
+msgstr "Salvesta kui mall?"
 
 #. Template: CustomerTicketSearch
 msgid "Save as Template"
-msgstr ""
+msgstr "Salvesta kui mall"
 
 #. Template: CustomerTicketSearch
 msgid "Template Name"
-msgstr ""
+msgstr "Malli nimi"
 
 #. Template: CustomerTicketSearch
 msgid "Pick a profile name"
-msgstr ""
+msgstr "vali profiili nimi"
 
 #. Template: CustomerTicketSearch
 msgid "Output to"
-msgstr ""
+msgstr "Tulemuste formaat"
 
 #. Template: CustomerTicketSearchResultShort
 msgid "of"
-msgstr ""
+msgstr "ei"
 
 #. Template: CustomerTicketSearchResultShort
 msgid "Search Results for"
@@ -10267,87 +10308,87 @@ msgstr ""
 
 #. Template: DashboardEventsTicketCalendar
 msgid "All-day"
-msgstr ""
+msgstr "kogu päev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Sunday"
-msgstr ""
+msgstr "pühapäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Monday"
-msgstr ""
+msgstr "esmaspäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Tuesday"
-msgstr ""
+msgstr "teisipäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Wednesday"
-msgstr ""
+msgstr "kolmapäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Thursday"
-msgstr ""
+msgstr "neljapäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Friday"
-msgstr ""
+msgstr "reede"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Saturday"
-msgstr ""
+msgstr "laupäev"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Su"
-msgstr ""
+msgstr "P"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Mo"
-msgstr ""
+msgstr "E"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Tu"
-msgstr ""
+msgstr "T"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "We"
-msgstr ""
+msgstr "K"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Th"
-msgstr ""
+msgstr "N"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Fr"
-msgstr ""
+msgstr "R"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Sa"
-msgstr ""
+msgstr "L"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Event Information"
-msgstr ""
+msgstr "Sündmuse teave"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Ticket fields"
-msgstr ""
+msgstr "pileti väljad"
 
 #. Template: DashboardEventsTicketCalendar
 msgid "Dynamic fields"
-msgstr ""
+msgstr "Dünaamilised väljad"
 
 #. Template: Datepicker
 msgid "Invalid date (need a future date)!"
-msgstr ""
+msgstr "Vigane kuupäev (peab olema tulevikus)!"
 
 #. Template: Datepicker
 msgid "Invalid date (need a past date)!"
-msgstr ""
+msgstr "Vigane kuupäev (peab olema minevikus)!"
 
 #. Template: Datepicker
 msgid "Previous"
-msgstr ""
+msgstr "Eelmine"
 
 #. Template: Datepicker
 msgid "Open date selection"
@@ -10355,7 +10396,7 @@ msgstr ""
 
 #. Template: Error
 msgid "Oops! An Error occurred."
-msgstr ""
+msgstr "Ups! Nüüd tekkis viga."
 
 #. Template: Error
 msgid "You can"
@@ -10363,20 +10404,20 @@ msgstr ""
 
 #. Template: Error
 msgid "Send a bugreport"
-msgstr ""
+msgstr "Saada vearaport"
 
 #. Template: Error
 msgid "go back to the previous page"
-msgstr ""
+msgstr "Tagasi eelmisele lehele"
 
 #. Template: Error
 msgid "Error Details"
-msgstr ""
+msgstr "Vea üksikasjad"
 
 #. Template: FooterJS
 msgid ""
 "If you now leave this page, all open popup windows will be closed, too!"
-msgstr ""
+msgstr "Lahkudes sellelt lehelt suletakse ka kõik hüpikaknad!"
 
 #. Template: FooterJS
 msgid ""
@@ -10389,12 +10430,18 @@ msgid "Please enter at least one search value or * to find anything."
 msgstr ""
 
 #. Template: FooterJS
+msgid ""
+"Please remove the following words from your search as they cannot be "
+"searched for:"
+msgstr "Palun eemalda otsingust järgnevad sõnad, kuna neid ei saa otsida:"
+
+#. Template: FooterJS
 msgid "Please check the fields marked as red for valid inputs."
 msgstr ""
 
 #. Template: FooterJS
 msgid "Please perform a spell check on the the text first."
-msgstr ""
+msgstr "Palun kontrolli esmalt teksti õigekirja."
 
 #. Template: FooterJS
 msgid "Slide the navigation bar"
@@ -10410,14 +10457,18 @@ msgstr ""
 
 #. Template: Installer
 msgid "JavaScript not available"
-msgstr ""
+msgstr "Ei saa kasutada JavaScript'i"
 
 #. Template: Installer
 msgid "Database Settings"
-msgstr ""
+msgstr "Andmebaasi seaded"
 
 #. Template: Installer
 msgid "General Specifications and Mail Settings"
+msgstr ""
+
+#. Template: Installer
+msgid "Welcome to %s"
 msgstr ""
 
 #. Template: Installer
@@ -10426,7 +10477,7 @@ msgstr ""
 
 #. Template: Installer
 msgid "Mail check successful."
-msgstr ""
+msgstr "E-posti kontroll õnnestus."
 
 #. Template: Installer
 msgid "Error in the mail settings. Please correct and try again."
@@ -10438,7 +10489,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Outbound mail type"
-msgstr ""
+msgstr "Tüüp"
 
 #. Template: InstallerConfigureMail
 msgid "Select outbound mail type."
@@ -10454,11 +10505,11 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "SMTP host"
-msgstr ""
+msgstr "e-posti server"
 
 #. Template: InstallerConfigureMail
 msgid "SMTP host."
-msgstr ""
+msgstr "E-posti server."
 
 #. Template: InstallerConfigureMail
 msgid "SMTP authentication"
@@ -10466,7 +10517,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Does your SMTP host need authentication?"
-msgstr ""
+msgstr "Kas e-posti server kasutab autentimist?"
 
 #. Template: InstallerConfigureMail
 msgid "SMTP auth user"
@@ -10490,7 +10541,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail type"
-msgstr ""
+msgstr "Tüüp"
 
 #. Template: InstallerConfigureMail
 msgid "Select inbound mail type."
@@ -10498,15 +10549,15 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail host"
-msgstr ""
+msgstr "Siseneva e-posti server"
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail host."
-msgstr ""
+msgstr "Siseneva e-posti server."
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail user"
-msgstr ""
+msgstr "Kasutaja"
 
 #. Template: InstallerConfigureMail
 msgid "User for inbound mail."
@@ -10514,7 +10565,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail password"
-msgstr ""
+msgstr "Parool"
 
 #. Template: InstallerConfigureMail
 msgid "Password for inbound mail."
@@ -10522,19 +10573,19 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Result of mail configuration check"
-msgstr ""
+msgstr "E-posti häälestuse kontrolli tulemus"
 
 #. Template: InstallerConfigureMail
 msgid "Check mail configuration"
-msgstr ""
+msgstr "Kontrolli e-posti häälestust"
 
 #. Template: InstallerConfigureMail
 msgid "Skip this step"
-msgstr ""
+msgstr "Jäta see samm vahele"
 
 #. Template: InstallerDBResult
 msgid "Database setup successful!"
-msgstr ""
+msgstr "Andmebaasi paigaldus õnnestus!"
 
 #. Template: InstallerDBStart
 msgid "Install Type"
@@ -10542,27 +10593,27 @@ msgstr ""
 
 #. Template: InstallerDBStart
 msgid "Create a new database for OTRS"
-msgstr ""
+msgstr "Loo OTRSile uus andmebaas"
 
 #. Template: InstallerDBStart
 msgid "Use an existing database for OTRS"
-msgstr ""
+msgstr "Kasuta olemasolevat andmebaasi"
 
 #. Template: InstallerDBmssql
 msgid "Database name"
-msgstr ""
+msgstr "Andmebaasi nimi"
 
 #. Template: InstallerDBmssql
 msgid "Check database settings"
-msgstr ""
+msgstr "Kontrolli andmebaasi seadeid"
 
 #. Template: InstallerDBmssql
 msgid "Result of database check"
-msgstr ""
+msgstr "Andmebaasi kontrolli tulemus"
 
 #. Template: InstallerDBmssql
 msgid "Database check successful."
-msgstr ""
+msgstr "Andmebaasi kontroll õnnestus."
 
 #. Template: InstallerDBmssql
 msgid "Database User"
@@ -10626,7 +10677,7 @@ msgstr "Ära nõustu litsensiga"
 
 #. Template: InstallerLicense
 msgid "Accept license and continue"
-msgstr ""
+msgstr "Nõustu litsentsiga ja jätka"
 
 #. Template: InstallerSystem
 msgid ""
@@ -10770,6 +10821,10 @@ msgid "OTRS Test Page"
 msgstr "OTRS testileht"
 
 #. Template: Test
+msgid "Welcome %s %s"
+msgstr ""
+
+#. Template: Test
 msgid "Counter"
 msgstr "Loendur"
 
@@ -10825,7 +10880,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Access Control Lists (ACL)"
-msgstr ""
+msgstr "Pääsuloendid (ACL)"
 
 #. SysConfig
 msgid "AccountedTime"
@@ -11166,7 +11221,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Attachments <-> Templates"
-msgstr ""
+msgstr "Manused <-> Mallid"
 
 #. SysConfig
 msgid "Auto Responses <-> Queues"
@@ -11535,7 +11590,7 @@ msgstr "Allkirjade loomine ja haldamine."
 
 #. SysConfig
 msgid "Create and manage templates."
-msgstr ""
+msgstr "Loo ja halda malle."
 
 #. SysConfig
 msgid "Create and manage ticket priorities."
@@ -11790,7 +11845,7 @@ msgstr ""
 #. SysConfig
 msgid ""
 "Defines a default list of words, that are ignored by the spell checker."
-msgstr ""
+msgstr "Määrab õigekirjakontrolli poolt eiratavate sõnade vaikenimekirja"
 
 #. SysConfig
 msgid ""
@@ -11892,7 +11947,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Defines an alternate URL, where the logout link refers to."
-msgstr ""
+msgstr "Määrab alternatiivURLi, kuhu väljalogimislink viitab."
 
 #. SysConfig
 msgid "Defines an alternate login URL for the customer panel.."
@@ -12437,7 +12492,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Defines the default spell checker dictionary."
-msgstr ""
+msgstr "Määrab õigekirjakontrolli vaikesõnastiku."
 
 #. SysConfig
 msgid ""
@@ -13780,6 +13835,12 @@ msgid ""
 msgstr ""
 
 #. SysConfig
+msgid ""
+"Display a warning and prevent search when using stop words within fulltext "
+"search."
+msgstr ""
+
+#. SysConfig
 msgid "Display settings to override defaults for Process Tickets."
 msgstr ""
 
@@ -14329,11 +14390,11 @@ msgstr ""
 
 #. SysConfig
 msgid "Forwarded to \"%s\"."
-msgstr "Edastatud \"%s\"."
+msgstr "Edastatud \"%s\"-le."
 
 #. SysConfig
 msgid "Frontend language"
-msgstr ""
+msgstr "kasutatav keel"
 
 #. SysConfig
 msgid ""
@@ -14932,7 +14993,7 @@ msgstr "Töötajate sidumine rollidega"
 
 #. SysConfig
 msgid "Link attachments to templates."
-msgstr ""
+msgstr "Seo manused mallidega."
 
 #. SysConfig
 msgid "Link customer user to groups."
@@ -14952,7 +15013,7 @@ msgstr "Rollide sidumine rühmadega."
 
 #. SysConfig
 msgid "Link templates to queues."
-msgstr ""
+msgstr "Seo mallid järjekordadega."
 
 #. SysConfig
 msgid "Links 2 tickets with a \"Normal\" type link."
@@ -15379,7 +15440,7 @@ msgstr "Vana: \"%s\" Uus: \"%s\""
 
 #. SysConfig
 msgid "Online"
-msgstr ""
+msgstr "Hetkel siin"
 
 #. SysConfig
 msgid "Open tickets (customer user)"
@@ -15391,7 +15452,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Out Of Office"
-msgstr ""
+msgstr "Töölt eemal"
 
 #. SysConfig
 msgid ""
@@ -17455,7 +17516,7 @@ msgstr ""
 
 #. SysConfig
 msgid "Templates <-> Queues"
-msgstr ""
+msgstr "Mallid <-> Järjekorrad"
 
 #. SysConfig
 msgid "Textarea"
@@ -17566,13 +17627,13 @@ msgstr ""
 msgid ""
 "The text at the beginning of the subject in an email reply, e.g. RE, AW, or "
 "AS."
-msgstr ""
+msgstr "Tekst vastuskirja teemarea alguses, nt. Re, Vs."
 
 #. SysConfig
 msgid ""
 "The text at the beginning of the subject when an email is forwarded, e.g. "
 "FW, Fwd, or WG."
-msgstr ""
+msgstr "Tekst teemarea alguses, kui e-kiri on edasi saadetud, nt. Fw, Fwd, Ed."
 
 #. SysConfig
 msgid ""
@@ -17696,7 +17757,7 @@ msgstr ""
 #. SysConfig
 msgid ""
 "Unlock tickets whenever a note is added and the owner is out of office."
-msgstr ""
+msgstr "Eemalda lukk juhul kui piletile lisatakse märkus ning pileti omanik on töölt eemal."
 
 #. SysConfig
 msgid "Unlocked ticket."
@@ -17775,7 +17836,7 @@ msgstr "Süsteemilogi teadete vaatamine."
 
 #. SysConfig
 msgid "Wear this frontend skin"
-msgstr ""
+msgstr "kasutatav kest"
 
 #. SysConfig
 msgid "Webservice path separator."

@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/LayoutTemplate.pm - provides generic HTML output
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -215,7 +214,7 @@ sub Output {
             my $RealEnd = $4;
             if ( lc $Target =~ /^(http:|https:|#|ftp:)/ ||
                 $Target !~ /\.(pl|php|cgi|fcg|fcgi|fpl)(\?|$)/ ||
-                $Target =~ /(\?|&)\Q$Self->{SessionName}\E=/) {
+                $Target =~ /(\?|&|;)\Q$Self->{SessionName}\E=/) {
                 $AHref.$Target.$End.$RealEnd;
             }
             else {

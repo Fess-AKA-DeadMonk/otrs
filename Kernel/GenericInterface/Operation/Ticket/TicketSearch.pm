@@ -1,6 +1,5 @@
 # --
-# Kernel/GenericInterface/Operation/Ticket/TicketSearch.pm - GenericInterface Ticket Search operation backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -372,10 +371,10 @@ sub _GetParams {
     my %GetParam;
 
     for my $Item (
-        qw(TicketNumber Title From To Cc Subject Body
+        qw(From To Cc Subject Body
         Agent ResultForm TimeSearchType ChangeTimeSearchType LastChangeTimeSearchType CloseTimeSearchType UseSubQueues
         ArticleTimeSearchType SearchInArchive
-        Fulltext ShownAttributes AttachmentName
+        Fulltext ContentSearch ShownAttributes AttachmentName
         )
         )
     {
@@ -393,7 +392,8 @@ sub _GetParams {
 
     # get array params
     for my $Item (
-        qw( StateIDs StateTypeIDs QueueIDs PriorityIDs OwnerIDs
+        qw(TicketNumber Title
+        StateIDs StateTypeIDs QueueIDs PriorityIDs OwnerIDs
         CreatedUserIDs WatchUserIDs ResponsibleIDs
         TypeIDs ServiceIDs SLAIDs LockIDs Queues Types States
         Priorities Services SLAs Locks

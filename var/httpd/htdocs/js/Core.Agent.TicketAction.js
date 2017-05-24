@@ -1,6 +1,5 @@
 // --
-// Core.Agent.TicketAction.js - provides functions for all ticket action popups
-// Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -91,12 +90,40 @@ Core.Agent.TicketAction = (function (TargetNS) {
      */
     function AddMailAddress($Link) {
         var $Element = $('#' + $Link.attr('rel')),
-            NewValue = $Element.val();
+        NewValue = $Element.val(),NewData,NewDataItem,Length;
+
         if (NewValue.length) {
-            NewValue = NewValue + ', ';
+        NewValue = NewValue + ', ';
         }
-        NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
-        $Element.val(NewValue);
+        NewValue = NewValue +
+            Core.Data.Get($Link.closest('tr'), 'Email')
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>');
+        $Element.val( NewValue );
+
+        Length= $Element.val().length;
+        $Element.focus();
+        $Element[0].setSelectionRange(Length, Length);
+
+        // set customer data for customer user information (AgentTicketEmail) in the compose screen
+        if ( $Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet') ){
+
+            NewData = $('#CustomerData').val();
+            NewDataItem = Core.Data.Get($Link.closest('a'), 'customerdatajson');
+
+            if(NewData){
+                NewData = Core.JSON.Parse(NewData);
+                $.each(NewDataItem, function(CustomerMail, CustomerKey) {
+                    NewData[CustomerMail] = CustomerKey;
+                });
+                $('#CustomerData').val(Core.JSON.Stringify(NewData));
+            }
+            else
+            {
+                $('#CustomerData').val(Core.JSON.Stringify(NewDataItem));
+            }
+        }
     }
 
     /**
@@ -246,7 +273,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
         // Register Apply button event
         $('#Apply').bind('click', function (Event) {
             // Update ticket action popup fields
-            var $To, $Cc, $Bcc;
+            var $To, $Cc, $Bcc, CustomerData;
 
             // Because we are in an iframe, we need to call the parent frames javascript function
             // with a jQuery object which is in the parent frames context
@@ -268,10 +295,22 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Cc = $('#CcCustomer', parent.document);
                 $Bcc = $('#BccCustomer', parent.document);
 
-                $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
-                    $To.val(Value);
-                    parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer', Value );
-                });
+                // check is set customer data for customer user information
+                // it will not be set if it is used CustomerAutoComplete ( e.g for forwrad, reply ticket )
+                if ($('#CustomerData').val()) {
+                    CustomerData =Core.JSON.Parse($('#CustomerData').val());
+                    $.each(CustomerData, function(CustomerMail, CustomerKey) {
+                        $To.val(CustomerMail);
+                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',CustomerMail , CustomerKey );
+
+                    });
+                }
+                else{
+                    $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
+                        $To.val(Value);
+                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer', Value );
+                    });
+                }
 
                 $.each($('#CcCustomer').val().split(/, ?/), function(Index, Value){
                     $Cc.val(Value);
@@ -363,6 +402,42 @@ Core.Agent.TicketAction = (function (TargetNS) {
     TargetNS.SelectRadioButton = function (Value, Name) {
         $('input[type="radio"][name=' + Name + '][value=' + Value + ']').prop('checked', true);
     };
+
+    /**
+     * @name ConfirmTemplateOverwrite
+     * @memberof Core.Agent.TicketAction
+     * @function
+     * @param {String} FieldName - The ID of the content field (textarea or RTE). ID without selector (#).
+     * @param {jQueryObject} $TemplateSelect - Selector of the dropdown element for the template selection.
+     * @param {Function} Callback - Callback function to execute if overwriting is confirmed.
+     * @description
+     *      After a template was selected, this function lets the user confirm that all already existing content
+     *      in the textarea or RTE will be overwritten with the template content.
+     */
+    TargetNS.ConfirmTemplateOverwrite = function (FieldName, $TemplateSelect, Callback) {
+        var Content = '';
+
+        // Fallback for non-richtext content
+        Content = $('#' + FieldName).val();
+
+        // get RTE content
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances[FieldName]) {
+            Content = CKEDITOR.instances[FieldName].getData();
+        }
+
+        // if content already exists let user confirm to really overwrite that content with a template
+        if (
+            Content.length &&
+            !window.confirm(Core.Config.Get('TicketActionTemplateOverwrite') + ' ' + Core.Config.Get('TicketActionTemplateOverwriteConfirm')))
+            {
+                // if user cancels confirmation, reset template selection
+                $TemplateSelect.val('');
+
+        }
+        else if ($.isFunction(Callback)) {
+            Callback();
+        }
+    }
 
     return TargetNS;
 }(Core.Agent.TicketAction || {}));

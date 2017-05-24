@@ -1,6 +1,5 @@
 # --
-# Kernel/System/SupportBundleGenerator.pm - support bundle generator
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -341,23 +340,15 @@ sub GenerateCustomFilesArchive {
         return;
     }
 
-    my @TrimAction = qw(
-        DatabasePw
-        SearchUserPw
-        UserPw
-        SendmailModule::AuthPassword
-        AuthModule::Radius::Password
-        PGP::Key::Password
-        Customer::AuthModule::DB::CustomerPassword
-        Customer::AuthModule::Radius::Password
-    );
+    # Trim any passswords from Config.pm.
+    # Simple settings like $Self->{'DatabasePw'} or $Self->{'AuthModule::LDAP::SearchUserPw1'}
+    $Config =~ s/(\$Self->\{'[^']+(?:Password|Pw)\d*'\}\s*=\s*)\'.*?\'/$1\'xxx\'/mg;
 
-    STRING:
-    for my $String (@TrimAction) {
-        next STRING if !$String;
-        $Config =~ s/(^\s+\$Self.*?$String.*?=.*?)\'.*?\';/$1\'xxx\';/mg;
-    }
-    $Config =~ s/(^\s+Password.*?=>.*?)\'.*?\',/$1\'xxx\',/mg;
+    # Complex settings like:
+    #     $Self->{CustomerUser1} = {
+    #         Params => {
+    #             UserPw => 'xxx',
+    $Config =~ s/((?:Password|Pw)\d*\s*=>\s*)\'.*?\'/$1\'xxx\'/mg;
 
     $TarObject->replace_content( $HomeWithoutSlash . '/Kernel/Config.pm', $Config );
 
@@ -514,7 +505,12 @@ Returns:
 sub GenerateSupportData {
     my ( $Self, %Param ) = @_;
 
-    my %SupportData = $Kernel::OM->Get('Kernel::System::SupportDataCollector')->Collect();
+    my $SupportDataCollectorWebTimeout
+        = $Kernel::OM->Get('Kernel::Config')->Get('SupportDataCollector::WebUserAgent::Timeout');
+
+    my %SupportData = $Kernel::OM->Get('Kernel::System::SupportDataCollector')->Collect(
+        WebTimeout => $SupportDataCollectorWebTimeout,
+    );
 
     my $JSONContent = $Kernel::OM->Get('Kernel::System::JSON')->Encode(
         Data => \%SupportData,

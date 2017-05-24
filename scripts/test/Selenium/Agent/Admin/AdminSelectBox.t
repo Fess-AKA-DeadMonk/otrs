@@ -1,6 +1,5 @@
 # --
-# AdminSelectBox.t - frontend tests for AdminSQL
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -34,11 +33,11 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminSelectBox");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSelectBox");
 
         # empty SQL statement, check client side validation
         $Selenium->find_element( "#SQL", 'css' )->clear();
-        $Selenium->find_element( "#SQL", 'css' )->submit();
+        $Selenium->find_element( "#SQL", 'css' )->VerifiedSubmit();
         $Self->Is(
             $Selenium->execute_script(
                 "return \$('#SQL').hasClass('Error')"
@@ -50,7 +49,7 @@ $Selenium->RunTest(
         # wrong SQL statement, check server side validation
         $Selenium->find_element( "#SQL", 'css' )->clear();
         $Selenium->find_element( "#SQL", 'css' )->send_keys("SELECT * FROM");
-        $Selenium->find_element( "#SQL", 'css' )->submit();
+        $Selenium->find_element( "#SQL", 'css' )->VerifiedSubmit();
         $Self->Is(
             $Selenium->execute_script(
                 "return \$('#SQL').hasClass('ServerError')"
@@ -62,7 +61,7 @@ $Selenium->RunTest(
         # correct SQL statement
         $Selenium->find_element( "#SQL", 'css' )->clear();
         $Selenium->find_element( "#SQL", 'css' )->send_keys("SELECT * FROM valid");
-        $Selenium->find_element( "#SQL", 'css' )->submit();
+        $Selenium->find_element( "#SQL", 'css' )->VerifiedSubmit();
 
         # verify results
         my @Elements = $Selenium->find_elements( 'table thead tr', 'css' );
@@ -78,7 +77,7 @@ $Selenium->RunTest(
             3,
             "Result table body rows found",
         );
-        }
+    }
 );
 
 1;

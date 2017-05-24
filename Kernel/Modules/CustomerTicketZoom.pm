@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/CustomerTicketZoom.pm - to get a closer view
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -245,7 +244,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{FollowUpDynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,

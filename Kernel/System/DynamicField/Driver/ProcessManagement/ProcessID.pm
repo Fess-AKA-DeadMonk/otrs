@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/ProcessManagement/ProcessID.pm - Delegate for DynamicField ProcessID Driver
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -111,13 +110,15 @@ sub DisplayValueRender {
     }
 
     # get raw Title and Value strings from field value
-    my $Value = defined $Param{Value} ? $Param{Value} : '';
-
     # convert the ProcessEntityID to the Process name
-    my $Process = $Kernel::OM->Get('Kernel::System::ProcessManagement::Process')->ProcessGet(
-        ProcessEntityID => $Value,
-    );
-    $Value = $Process->{Name} // $Value;
+    my $Process;
+    if ( $Param{Value} ) {
+        $Process = $Kernel::OM->Get('Kernel::System::ProcessManagement::Process')->ProcessGet(
+            ProcessEntityID => $Param{Value},
+        );
+    }
+
+    my $Value = $Process->{Name} // '';
 
     my $Title = $Value;
 

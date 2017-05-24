@@ -1,6 +1,5 @@
 # --
-# Basic.t - Basic Frontend Tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -43,7 +42,9 @@ my $AgentBaseURL    = $BaseURL . 'index.pl?';
 my $CustomerBaseURL = $BaseURL . 'customer.pl?';
 my $PublicBaseURL   = $BaseURL . 'public.pl?';
 
-my $UserAgent = LWP::UserAgent->new();
+my $UserAgent = LWP::UserAgent->new(
+    Timeout => 60,
+);
 $UserAgent->cookie_jar( {} );    # keep cookies
 
 my $Response = $UserAgent->get(
@@ -84,7 +85,7 @@ $UserAgent->cookie_jar()->scan(
         if ( $_[1] eq $ConfigObject->Get('CustomerPanelSessionName') && $_[2] ) {
             $CustomerSessionValid = 1;
         }
-        }
+    }
 );
 
 if ( !$AgentSessionValid ) {
@@ -114,16 +115,28 @@ if ( $ConfigObject->Get('UnitTestPlackServerPort') ) {
 }
 
 for my $BaseURL ( sort keys %Frontends ) {
+
     FRONTEND:
     for my $Frontend ( sort keys %{ $Frontends{$BaseURL} } ) {
+
         next FRONTEND if $Frontend =~ m/Login|Logout/;
 
         my $URL = $BaseURL . "Action=$Frontend";
 
-        $Response = $UserAgent->get($URL);
+        my $Status;
+        TRY:
+        for my $Try ( 1 .. 2 ) {
+
+            $Response = $UserAgent->get($URL);
+
+            $Status = scalar $Response->code();
+            my $StatusGroup = substr $Status, 0, 1;
+
+            last TRY if $StatusGroup ne 5;
+        }
 
         $Self->Is(
-            scalar $Response->code(),
+            $Status,
             200,
             "Module $Frontend status code ($URL)",
         );
@@ -138,7 +151,7 @@ for my $BaseURL ( sort keys %Frontends ) {
             "Module $Frontend is no OTRS login screen ($URL)",
         );
 
-        # Check response contents
+        # check response contents
         if ( $Response->header('Content-type') =~ 'html' ) {
             $Self->True(
                 scalar $Response->content() =~ m{<body|<div|<script}xms,
@@ -146,7 +159,10 @@ for my $BaseURL ( sort keys %Frontends ) {
             );
         }
         elsif ( $Response->header('Content-type') =~ 'json' ) {
-            my $Data = $JSONObject->Decode( Data => $Response->content() );
+
+            my $Data = $JSONObject->Decode(
+                Data => $Response->content()
+            );
 
             $Self->True(
                 scalar $Data,
@@ -155,5 +171,8 @@ for my $BaseURL ( sort keys %Frontends ) {
         }
     }
 }
+
+# cleanup cache
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
 1;

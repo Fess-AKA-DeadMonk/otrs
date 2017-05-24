@@ -1,6 +1,5 @@
 # --
-# EmailHandling.t - PGP email handling tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -106,6 +105,32 @@ my %Check = (
     },
 );
 
+my $Home = $ConfigObject->Get('Home');
+
+# delete existing keys to have a cleaned test environment
+COUNT:
+for my $Count ( 1 .. 2 ) {
+
+    my @Keys = $CryptObject->KeySearch(
+        Search => $Search{$Count},
+    );
+
+    next COUNT if !$Keys[0];
+    next COUNT if ref $Keys[0] ne 'HASH';
+
+    if ( $Keys[0]->{KeyPrivate} ) {
+        $CryptObject->SecretKeyDelete(
+            Key => $Keys[0]->{KeyPrivate},
+        );
+    }
+
+    if ( $Keys[0]->{Key} ) {
+        $CryptObject->PublicKeyDelete(
+            Key => $Keys[0]->{Key},
+        );
+    }
+}
+
 # add PGP keys and perform sanity check
 for my $Count ( 1 .. 2 ) {
 
@@ -119,7 +144,7 @@ for my $Count ( 1 .. 2 ) {
 
     # get keys
     my $KeyString = $MainObject->FileRead(
-        Directory => $ConfigObject->Get('Home') . "/scripts/test/sample/Crypt/",
+        Directory => $Home . "/scripts/test/sample/Crypt/",
         Filename  => "PGPPrivateKey-$Count.asc",
     );
     my $Message = $CryptObject->KeyAdd(
@@ -164,7 +189,7 @@ for my $Count ( 1 .. 2 ) {
     );
 }
 
-# tests for handling encrypted emails
+# tests for handling signed / encrypted emails
 my @Tests = (
     {
         Name           => 'Encrypted Body, Plain Attachments',
@@ -184,12 +209,22 @@ my @Tests = (
         ArticleSubject => 'PGP Test 2013-07-02-1977-3',
         ArticleBody    => "This is only a test.\n",
     },
+    {
+        Name               => 'Signed 7bit (Short lines)',
+        EmailFile          => '/scripts/test/sample/PGP/Signed_PGP_Test_7bit.eml',
+        CheckSignatureOnly => 1,
+    },
+    {
+        Name               => 'Signed Quoted-Printable (Long Lines)',
+        EmailFile          => '/scripts/test/sample/PGP/Signed_PGP_Test_QuotedPrintable.eml',
+        CheckSignatureOnly => 1,
+    },
 );
 
 # to store added tickets into the system (will be deleted later)
 my @AddedTickets;
 
-# lookp table to get a better idea of postmaster result
+# lookup table to get a better idea of postmaster result
 my %PostMasterReturnLookup = (
     0 => 'error (also false)',
     1 => 'new ticket created',
@@ -199,11 +234,12 @@ my %PostMasterReturnLookup = (
     5 => 'ignored (because of X-OTRS-Ignore header)',
 );
 
+TEST:
 for my $Test (@Tests) {
 
     # read email content (from a file)
     my $Email = $MainObject->FileRead(
-        Location => $ConfigObject->Get('Home') . $Test->{EmailFile},
+        Location => $Home . $Test->{EmailFile},
         Result   => 'ARRAY',
     );
 
@@ -254,8 +290,34 @@ for my $Test (@Tests) {
         );
         my @CheckResult = $CheckObject->Check( Article => \%RawArticle );
 
+        #use Data::Dumper;
+        #print STDERR "Dump: " . Dumper(\@CheckResult) . "\n";
+
         # sanity destroy object
         $CheckObject = undef;
+
+        if ( $Test->{CheckSignatureOnly} ) {
+
+            RESULTITEM:
+            for my $ResultItem (@CheckResult) {
+
+                next RESULTITEM if $ResultItem->{Key} ne 'Signed';
+
+                $Self->True(
+                    $ResultItem->{SignatureFound},
+                    "$Test->{Name} - Signature found with true",
+                );
+
+                $Self->True(
+                    $ResultItem->{Successful},
+                    "$Test->{Name} - Signature verify with true",
+                );
+
+                last RESULTITEM;
+            }
+
+            next TEST;
+        }
 
         # check actual contents (subject and body)
         my %Article = $TicketObject->ArticleGet(
@@ -299,7 +361,7 @@ for my $Test (@Tests) {
 
             # read the original file (from file system)
             my $FileStringRef = $MainObject->FileRead(
-                Location => $ConfigObject->Get('Home')
+                Location => $Home
                     . '/scripts/test/sample/Crypt/'
                     . $AtmIndex{$FileID}->{Filename},
             );

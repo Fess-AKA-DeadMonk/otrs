@@ -1,12 +1,14 @@
 # 
 # Translators:
+# Kaya Zeren <kayazeren@gmail.com>, 2015
+# Sefer <sefersimsek@yahoo.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OTRS\n"
 "POT-Creation-Date: 2014-08-08 19:10+0200\n"
-"PO-Revision-Date: 2015-03-25 21:00+0000\n"
-"Last-Translator: Carlos Rodríguez <carlos.rodriguez@otrs.com>\n"
-"Language-Team: Turkish (http://www.transifex.com/projects/p/OTRS/language/tr/)\n"
+"PO-Revision-Date: 2015-07-12 08:23+0000\n"
+"Last-Translator: Kaya Zeren <kayazeren@gmail.com>\n"
+"Language-Team: Turkish (http://www.transifex.com/otrs/OTRS/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -207,7 +209,7 @@ msgstr "sn"
 
 #. Template: AAABase
 msgid "Time unit"
-msgstr ""
+msgstr "Zaman birimi"
 
 #. Template: AAABase
 msgid "wrote"
@@ -215,7 +217,7 @@ msgstr "yazdı"
 
 #. Template: AAABase
 msgid "Message"
-msgstr "Mesaj"
+msgstr "İleti"
 
 #. Template: AAABase
 msgid "Error"
@@ -627,7 +629,7 @@ msgstr "arasında"
 
 #. Template: AAABase
 msgid "before/after"
-msgstr ""
+msgstr "önce/sonra"
 
 #. Template: AAABase
 msgid "Fulltext Search"
@@ -727,19 +729,19 @@ msgstr "Tarih seçici"
 
 #. Template: AAABase
 msgid "Show Tree Selection"
-msgstr ""
+msgstr "Seçilmiş Yapıyı Göster"
 
 #. Template: AAABase
 msgid "The field content is too long!"
-msgstr ""
+msgstr "Alan içeriği çok uzun!"
 
 #. Template: AAABase
 msgid "Maximum size is %s characters."
-msgstr ""
+msgstr "En fazla %s karakter olmalıdır."
 
 #. Template: AAABase
 msgid "This field is required or"
-msgstr ""
+msgstr "Bu alan gereklidir ya da"
 
 #. Template: AAABase
 msgid "New message"
@@ -814,7 +816,7 @@ msgstr ""
 #. Template: AAABase
 msgid ""
 "This e-mail address already exists. Please log in or reset your password."
-msgstr ""
+msgstr "Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapın ya da şifrenizi sıfırlayın."
 
 #. Template: AAABase
 msgid "Logout"
@@ -834,7 +836,7 @@ msgstr "Aracı güncellendi!"
 
 #. Template: AAABase
 msgid "Database Selection"
-msgstr ""
+msgstr "Veritabanı Seçimi"
 
 #. Template: AAABase
 msgid "Create Database"
@@ -878,11 +880,11 @@ msgstr "Veritabanı silindi."
 
 #. Template: AAABase
 msgid "Enter the password for the administrative database user."
-msgstr ""
+msgstr "Veritabanı yönetici şifresini girin."
 
 #. Template: AAABase
 msgid "Enter the password for the database user."
-msgstr ""
+msgstr "Veritabanı kullanıcı şifresini girin."
 
 #. Template: AAABase
 msgid ""
@@ -892,7 +894,7 @@ msgstr ""
 
 #. Template: AAABase
 msgid "Database already contains data - it should be empty!"
-msgstr ""
+msgstr "Veritabanı veri içeriyor. Boş olmalı!"
 
 #. Template: AAABase
 msgid "Login is needed!"
@@ -901,7 +903,7 @@ msgstr "Oturum açmanız gerekli!"
 #. Template: AAABase
 msgid ""
 "It is currently not possible to login due to a scheduled system maintenance."
-msgstr ""
+msgstr "Sistem bakımı esnasında giriş yapamazsınız."
 
 #. Template: AAABase
 msgid "Password is needed!"
@@ -2495,6 +2497,14 @@ msgid "Loaded Apache Modules"
 msgstr ""
 
 #. Template: AAASupportDataCollector
+msgid "MPM model"
+msgstr ""
+
+#. Template: AAASupportDataCollector
+msgid "OTRS requires apache to be run with the 'prefork' MPM model."
+msgstr ""
+
+#. Template: AAASupportDataCollector
 msgid "CGI Accelerator Usage"
 msgstr ""
 
@@ -3122,6 +3132,10 @@ msgstr "Telefon-Bilet"
 #. Template: AAATicket
 msgid "Search Tickets"
 msgstr "Biletleri Ara"
+
+#. Template: AAATicket
+msgid "Customer Realname"
+msgstr ""
 
 #. Template: AAATicket
 msgid "Customer History"
@@ -3997,7 +4011,7 @@ msgstr ""
 
 #. Template: AdminCustomerUserGroup
 msgid "Notice"
-msgstr ""
+msgstr "Not"
 
 #. Template: AdminCustomerUserGroup
 msgid "This feature is disabled!"
@@ -4457,7 +4471,7 @@ msgstr "Gönder"
 
 #. Template: AdminGenericAgent
 msgid "Generic Agent"
-msgstr ""
+msgstr "Genel Aracı"
 
 #. Template: AdminGenericAgent
 msgid "Add job"
@@ -4581,6 +4595,10 @@ msgstr ""
 
 #. Template: AdminGenericAgent
 msgid "Delete this Event Trigger"
+msgstr ""
+
+#. Template: AdminGenericAgent
+msgid "Remove selection"
 msgstr ""
 
 #. Template: AdminGenericAgent
@@ -7995,7 +8013,7 @@ msgstr ""
 
 #. Template: AdminSelectBox
 msgid "SQL Box"
-msgstr ""
+msgstr "SQL"
 
 #. Template: AdminSelectBox
 msgid ""
@@ -8158,7 +8176,7 @@ msgstr ""
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "Sending"
-msgstr ""
+msgstr "Gönderen"
 
 #. Template: AdminServiceCenterSupportDataCollector
 msgid "The support bundle will be sent to OTRS Group via email automatically."
@@ -9542,6 +9560,26 @@ msgstr "Hepsini getir"
 msgid "E-Mail Outbound"
 msgstr ""
 
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: first response time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: update time will be over in %s/%s!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time is over (%s/%s)!"
+msgstr ""
+
+#. Template: AgentTicketEscalation
+msgid "Ticket %s: solution time will be over in %s/%s!"
+msgstr ""
+
 #. Template: AgentTicketForward
 msgid "Forward ticket: %s - %s"
 msgstr ""
@@ -9934,7 +9972,7 @@ msgstr "Okunmamış makaleler"
 
 #. Template: AgentTicketZoom
 msgid "No."
-msgstr ""
+msgstr "Hayır"
 
 #. Template: AgentTicketZoom
 msgid "Important"
@@ -10008,7 +10046,7 @@ msgstr "Geri iz"
 
 #. Template: CustomerFooter
 msgid "Powered by"
-msgstr ""
+msgstr "Oturum aç"
 
 #. Template: CustomerFooterJS
 msgid "One or more errors occurred!"
@@ -10139,6 +10177,10 @@ msgstr ""
 #. Template: CustomerNavigationBar
 msgid "Edit personal preferences"
 msgstr "Kişisel tercihleri görüntüle"
+
+#. Template: CustomerNavigationBar
+msgid "Logout %s %s"
+msgstr ""
 
 #. Template: CustomerRichTextEditor
 msgid "Split Quote"
@@ -10388,6 +10430,12 @@ msgid "Please enter at least one search value or * to find anything."
 msgstr ""
 
 #. Template: FooterJS
+msgid ""
+"Please remove the following words from your search as they cannot be "
+"searched for:"
+msgstr ""
+
+#. Template: FooterJS
 msgid "Please check the fields marked as red for valid inputs."
 msgstr ""
 
@@ -10420,6 +10468,10 @@ msgid "General Specifications and Mail Settings"
 msgstr "Genel Özellikler ve Posta Ayarları"
 
 #. Template: Installer
+msgid "Welcome to %s"
+msgstr ""
+
+#. Template: Installer
 msgid "Web site"
 msgstr "Web sitesi"
 
@@ -10437,7 +10489,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Outbound mail type"
-msgstr ""
+msgstr "Tip"
 
 #. Template: InstallerConfigureMail
 msgid "Select outbound mail type."
@@ -10489,7 +10541,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail type"
-msgstr ""
+msgstr "Tip"
 
 #. Template: InstallerConfigureMail
 msgid "Select inbound mail type."
@@ -10505,7 +10557,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail user"
-msgstr ""
+msgstr "Kullanıcı"
 
 #. Template: InstallerConfigureMail
 msgid "User for inbound mail."
@@ -10513,7 +10565,7 @@ msgstr ""
 
 #. Template: InstallerConfigureMail
 msgid "Inbound mail password"
-msgstr ""
+msgstr "Parola"
 
 #. Template: InstallerConfigureMail
 msgid "Password for inbound mail."
@@ -10767,6 +10819,10 @@ msgstr "yazdıran"
 #. Template: Test
 msgid "OTRS Test Page"
 msgstr "OTRS Test Sayfası"
+
+#. Template: Test
+msgid "Welcome %s %s"
+msgstr ""
 
 #. Template: Test
 msgid "Counter"
@@ -13776,6 +13832,12 @@ msgid ""
 "be reinstalled and the current basic configuration will be used to pre-"
 "populate the questions within the installer script. If not active, it also "
 "disables the GenericAgent, PackageManager and SQL Box."
+msgstr ""
+
+#. SysConfig
+msgid ""
+"Display a warning and prevent search when using stop words within fulltext "
+"search."
 msgstr ""
 
 #. SysConfig

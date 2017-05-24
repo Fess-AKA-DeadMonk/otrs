@@ -1,6 +1,5 @@
 # --
-# Kernel/GenericInterface/Operation/Ticket/Common.pm - Ticket common operation functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -983,9 +982,8 @@ sub ValidateCharset {
     # check needed stuff
     return if !$Param{Charset};
 
-    my $CharsetList = $Self->_CharsetList();
-
-    return if !$CharsetList->{ $Param{Charset} };
+    use Encode;
+    return if !Encode::resolve_alias( $Param{Charset} );
 
     return 1;
 }
@@ -1113,7 +1111,7 @@ checks if the given dynamic field value is valid.
 
     my $Success = $CommonObject->ValidateDynamicFieldValue(
         Value => [                      # Only for fields that can handle multiple values like
-            'some value',               #   Miltiselect
+            'some value',               #   Multiselect
             'some other value',
         ],
     );
@@ -1128,7 +1126,11 @@ sub ValidateDynamicFieldValue {
 
     # check needed stuff
     return if !IsHashRefWithData( $Self->{DynamicFieldLookup} );
-    return if !IsStringWithData( $Param{Value} );
+
+    # possible structures are string and array, no data inside is needed
+    if ( !IsString( $Param{Value} ) && ref $Param{Value} ne 'ARRAY' ) {
+        return;
+    }
 
     # get dynamic field config
     my $DynamicFieldConfig = $Self->{DynamicFieldLookup}->{ $Param{Name} };
@@ -1209,13 +1211,21 @@ sub SetDynamicFieldValue {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for my $Needed (qw(Value Name UserID)) {
-        if ( !IsStringWithData( $Param{$Needed} ) ) {
+    for my $Needed (qw(Name UserID)) {
+        if ( !IsString( $Param{$Needed} ) ) {
             return {
                 Success      => 0,
-                ErrorMessage => "SetDynamicFieldValue() Got no $Needed!"
+                ErrorMessage => "SetDynamicFieldValue() Invalid value for $Needed, just string is allowed!"
             };
         }
+    }
+
+    # check value structure
+    if ( !IsString( $Param{Value} ) && ref $Param{Value} ne 'ARRAY' ) {
+        return {
+            Success      => 0,
+            ErrorMessage => "SetDynamicFieldValue() Invalid value for Value, just string and array are allowed!"
+        };
     }
 
     return if !IsHashRefWithData( $Self->{DynamicFieldLookup} );
@@ -1454,6 +1464,8 @@ sub _ValidateUser {
 }
 
 =item _CharsetList()
+
+DEPRECATED: This function will be removed in further versions of OTRS.
 
 returns a list of all available charsets.
 

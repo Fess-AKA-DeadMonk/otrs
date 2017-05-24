@@ -1,3 +1,4 @@
+.sublimelinterrc
 .project
 .externalToolBuilders
 .gnupg
@@ -24,6 +25,7 @@ var/log/*.log
 var/OPM
 var/Stats
 var/tmp/*
+var/httpd/htdocs/SeleniumScreenshots/
 var/httpd/htdocs/js/thirdparty/jslint
 var/httpd/htdocs/js/js-cache
 var/httpd/htdocs/js/js-cache/*
@@ -47,10 +49,8 @@ Fred.sopm
 CHANGES-Fred
 doc/en/Fred.xml
 doc/en/Fred.pdf
-Kernel/Output/HTML/OutputFilterFred.pm
-Kernel/Output/HTML/LayoutFred.pm
-Kernel/Output/HTML/OutputFilterPostShowSystemNameInHeader.pm
 Kernel/Output/HTML/Fred*
+Kernel/Output/HTML/FilterContent/Fred*
 Kernel/Output/HTML/Standard/DevelFred*
 Kernel/Config/Files/AAAFred.pm
 Kernel/Config/Files/Fred.xml
@@ -135,3 +135,9 @@ var/httpd/htdocs/skins/Agent/business*
 var/httpd/htdocs/skins/Agent/default/css/Core.Agent.AttachmentView.css
 var/httpd/htdocs/skins/Agent/default/css/DynamicFieldDatabase.css
 var/httpd/htdocs/skins/Customer/default/css/DynamicFieldDatabase.css
+
+# OTRSContinuousIntegrationProvisioner (vagrant VMs)
+.cache
+.ssh
+.viminfo
+.bash*

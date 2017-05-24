@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentDashboardCommon.pm - common base for agent dashboards
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -39,30 +38,9 @@ sub new {
     $Self->{CacheObject}           = $Kernel::OM->Get('Kernel::System::Cache');
     $Self->{CustomerCompanyObject} = Kernel::System::CustomerCompany->new(%Param);
 
+    # TODO: remove for OTRS 5, only kept for backwards compatibility
     $Self->{SlaveDBObject}     = $Self->{DBObject};
     $Self->{SlaveTicketObject} = $Self->{TicketObject};
-
-    # use a slave db to search dashboard date
-    if ( $Self->{ConfigObject}->Get('Core::MirrorDB::DSN') ) {
-
-        $Self->{SlaveDBObject} = Kernel::System::DB->new(
-            LogObject    => $Param{LogObject},
-            ConfigObject => $Param{ConfigObject},
-            MainObject   => $Param{MainObject},
-            EncodeObject => $Param{EncodeObject},
-            DatabaseDSN  => $Self->{ConfigObject}->Get('Core::MirrorDB::DSN'),
-            DatabaseUser => $Self->{ConfigObject}->Get('Core::MirrorDB::User'),
-            DatabasePw   => $Self->{ConfigObject}->Get('Core::MirrorDB::Password'),
-        );
-
-        if ( $Self->{SlaveDBObject} ) {
-
-            $Self->{SlaveTicketObject} = Kernel::System::Ticket->new(
-                %Param,
-                DBObject => $Self->{SlaveDBObject},
-            );
-        }
-    }
 
     # create extra needed objects
     $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
@@ -163,7 +141,7 @@ sub Run {
 
         # check CustomerID presence for all subactions that need it
         if ( $Self->{Subaction} ne 'UpdatePosition' ) {
-            if ( !$Self->{CustomerID} || $Self->{CustomerID} =~ /[*|%]/i ) {
+            if ( !$Self->{CustomerID} ) {
                 my $Output = $Self->{LayoutObject}->Header();
                 $Output .= $Self->{LayoutObject}->NavigationBar();
                 $Output .= $Self->{LayoutObject}->Output(
@@ -381,9 +359,11 @@ sub Run {
 
             if ( $ColumnName eq 'CustomerID' ) {
                 push @{ $ColumnFilter{$ColumnName} }, $FilterValue;
+                push @{ $ColumnFilter{ $ColumnName . 'Raw' } }, $FilterValue;
             }
             elsif ( $ColumnName eq 'CustomerUserID' ) {
-                push @{ $ColumnFilter{CustomerUserLogin} }, $FilterValue;
+                push @{ $ColumnFilter{CustomerUserLogin} },    $FilterValue;
+                push @{ $ColumnFilter{CustomerUserLoginRaw} }, $FilterValue;
             }
             else {
                 push @{ $ColumnFilter{ $ColumnName . 'IDs' } }, $FilterValue;
@@ -806,6 +786,9 @@ sub _Element {
     # get module preferences
     my @Preferences = $Object->Preferences();
     return @Preferences if $Param{PreferencesOnly};
+
+    # Perform the actual data fetching and computation on the slave db, if configured
+    local $Kernel::System::DB::UseSlaveDB = 1;
 
     if ( $Param{FilterContentOnly} ) {
         my $FilterContent = $Object->FilterContent(

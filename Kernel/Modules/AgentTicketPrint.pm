@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketPrint.pm - print layout for agent interface
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -151,11 +150,6 @@ sub Run {
         }
     }
 
-    # resort article order
-    if ( $Self->{ZoomExpandSort} eq 'reverse' ) {
-        @ArticleBox = reverse(@ArticleBox);
-    }
-
     # show total accounted time if feature is active:
     if ( $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime') ) {
         $Ticket{TicketTimeUnits} = $Self->{TicketObject}->TicketAccountedTimeGet(
@@ -200,7 +194,10 @@ sub Run {
     # generate pdf output
     if ( $Self->{PDFObject} ) {
         my $PrintedBy = $Self->{LayoutObject}->{LanguageObject}->Translate('printed by');
-        my $Time      = $Self->{LayoutObject}->{Time};
+        my $Time      = $Self->{LayoutObject}->{LanguageObject}->FormatTimeString(
+            $Self->{TimeObject}->CurrentTimestamp(),
+            'DateFormat',
+        );
         my %Page;
 
         # get maximum number of pages
@@ -495,6 +492,15 @@ sub _PDFOutputTicketInfos {
             ),
         },
     ];
+
+    # show created by if different then User ID 1
+    if ( $Ticket{CreateBy} > 1 ) {
+        my $Row = {
+            Key   => $Self->{LayoutObject}->{LanguageObject}->Translate('Created by'),
+            Value => $Self->{UserObject}->UserName( UserID => $Ticket{CreateBy} ),
+        };
+        push( @{$TableRight}, $Row );
+    }
 
     if ( $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime') ) {
         my $Row = {
@@ -941,8 +947,16 @@ sub _PDFOutputArticles {
     }
     my %Page = %{ $Param{PageData} };
 
+    my @ArticleData  = @{ $Param{ArticleData} };
+    my $ArticleCount = scalar @ArticleData;
+
+    # resort article order
+    if ( $Self->{ZoomExpandSort} eq 'reverse' ) {
+        @ArticleData = reverse(@ArticleData);
+    }
+
     my $ArticleCounter = 1;
-    for my $ArticleTmp ( @{ $Param{ArticleData} } ) {
+    for my $ArticleTmp (@ArticleData) {
         if ( $ArticleCounter == 1 ) {
             $Self->{PDFObject}->PositionSet(
                 Move => 'relativ',
@@ -993,9 +1007,12 @@ sub _PDFOutputArticles {
             Y    => -6,
         );
 
+        my $ArticleNumber
+            = $Self->{ZoomExpandSort} eq 'reverse' ? $ArticleCount - $ArticleCounter + 1 : $ArticleCounter;
+
         # article number tag
         $Self->{PDFObject}->Text(
-            Text     => '    # ' . $ArticleCounter,
+            Text     => '    # ' . $ArticleNumber,
             Height   => 7,
             Type     => 'Cut',
             Font     => 'ProportionalBoldItalic',
@@ -1123,13 +1140,15 @@ sub _PDFOutputArticles {
             my $Lines;
             if ( IsArrayRefWithData( $Article{Body} ) ) {
                 for my $Line ( @{ $Article{Body} } ) {
+                    my $CreateTime = $Self->{LayoutObject}->{LanguageObject}
+                        ->FormatTimeString( $Line->{CreateTime}, 'DateFormat' );
                     if ( $Line->{SystemGenerated} ) {
-                        $Lines .= '[' . $Line->{CreateTime} . '] ' . $Line->{MessageText} . "\n";
+                        $Lines .= '[' . $CreateTime . '] ' . $Line->{MessageText} . "\n";
                     }
                     else {
                         $Lines
                             .= '['
-                            . $Line->{CreateTime} . '] '
+                            . $CreateTime . '] '
                             . $Line->{ChatterName} . ' '
                             . $Line->{MessageText} . "\n";
                     }

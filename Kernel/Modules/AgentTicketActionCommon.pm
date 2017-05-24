@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketActionCommon.pm - common file for several modules
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -274,6 +273,15 @@ sub Run {
         $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
     }
 
+    # ACL compatibility translation
+    my %ACLCompatGetParam = (
+        StateID       => $GetParam{StateID},
+        PriorityID    => $GetParam{NewPriorityID},
+        QueueID       => $GetParam{NewQueueID},
+        OwnerID       => $GetParam{NewOwnerID},
+        ResponsibleID => $GetParam{NewResponsibleID},
+    );
+
     # get dynamic field values form http request
     my %DynamicFieldValues;
 
@@ -295,7 +303,8 @@ sub Run {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -642,6 +651,8 @@ sub Run {
         if ( $Self->{ConfigObject}->Get('Ticket::Service') && $Self->{Config}->{Service} ) {
             if ( defined $GetParam{ServiceID} ) {
                 $Self->{TicketObject}->TicketServiceSet(
+                    %GetParam,
+                    %ACLCompatGetParam,
                     ServiceID      => $GetParam{ServiceID},
                     TicketID       => $Self->{TicketID},
                     CustomerUserID => $Ticket{CustomerUserID},
@@ -701,26 +712,6 @@ sub Run {
                 # remember to not notify owner twice
                 if ( $Success && $Success eq 1 ) {
                     push @NotifyDone, $GetParam{NewOwnerID};
-                }
-            }
-        }
-
-        # set new responsible
-        if ( $Self->{ConfigObject}->Get('Ticket::Responsible') && $Self->{Config}->{Responsible} ) {
-            if ( $GetParam{NewResponsibleID} ) {
-                my $BodyText = $Self->{LayoutObject}->RichText2Ascii(
-                    String => $GetParam{Body} || '',
-                );
-                my $Success = $Self->{TicketObject}->TicketResponsibleSet(
-                    TicketID  => $Self->{TicketID},
-                    UserID    => $Self->{UserID},
-                    NewUserID => $GetParam{NewResponsibleID},
-                    Comment   => $BodyText,
-                );
-
-                # remember to not notify responsible twice
-                if ( $Success && $Success eq 1 ) {
-                    push @NotifyDone, $GetParam{NewResponsibleID};
                 }
             }
         }
@@ -807,6 +798,26 @@ sub Run {
             }
         }
 
+        # set new responsible
+        if ( $Self->{ConfigObject}->Get('Ticket::Responsible') && $Self->{Config}->{Responsible} ) {
+            if ( $GetParam{NewResponsibleID} ) {
+                my $BodyText = $Self->{LayoutObject}->RichText2Ascii(
+                    String => $GetParam{Body} || '',
+                );
+                my $Success = $Self->{TicketObject}->TicketResponsibleSet(
+                    TicketID  => $Self->{TicketID},
+                    UserID    => $Self->{UserID},
+                    NewUserID => $GetParam{NewResponsibleID},
+                    Comment   => $BodyText,
+                );
+
+                # remember to not notify responsible twice
+                if ( $Success && $Success eq 1 ) {
+                    push @NotifyDone, $GetParam{NewResponsibleID};
+                }
+            }
+        }
+
         if (
             $GetParam{CreateArticle}
             && $Self->{Config}->{Note}
@@ -842,15 +853,14 @@ sub Run {
 
             my $From = "\"$Self->{UserFirstname} $Self->{UserLastname}\" <$Self->{UserEmail}>";
             my @NotifyUserIDs;
-            if ( $Self->{ReplyToArticle} ) {
-                @NotifyUserIDs = (
-                    @{ $Self->{UserListWithoutSelection} },
-                    @{ $Self->{InformUserID} },
-                    @{ $Self->{InvolvedUserID} },
-                );
+            if ( $Self->{Config}->{InformAgent} ) {
+                push @NotifyUserIDs, @{ $Self->{InformUserID} };
             }
-            else {
-                @NotifyUserIDs = ( @{ $Self->{InformUserID} }, @{ $Self->{InvolvedUserID} } );
+            if ( $Self->{Config}->{InvolvedAgent} ) {
+                push @NotifyUserIDs, @{ $Self->{InvolvedUserID} };
+            }
+            if ( $Self->{ReplyToArticle} ) {
+                push @NotifyUserIDs, @{ $Self->{UserListWithoutSelection} };
             }
             $ArticleID = $Self->{TicketObject}->ArticleCreate(
                 TicketID                        => $Self->{TicketID},
@@ -974,13 +984,15 @@ sub Run {
         }
 
         my $QueueID = $GetParam{NewQueueID} || $Ticket{QueueID};
+        my $StateID = $GetParam{NewStateID} || $Ticket{StateID};
 
         # convert dynamic field values into a structure for ACLs
         my %DynamicFieldACLParameters;
         DYNAMICFIELD:
         for my $DynamicField ( sort keys %DynamicFieldValues ) {
             next DYNAMICFIELD if !$DynamicField;
-            next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+            next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+            next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
             $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
         }
@@ -994,16 +1006,19 @@ sub Run {
         my $Owners = $Self->_GetOwners(
             %GetParam,
             QueueID  => $QueueID,
+            StateID  => $StateID,
             AllUsers => $GetParam{OwnerAll},
         );
         my $OldOwners = $Self->_GetOldOwners(
             %GetParam,
             QueueID  => $QueueID,
+            StateID  => $StateID,
             AllUsers => $GetParam{OwnerAll},
         );
         my $ResponsibleUsers = $Self->_GetResponsible(
             %GetParam,
             QueueID  => $QueueID,
+            StateID  => $StateID,
             AllUsers => $GetParam{OwnerAll},
         );
         my $Priorities = $Self->_GetPriorities(
@@ -1013,11 +1028,13 @@ sub Run {
             %GetParam,
             CustomerUserID => $CustomerUser,
             QueueID        => $QueueID,
+            StateID        => $StateID,
         );
         my $Types = $Self->_GetTypes(
             %GetParam,
             CustomerUserID => $CustomerUser,
             QueueID        => $QueueID,
+            StateID        => $StateID,
         );
 
         # reset previous ServiceID to reset SLA-List if no service is selected
@@ -1028,12 +1045,14 @@ sub Run {
             %GetParam,
             CustomerUserID => $CustomerUser,
             QueueID        => $QueueID,
+            StateID        => $StateID,
             ServiceID      => $ServiceID,
         );
         my $NextStates = $Self->_GetNextStates(
             %GetParam,
             CustomerUserID => $CustomerUser || '',
-            QueueID => $QueueID,
+            QueueID        => $QueueID,
+            StateID        => $StateID,
         );
 
         # update Dynamic Fields Possible Values via AJAX
@@ -1043,7 +1062,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -1791,40 +1809,39 @@ sub _Mask {
             Data => \%Param,
         );
 
-        STATEID:
-        for my $StateID ( sort keys %StateList ) {
+        if ( IsArrayRefWithData( $Self->{Config}->{StateType} ) ) {
 
-            next STATEID if !$StateID;
+            STATETYPE:
+            for my $StateType ( @{ $Self->{Config}->{StateType} } ) {
 
-            # get state data
-            my %StateData = $Self->{StateObject}->StateGet( ID => $StateID );
+                next STATETYPE if !$StateType;
+                next STATETYPE if $StateType !~ /pending/i;
 
-            next STATEID if $StateData{TypeName} !~ /pending/i;
+                # get used calendar
+                my $Calendar = $Self->{TicketObject}->TicketCalendarGet(
+                    %Ticket,
+                );
 
-            # get used calendar
-            my $Calendar = $Self->{TicketObject}->TicketCalendarGet(
-                %Ticket,
-            );
+                $Param{DateString} = $Self->{LayoutObject}->BuildDateSelection(
+                    %Param,
+                    Format           => 'DateInputFormatLong',
+                    YearPeriodPast   => 0,
+                    YearPeriodFuture => 5,
+                    DiffTime         => $Self->{ConfigObject}->Get('Ticket::Frontend::PendingDiffTime')
+                        || 0,
+                    Class => $Param{DateInvalid} || ' ',
+                    Validate             => 1,
+                    ValidateDateInFuture => 1,
+                    Calendar             => $Calendar,
+                );
 
-            $Param{DateString} = $Self->{LayoutObject}->BuildDateSelection(
-                %Param,
-                Format           => 'DateInputFormatLong',
-                YearPeriodPast   => 0,
-                YearPeriodFuture => 5,
-                DiffTime         => $Self->{ConfigObject}->Get('Ticket::Frontend::PendingDiffTime')
-                    || 0,
-                Class => $Param{DateInvalid} || ' ',
-                Validate             => 1,
-                ValidateDateInFuture => 1,
-                Calendar             => $Calendar,
-            );
+                $Self->{LayoutObject}->Block(
+                    Name => 'StatePending',
+                    Data => \%Param,
+                );
 
-            $Self->{LayoutObject}->Block(
-                Name => 'StatePending',
-                Data => \%Param,
-            );
-
-            last STATEID;
+                last STATETYPE;
+            }
         }
     }
 
@@ -2468,6 +2485,7 @@ sub _GetSLAs {
         %SLA = $Self->{TicketObject}->TicketSLAList(
             %Param,
             Action => $Self->{Action},
+            UserID => $Self->{UserID},
         );
     }
     return \%SLA;

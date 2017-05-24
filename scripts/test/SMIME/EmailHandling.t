@@ -1,6 +1,5 @@
 # --
-# EmailHandling.t - SMIME email handling tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -12,6 +11,7 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
+use File::Path;
 
 use Kernel::System::Crypt;
 use Kernel::Output::HTML::ArticleCheckSMIME;
@@ -22,9 +22,23 @@ my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
 my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
 my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
 
-my $HomeDir     = $ConfigObject->Get('Home');
-my $CertPath    = $ConfigObject->Get('SMIME::CertPath');
-my $PrivatePath = $ConfigObject->Get('SMIME::PrivatePath');
+my $HomeDir = $ConfigObject->Get('Home');
+
+# create directory for certificates and private keys
+my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
+my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private";
+mkpath( [$CertPath],    0, 0770 );    ## no critic
+mkpath( [$PrivatePath], 0, 0770 );    ## no critic
+
+# set SMIME paths
+$ConfigObject->Set(
+    Key   => 'SMIME::CertPath',
+    Value => $CertPath,
+);
+$ConfigObject->Set(
+    Key   => 'SMIME::PrivatePath',
+    Value => $PrivatePath,
+);
 
 my $OpenSSLBin = $ConfigObject->Get('SMIME::Bin');
 

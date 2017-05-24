@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketEmailOutbound.pm - to send a new outbound message
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -57,7 +56,7 @@ sub new {
 
     # get params
     for my $Param (
-        qw(From To Cc Bcc Subject Body InReplyTo References ComposeStateID ArticleTypeID
+        qw(From To Cc Bcc Subject Body ComposeStateID ArticleTypeID
         ArticleID TimeUnits Year Month Day Hour Minute FormID)
         )
     {
@@ -149,7 +148,8 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicField ( sort keys %DynamicFieldValues ) {
             next DYNAMICFIELD if !$DynamicField;
-            next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+            next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+            next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
             $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
         }
@@ -173,7 +173,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -699,10 +698,6 @@ sub Form {
         BodyClass => 'Popup',
     );
 
-    # build references string
-    my $References = defined $Data{References} ? $Data{References} . ' ' : '';
-    $References .= defined $Data{MessageID} ? $Data{MessageID} : '';
-
     $Output .= $Self->_Mask(
         TicketNumber => $Ticket{TicketNumber},
         TicketID     => $Self->{TicketID},
@@ -724,8 +719,6 @@ sub Form {
         Attachments         => \@Attachments,
         %Data,
         %GetParam,
-        InReplyTo        => $Data{MessageID},
-        References       => $References,
         DynamicFieldHTML => \%DynamicFieldHTML,
     );
     $Output .= $Self->{LayoutObject}->Footer(
@@ -769,7 +762,8 @@ sub SendEmail {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -945,7 +939,7 @@ sub SendEmail {
                 Address => $Email->address()
             );
             if ($IsLocal) {
-                $Error{ "$Line" . "Invalid" } = 'ServerError';
+                $Error{ "$Line" . 'IsLocalAddress' } = 'ServerError';
             }
         }
     }
@@ -1130,11 +1124,14 @@ sub SendEmail {
         Subject        => $GetParam{Subject},
         UserID         => $Self->{UserID},
         Body           => $GetParam{Body},
-        InReplyTo      => $GetParam{InReplyTo},
-        References     => $GetParam{References},
-        Charset        => $Self->{LayoutObject}->{UserCharset},
-        MimeType       => $MimeType,
-        Attachment     => \@AttachmentData,
+
+        # We start a new communication here, so don't send any references.
+        #   This might lead to information disclosure (domain names; see bug#11246).
+        InReplyTo  => '',
+        References => '',
+        Charset    => $Self->{LayoutObject}->{UserCharset},
+        MimeType   => $MimeType,
+        Attachment => \@AttachmentData,
         %ArticleParam,
     );
 
@@ -1293,7 +1290,8 @@ sub AjaxUpdate {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -1311,7 +1309,6 @@ sub AjaxUpdate {
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-        next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
         my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
             DynamicFieldConfig => $DynamicFieldConfig,
@@ -1581,15 +1578,36 @@ sub _Mask {
         );
     }
 
+    if ( $Param{ToIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{ToErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'ToIsLocalAddressServerErrorMsg',
+            Data => \%Param,
+        );
+    }
+
     if ( $Param{CcInvalid} && $Param{Errors} && !$Param{Errors}->{CcErrorType} ) {
         $Self->{LayoutObject}->Block(
             Name => 'CcServerErrorMsg',
         );
     }
 
+    if ( $Param{CcIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{CcErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'CcIsLocalAddressServerErrorMsg',
+            Data => \%Param,
+        );
+    }
+
     if ( $Param{BccInvalid} && $Param{Errors} && !$Param{Errors}->{BccErrorType} ) {
         $Self->{LayoutObject}->Block(
             Name => 'BccServerErrorMsg',
+        );
+    }
+
+    if ( $Param{BccIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{BccErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'BccIsLocalAddressServerErrorMsg',
+            Data => \%Param,
         );
     }
 

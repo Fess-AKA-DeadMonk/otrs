@@ -1,6 +1,5 @@
 # --
-# Kernel/System/HTMLUtils.pm - creating and modifying html strings
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -12,10 +11,13 @@ package Kernel::System::HTMLUtils;
 use strict;
 use warnings;
 
+use utf8;
+
 use MIME::Base64;
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::System::Encode',
     'Kernel::System::Log',
 );
 
@@ -78,8 +80,11 @@ sub ToAscii {
         }
     }
 
+    # turn on utf8 flag (bug#10970, bug#11596 and bug#12097)
+    $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$Param{String} );
+
     # get length of line for forcing line breakes
-    my $LineLength = $Self->{'Ticket::Frontend::TextAreaNote'} || 78;
+    my $LineLength = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Frontend::TextAreaNote') || 78;
 
     # find <a href=....> and replace it with [x]
     my $LinkList = '';
@@ -479,24 +484,27 @@ sub ToAscii {
         (&\#(\d+);?)
     }
     {
-        my $Chr = chr( $2 );
-        if ( $Chr ) {
-            $Chr;
+        my $ChrOrig = $1;
+        my $Dec = $2;
+
+        # Don't process UTF-16 surrogate pairs. Used on their own, these are not valid UTF-8 code
+        # points and can result in errors in old Perl versions. See bug#12588 for more information.
+        # - High Surrogate codes (U+D800-U+DBFF)
+        # - Low Surrogate codes (U+DC00-U+DFFF)
+        if ( $Dec >= 55296 && $Dec <= 57343 ) {
+            $ChrOrig;
         }
         else {
-            $1;
-        };
-    }egx;
+            my $Chr = chr($Dec);
 
-    # encode html entities like "&#3d;"
-    $Param{String} =~ s{
-        (&\#[xX]([0-9a-fA-F]+);?)
-    }
-    {
-        my $ChrOrig = $1;
-        my $Hex = hex( $2 );
-        if ( $Hex ) {
-            my $Chr = chr( $Hex );
+            # Make sure we get valid UTF8 code points, but skip characters from 128 to 255
+            #   (inclusive), since they are by default internally not encoded as UTF-8 for
+            #   backward compatibility reasons. See bug#12457 for more information.
+            if ( $Dec < 128 || $Dec> 255 ) {
+                Encode::_utf8_off($Chr);
+                $Chr = Encode::decode('utf-8', $Chr, 0);
+            }
+
             if ( $Chr ) {
                 $Chr;
             }
@@ -504,8 +512,45 @@ sub ToAscii {
                 $ChrOrig;
             }
         }
-        else {
+    }egx;
+
+    # encode html entities like "&#x3d;"
+    $Param{String} =~ s{
+        (&\#[xX]([0-9a-fA-F]+);?)
+    }
+    {
+        my $ChrOrig = $1;
+        my $Dec = hex( $2 );
+
+        # Don't process UTF-16 surrogate pairs. Used on their own, these are not valid UTF-8 code
+        # points and can result in errors in old Perl versions. See bug#12588 for more information.
+        # - High Surrogate codes (U+D800-U+DBFF)
+        # - Low Surrogate codes (U+DC00-U+DFFF)
+        if ( $Dec >= 55296 && $Dec <= 57343 ) {
             $ChrOrig;
+        }
+        else {
+            if ( $Dec ) {
+                my $Chr = chr( $Dec );
+
+                # Make sure we get valid UTF8 code points, but skip characters from 128 to 255
+                #   (inclusive), since they are by default internally not encoded as UTF-8 for
+                #   backward compatibility reasons. See bug#12457 for more information.
+                if ( $Dec < 128 || $Dec > 255 ) {
+                    Encode::_utf8_off($Chr);
+                    $Chr = Encode::decode('utf-8', $Chr, 0);
+                }
+
+                if ( $Chr ) {
+                    $Chr;
+                }
+                else {
+                    $ChrOrig;
+                }
+            }
+            else {
+                $ChrOrig;
+            }
         }
     }egx;
 
@@ -765,7 +810,7 @@ sub LinkQuote {
 
         # add target to existing "<a href"
         ${$String} =~ s{
-            (<a\s{1,10})(.+?)>
+            (<a\s{1,10})([^>]+)>
         }
         {
             my $Start = $1;
@@ -779,28 +824,30 @@ sub LinkQuote {
         }egxsi;
     }
 
-    # remove existing "<a href" on all other tags (to find not linked urls) and remember it
+    my $Marker = "§" x 10;
+
+    # Remove existing <a>...</a> tags and their content to be re-inserted later, this must not be quoted.
+    # Also remove other tags to avoid quoting in tag parameters.
     my $Counter = 0;
-    my %LinkHash;
+    my %TagHash;
     ${$String} =~ s{
-        (<a\s.+?>.+?</a>)
+        (<a\s[^>]*?>[^>]*</a>|<[^>]+?>)
     }
     {
         my $Content = $1;
-        $Counter++;
-        my $Key  = "############LinkHash-$Counter############";
-        $LinkHash{$Key} = $Content;
+        my $Key     = "${Marker}TagHash-$Counter${Marker}";
+        $TagHash{$Counter++} = $Content;
         $Key;
     }egxism;
 
-    # replace not "<a href" found urls and link it
+    # Add <a> tags for URLs in the content.
     my $Target = '';
     if ( $Param{Target} ) {
         $Target = " target=\"$Param{Target}\"";
     }
     ${$String} =~ s{
         (                                          # $1 greater-than and less-than sign
-            > | < | \s+ | \#{6} |
+            > | < | \s+ | §{10} |
             (?: &[a-zA-Z0-9]+; )                   # get html entities
         )
         (                                          # $2
@@ -837,7 +884,7 @@ sub LinkQuote {
                 | (?: &[a-zA-Z0-9]+; )+            # html entities
                 | $                                # bug# 2715
             )
-            | \#{6}                                # ending LinkHash
+            | §{10}                                # ending TagHash
         )
     }
     {
@@ -873,12 +920,8 @@ sub LinkQuote {
         $Start . "<a href=\"$HrefLink\"$Target title=\"$HrefLink\">$DisplayLink<\/a>" . $End;
     }egxism;
 
-    my ( $Key, $Value );
-
-    # add already existing "<a href" again
-    while ( ( $Key, $Value ) = each(%LinkHash) ) {
-        ${$String} =~ s{$Key}{$Value};
-    }
+    # Re-add previously removed tags.
+    ${$String} =~ s{${Marker}TagHash-(\d+)${Marker}}{$TagHash{$1}}egsxim;
 
     # check ref && return result like called
     if ($StringScalar) {
@@ -1068,13 +1111,13 @@ sub Safety {
 
                 # remove on action attributes
                 $Replaced += $Tag =~ s{
-                    (?:\s|/) on.+?=(".+?"|'.+?'|.+?)($TagEnd|\s)
+                    (?:\s|/) on[a-z]+\s*=("[^"]+"|'[^']+'|.+?)($TagEnd|\s)
                 }
                 {$2}sgxim;
 
                 # remove entities in tag
                 $Replaced += $Tag =~ s{
-                    (&\{.+?\})
+                    (&[{].+?[}])
                 }
                 {}sgxim;
 

@@ -1,6 +1,5 @@
 # --
-# Kernel/GenericInterface/Transport/HTTP/REST.pm - GenericInterface network transport interface for HTTP::REST
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -105,6 +104,9 @@ sub ProviderProcessRequest {
         );
     }
 
+    # get Encode object
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
+
     my $Operation;
     my %URIData;
     my $RequestURI = $ENV{REQUEST_URI} || $ENV{PATH_INFO};
@@ -130,11 +132,15 @@ sub ProviderProcessRequest {
         #       UserLogin => 'user',
         #       Password  => 'secret',
         #    );
-        %QueryParams = split /[&=]/, $QueryParamsStr;
+        %QueryParams = split /[;&=]/, $QueryParamsStr;
 
         # unscape URI strings in query parameters
         for my $Param ( sort keys %QueryParams ) {
+            $QueryParams{$Param} =~ s{\+}{%20}g;
             $QueryParams{$Param} = URI::Escape::uri_unescape( $QueryParams{$Param} );
+
+            # encode value
+            $EncodeObject->EncodeInput( \$QueryParams{$Param} );
         }
     }
 
@@ -168,7 +174,20 @@ sub ProviderProcessRequest {
 
         next ROUTE if !( $RequestURI =~ m{^ $RouteRegEx $}xms );
 
-        %URIData   = %+;
+        # import URI params
+        for my $URIKey ( sort keys %+ ) {
+            my $URIValue = $+{$URIKey};
+
+            # unescape value
+            $URIValue = URI::Escape::uri_unescape($URIValue);
+
+            # encode value
+            $EncodeObject->EncodeInput( \$URIValue );
+
+            # add to URI data
+            $URIData{$URIKey} = $URIValue;
+        }
+
         $Operation = $CurrentOperation;
 
         # leave with the first matching regexp
@@ -213,6 +232,15 @@ sub ProviderProcessRequest {
     my $Content;
     read STDIN, $Content, $Length;
 
+    # If there is no STDIN data it might be caused by fastcgi already having read the request.
+    # In this case we need to get the data from CGI.
+    if ( !IsStringWithData($Content) && $RequestMethod ne 'GET' ) {
+        my $ParamName = $RequestMethod . 'DATA';
+        $Content = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam(
+            Param => $ParamName,
+        );
+    }
+
     # check if we have content
     if ( !IsStringWithData($Content) ) {
         return $Self->_Error(
@@ -227,13 +255,13 @@ sub ProviderProcessRequest {
         $ContentCharset = $1;
     }
     if ( $ContentCharset && $ContentCharset !~ m{ \A utf [-]? 8 \z }xmsi ) {
-        $Content = $Kernel::OM->Get('Kernel::System::Encode')->Convert2CharsetInternal(
+        $Content = $EncodeObject->Convert2CharsetInternal(
             Text => $Content,
             From => $ContentCharset,
         );
     }
     else {
-        $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$Content );
+        $EncodeObject->EncodeInput( \$Content );
     }
 
     # send received data to debugger
@@ -431,7 +459,10 @@ sub RequesterPerformRequest {
         };
     }
 
-    my $Headers = {};
+    # create header container
+    # and add proper content type
+    my $Headers = { 'Content-Type' => 'application/json; charset=UTF-8' };
+
     if ( IsHashRefWithData( $Config->{Authentication} ) ) {
 
         # basic authentication
@@ -596,8 +627,9 @@ sub RequesterPerformRequest {
         delete $Param{Data}->{$ParamName};
     }
 
-    # get JSON object
-    my $JSONObject = $Kernel::OM->Get('Kernel::System::JSON');
+    # get JSON and Encode object
+    my $JSONObject   = $Kernel::OM->Get('Kernel::System::JSON');
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
 
     my $Body;
     if ( IsHashRefWithData( $Param{Data} ) ) {
@@ -617,6 +649,9 @@ sub RequesterPerformRequest {
             $Param{Data} = $JSONObject->Encode(
                 Data => $Param{Data},
             );
+
+            # make sure data is correctly encoded
+            $EncodeObject->EncodeOutput( \$Param{Data} );
         }
 
         # whereas GET and the others just have a the data added to the Query URI.
@@ -653,10 +688,8 @@ sub RequesterPerformRequest {
         push @RequestParam, $Body;
     }
 
-    # Headers is an optional tag, so just add it if present.
-    if ( IsHashRefWithData($Headers) ) {
-        push @RequestParam, $Headers;
-    }
+    # add headers to request
+    push @RequestParam, $Headers;
 
     $RestClient->$RestCommand(@RequestParam);
 
@@ -669,7 +702,7 @@ sub RequesterPerformRequest {
         $ResponseError = $ErrorMessage;
     }
 
-    if ( $ResponseCode ne '200' ) {
+    if ( $ResponseCode !~ m{ \A 20 \d \z }xms ) {
         $ResponseError = $ErrorMessage . " Response code '$ResponseCode'.";
     }
 
@@ -706,7 +739,7 @@ sub RequesterPerformRequest {
         Data    => $ResponseContent,
     );
 
-    $ResponseContent = $Kernel::OM->Get('Kernel::System::Encode')->Convert2CharsetInternal(
+    $ResponseContent = $EncodeObject->Convert2CharsetInternal(
         Text => $ResponseContent,
         From => 'utf-8',
     );

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Group.pm - All Groups and Roles related functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -201,8 +200,13 @@ sub GroupAdd {
     );
 
     # reset cache
-    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+    $CacheObject->CleanUp(
         Type => $Self->{CacheType},
+    );
+    $CacheObject->CleanUp(
+        Type => 'CustomerGroup',
     );
 
     return $GroupID;
@@ -305,8 +309,13 @@ sub GroupUpdate {
     );
 
     # reset cache
-    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+    $CacheObject->CleanUp(
         Type => $Self->{CacheType},
+    );
+    $CacheObject->CleanUp(
+        Type => 'CustomerGroup',
     );
 
     return 1;
@@ -905,7 +914,7 @@ sub GroupGroupMemberList {
         for my $UserID (@UserIDs) {
             $UserID = $DBObject->Quote( $UserID, 'Integer' );
         }
-        $SQL .= ' ru.user_id IN (' . join( ',', @UserIDs ) . ')';
+        $SQL .= ' gu.user_id IN (' . join( ',', @UserIDs ) . ')';
     }
     elsif ( $Param{GroupIDs} ) {
         for my $GroupID (@GroupIDs) {

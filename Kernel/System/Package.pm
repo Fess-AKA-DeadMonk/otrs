@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Package.pm - lib package manager
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -116,15 +115,7 @@ sub new {
         File => 'ARRAY',
     };
 
-    $Self->{PackageVerifyURL} = 'https://pav.otrs.com/otrs/public.pl';
-
     $Self->{Home} = $Self->{ConfigObject}->Get('Home');
-
-    # permission check
-    if ( !$Self->_FileSystemCheck() ) {
-        die "ERROR: Need write permission in OTRS home\n"
-            . "Try: \$OTRS_HOME/bin/otrs.SetPermissions.pl !!!\n";
-    }
 
     # init of event handler
     $Self->EventHandlerInit(
@@ -478,6 +469,9 @@ sub PackageInstall {
         }
     }
 
+    # write permission check
+    return if !$Self->_FileSystemCheck();
+
     # check OS
     if ( $Structure{OS} && !$Param{Force} ) {
         return if !$Self->_OSCheck( OS => $Structure{OS} );
@@ -644,6 +638,9 @@ sub PackageReinstall {
     # parse source file
     my %Structure = $Self->PackageParse(%Param);
 
+    # write permission check
+    return if !$Self->_FileSystemCheck();
+
     # check OS
     if ( $Structure{OS} && !$Param{Force} ) {
         return if !$Self->_OSCheck( OS => $Structure{OS} );
@@ -751,6 +748,9 @@ sub PackageUpgrade {
         );
         return;
     }
+
+    # write permission check
+    return if !$Self->_FileSystemCheck();
 
     # check OS
     if ( $Structure{OS} && !$Param{Force} ) {
@@ -896,8 +896,8 @@ sub PackageUpgrade {
 
                 if (
                     $Part->{TagType} eq 'End'
-                    && $Part->{Tag} eq $NotUseTag
-                    && $Part->{TagLevel} eq $NotUseTagLevel
+                    && ( defined $NotUseTag      && $Part->{Tag} eq $NotUseTag )
+                    && ( defined $NotUseTagLevel && $Part->{TagLevel} eq $NotUseTagLevel )
                     )
                 {
                     $UseInstalled = 1;
@@ -1138,6 +1138,9 @@ sub PackageUninstall {
     if ( !$Param{Force} ) {
         return if !$Self->_CheckPackageDepends( Name => $Structure{Name}->{Content} );
     }
+
+    # write permission check
+    return if !$Self->_FileSystemCheck();
 
     # uninstall code (pre)
     if ( $Structure{CodeUninstall} ) {
@@ -1388,8 +1391,11 @@ sub PackageOnlineList {
         my $CurrentFramework = $Kernel::OM->Get('Kernel::Config')->Get('Version');
         FRAMEWORKVERSION:
         for my $FrameworkVersion ( sort keys %{$ListResult} ) {
+            my $FrameworkVersionMatch = $FrameworkVersion;
+            $FrameworkVersionMatch =~ s/\./\\\./g;
+            $FrameworkVersionMatch =~ s/x/.+?/gi;
 
-            if ( $CurrentFramework =~ m{ \A $FrameworkVersion }xms ) {
+            if ( $CurrentFramework =~ m{ \A $FrameworkVersionMatch }xms ) {
 
                 @Packages = @{ $ListResult->{$FrameworkVersion} };
                 last FRAMEWORKVERSION;
@@ -1589,6 +1595,7 @@ check if package (files) is deployed, returns true if it's ok
     $PackageObject->DeployCheck(
         Name    => 'Application A',
         Version => '1.0',
+        Log     => 1, # Default: 1
     );
 
 =cut
@@ -1607,6 +1614,10 @@ sub DeployCheck {
         }
     }
 
+    if ( !defined $Param{Log} ) {
+        $Param{Log} = 1;
+    }
+
     my $Package = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
     my %Structure = $Self->PackageParse( String => $Package );
 
@@ -1622,10 +1633,12 @@ sub DeployCheck {
 
         if ( !-e $LocalFile ) {
 
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "$Param{Name}-$Param{Version}: No such file: $LocalFile!",
-            );
+            if ( $Param{Log} ) {
+                $Kernel::OM->Get('Kernel::System::Log')->Log(
+                    Priority => 'error',
+                    Message  => "$Param{Name}-$Param{Version}: No such file: $LocalFile!",
+                );
+            }
 
             $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'No file installed!';
             $Hit = 1;
@@ -1641,10 +1654,12 @@ sub DeployCheck {
 
                 if ( ${$Content} ne $File->{Content} ) {
 
-                    $Kernel::OM->Get('Kernel::System::Log')->Log(
-                        Priority => 'error',
-                        Message  => "$Param{Name}-$Param{Version}: $LocalFile is different!",
-                    );
+                    if ( $Param{Log} ) {
+                        $Kernel::OM->Get('Kernel::System::Log')->Log(
+                            Priority => 'error',
+                            Message  => "$Param{Name}-$Param{Version}: $LocalFile is different!",
+                        );
+                    }
 
                     $Hit = 1;
                     $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'File is different!';
@@ -1652,10 +1667,12 @@ sub DeployCheck {
             }
             else {
 
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
-                    Priority => 'error',
-                    Message  => "Can't read $LocalFile!",
-                );
+                if ( $Param{Log} ) {
+                    $Kernel::OM->Get('Kernel::System::Log')->Log(
+                        Priority => 'error',
+                        Message  => "Can't read $LocalFile!",
+                    );
+                }
 
                 $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'Can\' read File!';
             }
@@ -2219,24 +2236,24 @@ sub PackageBuild {
                             $XML .= " Type=\"$Type\"";
                         }
 
+                        KEY:
                         for my $Key ( sort keys %{$Tag} ) {
 
-                            if (
-                                $Key ne 'Tag'
-                                && $Key ne 'Content'
-                                && $Key ne 'TagType'
-                                && $Key ne 'TagLevel'
-                                && $Key ne 'TagCount'
-                                && $Key ne 'TagKey'
-                                && $Key ne 'TagLastLevel'
-                                )
-                            {
-                                if ( defined( $Tag->{$Key} ) ) {
-                                    $XML .= ' '
-                                        . $Self->_Encode($Key) . '="'
-                                        . $Self->_Encode( $Tag->{$Key} ) . '"';
-                                }
-                            }
+                            next KEY if $Key eq 'Tag';
+                            next KEY if $Key eq 'Content';
+                            next KEY if $Key eq 'TagType';
+                            next KEY if $Key eq 'TagLevel';
+                            next KEY if $Key eq 'TagCount';
+                            next KEY if $Key eq 'TagKey';
+                            next KEY if $Key eq 'TagLastLevel';
+
+                            next KEY if !defined $Tag->{$Key};
+
+                            next KEY if $Tag->{TagLevel} == 3 && lc $Key eq 'type';
+
+                            $XML .= ' '
+                                . $Self->_Encode($Key) . '="'
+                                . $Self->_Encode( $Tag->{$Key} ) . '"';
                         }
 
                         $XML .= ">";
@@ -2581,6 +2598,9 @@ returns true if the distribution package (located under ) can get installed
 sub PackageInstallDefaultFiles {
     my ( $Self, %Param ) = @_;
 
+    # write permission check
+    return if !$Self->_FileSystemCheck();
+
     my $Directory    = $Self->{ConfigObject}->Get('Home') . '/var/packages';
     my @PackageFiles = $Self->{MainObject}->DirectoryRead(
         Directory => $Directory,
@@ -2878,6 +2898,17 @@ sub _OSCheck {
     return;
 }
 
+=item _CheckFramework()
+
+Compare a framework array with the current framework.
+
+    my $CheckOk = $PackageObject->_CheckFramework(
+        Framework       => $Structure{Framework}, # [ { 'Content' => '4.0.x', 'Minimum' => '4.0.4'} ]
+        NoLog           => 1, # optional
+    )
+
+=cut
+
 sub _CheckFramework {
     my ( $Self, %Param ) = @_;
 
@@ -2910,6 +2941,7 @@ sub _CheckFramework {
 
             next FW if !$FW;
 
+            # add framework versions for the log entry
             $PossibleFramework .= $FW->{Content} . ';';
 
             # regexp modify
@@ -2917,11 +2949,107 @@ sub _CheckFramework {
             $Framework =~ s/\./\\\./g;
             $Framework =~ s/x/.+?/gi;
 
+            # skip to next framework, if we get no positive match
             next FW if $CurrentFramework !~ /^$Framework$/i;
 
+            # framework is correct
             $FWCheck = 1;
 
-            last FW;
+            # get minimum and/or maximum values
+            # e.g. the opm contains <Framework Minimum="5.0.7" Maximum="5.0.12">5.0.x</Framework>
+            my $FrameworkMinimum = $FW->{Minimum} || '';
+            my $FrameworkMaximum = $FW->{Maximum} || '';
+
+            # check for minimum or maximum required framework, if it was defined
+            if ( $FrameworkMinimum || $FrameworkMaximum ) {
+
+                # prepare hash for framework comparsion
+                my %FrameworkComparsion;
+                $FrameworkComparsion{MinimumFrameworkRequired} = $FrameworkMinimum;
+                $FrameworkComparsion{MaximumFrameworkRequired} = $FrameworkMaximum;
+                $FrameworkComparsion{CurrentFramework}         = $CurrentFramework;
+
+                # prepare version parts hash
+                my %VersionParts;
+
+                TYPE:
+                for my $Type (qw(MinimumFrameworkRequired MaximumFrameworkRequired CurrentFramework)) {
+
+                    # split version string
+                    my @ThisVersionParts = split /\./, $FrameworkComparsion{$Type};
+                    $VersionParts{$Type} = \@ThisVersionParts;
+                }
+
+                # check minimum required framework
+                if ($FrameworkMinimum) {
+
+                    COUNT:
+                    for my $Count ( 0 .. 2 ) {
+
+                        $VersionParts{MinimumFrameworkRequired}->[$Count] ||= 0;
+                        $VersionParts{CurrentFramework}->[$Count]         ||= 0;
+
+                        # skip equal version parts
+                        next COUNT
+                            if $VersionParts{MinimumFrameworkRequired}->[$Count] eq
+                            $VersionParts{CurrentFramework}->[$Count];
+
+                        # skip current framework verion parts containing "x"
+                        next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
+
+                        if (
+                            $VersionParts{CurrentFramework}->[$Count]
+                            > $VersionParts{MinimumFrameworkRequired}->[$Count]
+                            )
+                        {
+                            $FWCheck = 1;
+                            last COUNT;
+                        }
+                        else {
+
+                            # add required minimum version for the log entry
+                            $PossibleFramework .= 'Minimum Version ' . $FrameworkMinimum . ';';
+                            $FWCheck = 0;
+                        }
+
+                    }
+                }
+
+                # check maximum required framework, if the framework check is still positive so far
+                if ( $FrameworkMaximum && $FWCheck ) {
+
+                    COUNT:
+                    for my $Count ( 0 .. 2 ) {
+
+                        $VersionParts{MaximumFrameworkRequired}->[$Count] ||= 0;
+                        $VersionParts{CurrentFramework}->[$Count]         ||= 0;
+
+                        next COUNT
+                            if $VersionParts{MaximumFrameworkRequired}->[$Count] eq
+                            $VersionParts{CurrentFramework}->[$Count];
+
+                        # skip current framework verion parts containing "x"
+                        next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
+
+                        if (
+                            $VersionParts{CurrentFramework}->[$Count]
+                            < $VersionParts{MaximumFrameworkRequired}->[$Count]
+                            )
+                        {
+
+                            $FWCheck = 1;
+                            last COUNT;
+                        }
+                        else {
+
+                            # add required maximum version for the log entry
+                            $PossibleFramework .= 'Maximum Version ' . $FrameworkMaximum . ';';
+                            $FWCheck = 0;
+                        }
+
+                    }
+                }
+            }
         }
     }
 
@@ -3508,6 +3636,8 @@ sub _ReadDistArchive {
 sub _FileSystemCheck {
     my ( $Self, %Param ) = @_;
 
+    return 1 if $Self->{FileSystemCheckAlreadyDone};
+
     my $Home = $Param{Home} || $Self->{Home};
 
     # check Home
@@ -3524,7 +3654,7 @@ sub _FileSystemCheck {
         qw(/bin/ /Kernel/ /Kernel/System/ /Kernel/Output/ /Kernel/Output/HTML/ /Kernel/Modules/)
         )
     {
-        my $Location = "$Home/$Filepath/check_permissons.$$";
+        my $Location = $Home . $Filepath . "check_permissions.$$";
         my $Content  = 'test';
 
         # create test file
@@ -3533,12 +3663,20 @@ sub _FileSystemCheck {
             Content  => \$Content,
         );
 
-        # return false if not created
-        return if !$Write;
+        if ( !$Write ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "ERROR: Need write permissions for directory $Home$Filepath\n"
+                    . " Try: $Home/bin/otrs.SetPermissions.pl!",
+            );
+            return;
+        }
 
         # delete test file
         $Self->{MainObject}->FileDelete( Location => $Location );
     }
+
+    $Self->{FileSystemCheckAlreadyDone} = 1;
 
     return 1;
 }
@@ -3886,8 +4024,8 @@ sub _CheckDBMerged {
 
             if (
                 $Part->{TagType} eq 'End'
-                && $Part->{Tag} eq $NotUseTag
-                && $Part->{TagLevel} eq $NotUseTagLevel
+                && ( defined $NotUseTag      && $Part->{Tag} eq $NotUseTag )
+                && ( defined $NotUseTagLevel && $Part->{TagLevel} eq $NotUseTagLevel )
                 )
             {
                 $Use = 1;

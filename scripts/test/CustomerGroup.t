@@ -1,6 +1,5 @@
 # --
-# CustomerGroup.t - Customer Group tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -132,7 +131,6 @@ my @Tests = (
         },
         Success => 1,
     },
-
 );
 
 for my $Test (@Tests) {
@@ -954,6 +952,156 @@ for my $Test (@Tests) {
             "GroupLookup() Test:$Test->{Name}",
         );
     }
-
 }
+
+# Disable email checks
+$ConfigObject->Set(
+    Key   => 'CheckEmailAddresses',
+    Value => 0,
+);
+$ConfigObject->Set(
+    Key   => 'CheckMXRecord',
+    Value => 0,
+);
+
+my $RandomID1 = $HelperObject->GetRandomID();
+my $RandomID2 = $HelperObject->GetRandomID();
+my $RandomID3 = $HelperObject->GetRandomID();
+
+# create 2 customer users
+my $CustomerUser1 = $CustomerUserObject->CustomerUserAdd(
+    Source         => 'CustomerUser',
+    UserFirstname  => 'John 1',
+    UserLastname   => 'Doe',
+    UserCustomerID => 'jdoe1' . $RandomID1,
+    UserLogin      => 'jdoe1' . $RandomID1,
+    UserEmail      => 'jdoe1' . $RandomID1 . '@example.com',
+    ValidID        => 1,
+    UserID         => 1,
+);
+$Self->True(
+    $CustomerUser1,
+    "Customer user #1 created."
+);
+my $CustomerUser2 = $CustomerUserObject->CustomerUserAdd(
+    Source         => 'CustomerUser',
+    UserFirstname  => 'John 2',
+    UserLastname   => 'Doe',
+    UserCustomerID => 'jdoe2' . $RandomID2,
+    UserLogin      => 'jdoe2' . $RandomID2,
+    UserEmail      => 'jdoe2' . $RandomID2 . '@example.com',
+    ValidID        => 1,
+    UserID         => 1,
+);
+$Self->True(
+    $CustomerUser2,
+    "Customer user #2 created."
+);
+my $GroupID2 = $GroupObject->GroupAdd(
+    Name    => 'Test_customer_group_' . $RandomID3,
+    ValidID => 1,
+    UserID  => 1,
+);
+$Self->True(
+    $GroupID2,
+    "Customer Group created."
+);
+my $SuccessGroupMemberAdd1 = $CustomerGroupObject->GroupMemberAdd(
+    GID        => $GroupID2,
+    UID        => $CustomerUser1,
+    Permission => {
+        ro        => 1,
+        move_into => 1,
+        create    => 1,
+        owner     => 1,
+        priority  => 0,
+        rw        => 0,
+    },
+    UserID => 1,
+);
+$Self->True(
+    $SuccessGroupMemberAdd1,
+    "Customer #1 added to the group."
+);
+my $SuccessGroupMemberAdd2 = $CustomerGroupObject->GroupMemberAdd(
+    GID        => $GroupID2,
+    UID        => $CustomerUser2,
+    Permission => {
+        ro        => 1,
+        move_into => 1,
+        create    => 1,
+        owner     => 1,
+        priority  => 0,
+        rw        => 0,
+    },
+    UserID => 1,
+);
+$Self->True(
+    $SuccessGroupMemberAdd2,
+    "Customer #2 added to the group."
+);
+
+# First get members while both users are Valid
+my @Members1 = $CustomerGroupObject->GroupMemberList(
+    GroupID => $GroupID2,
+    Result  => 'ID',
+    Type    => 'ro',
+);
+
+@Members1 = sort { $a cmp $b } @Members1;
+
+$Self->IsDeeply(
+    \@Members1,
+    [
+        'jdoe1' . $RandomID1,
+        'jdoe2' . $RandomID2,
+    ],
+    "GroupMemberList() - 2 Customer users."
+);
+
+# set 2nd user to invalid state
+my $CustomerUserInvalid = $CustomerUserObject->CustomerUserUpdate(
+    Source         => 'CustomerUser',
+    ID             => $CustomerUser2,
+    UserCustomerID => $CustomerUser2,
+    UserLogin      => 'jdoe2' . $RandomID2,                    # new user login
+    UserFirstname  => 'John 2',
+    UserLastname   => 'Doe',
+    UserEmail      => 'jdoe2' . $RandomID2 . '@example.com',
+    ValidID        => 2,
+    UserID         => 1,
+);
+$Self->True(
+    $CustomerUserInvalid,
+    "Set 2nd Customer user to invalid",
+);
+
+# get group members again
+my @Members2 = $CustomerGroupObject->GroupMemberList(
+    GroupID => $GroupID2,
+    Result  => 'ID',
+    Type    => 'ro',
+);
+
+$Self->IsDeeply(
+    \@Members2,
+    [
+        'jdoe1' . $RandomID1,
+    ],
+    "GroupMemberList() - 2 Customer users."
+);
+
+# set 1nd user to invalid state
+$CustomerUserObject->CustomerUserUpdate(
+    Source         => 'CustomerUser',
+    ID             => $CustomerUser1,
+    UserCustomerID => $CustomerUser1,
+    UserLogin      => 'jdoe1' . $RandomID1,
+    UserFirstname  => 'John 1',
+    UserLastname   => 'Doe',
+    UserEmail      => 'jdoe1' . $RandomID1 . '@example.com',
+    ValidID        => 2,
+    UserID         => 1,
+);
+
 1;

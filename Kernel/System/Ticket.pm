@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Ticket.pm - all ticket functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -31,6 +30,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
+    'Kernel::System::DynamicFieldValue',
     'Kernel::System::Email',
     'Kernel::System::Group',
     'Kernel::System::HTMLUtils',
@@ -504,6 +504,18 @@ sub TicketCreate {
         );
     }
 
+    if ( $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Type') ) {
+
+        # Insert history record for ticket type, so that initial value can be seen.
+        #   Please see bug#12702 for more information.
+        $Self->HistoryAdd(
+            TicketID     => $TicketID,
+            HistoryType  => 'TypeUpdate',
+            Name         => "\%\%$Param{Type}\%\%$Param{TypeID}",
+            CreateUserID => $Param{UserID},
+        );
+    }
+
     # set customer data if given
     if ( $Param{CustomerNo} || $Param{CustomerID} || $Param{CustomerUser} ) {
         $Self->TicketCustomerSet(
@@ -564,6 +576,13 @@ sub TicketDelete {
         }
     }
 
+    # Delete dynamic field values for this ticket.
+    $Kernel::OM->Get('Kernel::System::DynamicFieldValue')->ObjectValuesDelete(
+        ObjectType => 'Ticket',
+        ObjectID   => $Param{TicketID},
+        UserID     => $Param{UserID},
+    );
+
     # clear ticket cache
     $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
 
@@ -610,32 +629,6 @@ sub TicketDelete {
         );
     }
 
-    # get dynamic field objects
-    my $DynamicFieldObject        = $Kernel::OM->Get('Kernel::System::DynamicField');
-    my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-
-    # get all dynamic fields for the object type Ticket
-    my $DynamicFieldListTicket = $DynamicFieldObject->DynamicFieldListGet(
-        ObjectType => 'Ticket',
-        Valid      => 0,
-    );
-
-    # delete dynamicfield values for this ticket
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicFieldListTicket} ) {
-
-        next DYNAMICFIELD if !$DynamicFieldConfig;
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-        next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldConfig->{Config} );
-
-        $DynamicFieldBackendObject->ValueDelete(
-            DynamicFieldConfig => $DynamicFieldConfig,
-            ObjectID           => $Param{TicketID},
-            UserID             => $Param{UserID},
-        );
-    }
-
     # delete ticket
     return if !$DBObject->Do(
         SQL  => 'DELETE FROM ticket WHERE id = ?',
@@ -651,6 +644,9 @@ sub TicketDelete {
         UserID => $Param{UserID},
     );
 
+    # Clear ticket cache again, in case it was rebuilt in the meantime.
+    $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
+
     return 1;
 }
 
@@ -660,7 +656,6 @@ ticket id lookup by ticket number
 
     my $TicketID = $TicketObject->TicketIDLookup(
         TicketNumber => '2004040510440485',
-        UserID       => 123,
     );
 
 =cut
@@ -701,7 +696,6 @@ ticket number lookup by ticket id
 
     my $TicketNumber = $TicketObject->TicketNumberLookup(
         TicketID => 123,
-        UserID   => 123,
     );
 
 =cut
@@ -1628,11 +1622,15 @@ sub TicketTitleUpdate {
     # clear ticket cache
     $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
 
+    # truncate title
+    my $Title = substr( $Param{Title}, 0, 50 );
+    $Title .= '...' if length($Title) == 50;
+
     # history insert
     $Self->HistoryAdd(
         TicketID     => $Param{TicketID},
         HistoryType  => 'TitleUpdate',
-        Name         => "\%\%$Ticket{Title}\%\%$Param{Title}",
+        Name         => "\%\%$Ticket{Title}\%\%$Title",
         CreateUserID => $Param{UserID},
     );
 
@@ -1742,6 +1740,7 @@ sub TicketQueueID {
         TicketID      => $Param{TicketID},
         DynamicFields => 0,
         UserID        => 1,
+        Silent        => 1,
     );
 
     return if !%Ticket;
@@ -1757,6 +1756,12 @@ to get the move queue list for a ticket (depends on workflow, if configured)
         Type   => 'create',
         UserID => 123,
     );
+
+    my %Queues = $TicketObject->TicketMoveList(
+        Type           => 'create',
+        CustomerUserID => 'customer_user_id_123',
+    );
+
 
     my %Queues = $TicketObject->TicketMoveList(
         QueueID => 123,
@@ -2060,6 +2065,10 @@ to get all possible types for a ticket (depends on workflow, if configured)
 
     my %Types = $TicketObject->TicketTypeList(
         UserID => 123,
+    );
+
+    my %Types = $TicketObject->TicketTypeList(
+        CustomerUserID => 'customer_user_id_123',
     );
 
     my %Types = $TicketObject->TicketTypeList(
@@ -2689,7 +2698,10 @@ sub TicketEscalationIndexBuild {
         TicketID      => $Param{TicketID},
         UserID        => $Param{UserID},
         DynamicFields => 0,
+        Silent        => 1,
     );
+
+    return 1 if !%Ticket;
 
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
@@ -2842,8 +2854,8 @@ sub TicketEscalationIndexBuild {
             # do not use locked tickets for calculation
             #last ROW if $Ticket{Lock} eq 'lock';
 
-            # do not use /int/ article types for calculation
-            next ROW if $Row->{ArticleType} =~ /int/i;
+            # do not use internal article types for calculation
+            next ROW if $Row->{ArticleType} =~ /-int/i;
 
             # only use 'agent' and 'customer' sender types for calculation
             next ROW if $Row->{SenderType} !~ /^(agent|customer)$/;
@@ -2982,6 +2994,12 @@ to get all possible SLAs for a ticket (depends on workflow, if configured)
         ServiceID => 1,
         UserID    => 123,
     );
+
+    my %SLAs = $TicketObject->TicketSLAList(
+        ServiceID      => 1,
+        CustomerUserID => 'customer_user_id_123',
+    );
+
 
     my %SLAs = $TicketObject->TicketSLAList(
         QueueID   => 123,
@@ -4257,6 +4275,11 @@ to get the state list for a ticket (depends on workflow, if configured)
     );
 
     my %States = $TicketObject->TicketStateList(
+        TicketID       => 123,
+        CustomerUserID => 'customer_user_id_123',
+    );
+
+    my %States = $TicketObject->TicketStateList(
         QueueID => 123,
         UserID  => 123,
     );
@@ -5084,6 +5107,11 @@ to get the priority list for a ticket (depends on workflow, if configured)
     );
 
     my %Priorities = $TicketObject->TicketPriorityList(
+        TicketID       => 123,
+        CustomerUserID => 'customer_user_id_123',
+    );
+
+    my %Priorities = $TicketObject->TicketPriorityList(
         QueueID => 123,
         UserID  => 123,
     );
@@ -5180,6 +5208,13 @@ sub HistoryTicketStatusGet {
         $SQLExt .= ')';
     }
 
+    # assemble stop date/time string for database comparison
+    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+    my $StopSystemTime
+        = $TimeObject->TimeStamp2SystemTime( String => "$Param{StopYear}-$Param{StopMonth}-$Param{StopDay} 00:00:00" );
+    my ( $StopSec, $StopMin, $StopHour, $StopDay, $StopMonth, $StopYear, $StopWDay )
+        = $TimeObject->SystemTime2Date( SystemTime => $StopSystemTime + 24 * 60 * 60 );    # add a day
+
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
@@ -5187,8 +5222,8 @@ sub HistoryTicketStatusGet {
         SQL => "
             SELECT DISTINCT(th.ticket_id), th.create_time
             FROM ticket_history th
-            WHERE th.create_time <= '$Param{StopYear}-$Param{StopMonth}-$Param{StopDay} 23:59:59'
-                AND th.create_time >= '$Param{StartYear}-$Param{StartMonth}-$Param{StartDay} 00:00:01'
+            WHERE th.create_time < '$StopYear-$StopMonth-$StopDay 00:00:00'
+                AND th.create_time >= '$Param{StartYear}-$Param{StartMonth}-$Param{StartDay} 00:00:00'
                 $SQLExt
             ORDER BY th.create_time DESC",
         Limit => 150000,
@@ -6107,6 +6142,9 @@ sub TicketMerge {
         MainTicketID  => $Param{MainTicketID},
         UserID        => $Param{UserID},
     );
+
+    $Self->_TicketCacheClear( TicketID => $Param{MergeTicketID} );
+    $Self->_TicketCacheClear( TicketID => $Param{MainTicketID} );
 
     # trigger event
     $Self->EventHandler(
@@ -7206,6 +7244,50 @@ sub TicketCalendarGet {
 
     # use default calendar
     return '';
+}
+
+=item SearchUnknownTicketCustomers()
+
+search customer users that are not saved in any backend
+
+    my $UnknownTicketCustomerList = $TicketObject->SearchUnknownTicketCustomers(
+        SearchTerm => 'SomeSearchTerm',
+    );
+
+Returns:
+
+    %UnknownTicketCustomerList = (
+        CustomerUserID1  => CustomerID1,
+        CustomerUserID2  => CustomerID2,
+        ...
+    );
+
+=cut
+
+sub SearchUnknownTicketCustomers {
+    my ( $Self, %Param ) = @_;
+
+    my $SearchTerm = $Param{SearchTerm} || '';
+
+    # get database object
+    my $DBObject         = $Kernel::OM->Get('Kernel::System::DB');
+    my $LikeEscapeString = $DBObject->GetDatabaseFunction('LikeEscapeString');
+    my $QuotedSearch     = '%' . $DBObject->Quote( $SearchTerm, 'Like' ) . '%';
+
+    # db query
+    return if !$DBObject->Prepare(
+        SQL =>
+            "SELECT DISTINCT customer_user_id, customer_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString",
+        Bind => [ \$QuotedSearch ],
+    );
+    my $UnknownTicketCustomerList;
+
+    CUSTOMERUSER:
+    while ( my @Row = $DBObject->FetchrowArray() ) {
+        $UnknownTicketCustomerList->{ $Row[0] } = $Row[1];
+    }
+
+    return $UnknownTicketCustomerList;
 }
 
 sub DESTROY {

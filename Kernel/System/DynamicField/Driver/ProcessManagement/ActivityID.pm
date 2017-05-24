@@ -1,6 +1,5 @@
 # --
-# Kernel/System/DynamicField/Driver/ProcessManagement/ActivityID.pm - Delegate for DynamicField ActivityID Driver
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -111,15 +110,15 @@ sub DisplayValueRender {
     }
 
     # get raw Title and Value strings from field value
-    my $Value = defined $Param{Value} ? $Param{Value} : '';
-
     # convert the ActivityEntityID to the Activity name
-    my $Activity = $Kernel::OM->Get('Kernel::System::ProcessManagement::Activity')->ActivityGet(
-        ActivityEntityID => $Value,
-        Interface        => 'all',
-    );
-    $Value = $Activity->{Name} // $Value;
-
+    my $Activity;
+    if ( $Param{Value} ) {
+        $Activity = $Kernel::OM->Get('Kernel::System::ProcessManagement::Activity')->ActivityGet(
+            ActivityEntityID => $Param{Value},
+            Interface        => 'all',
+        );
+    }
+    my $Value = $Activity->{Name} // '';
     my $Title = $Value;
 
     # HTMLOuput transformations

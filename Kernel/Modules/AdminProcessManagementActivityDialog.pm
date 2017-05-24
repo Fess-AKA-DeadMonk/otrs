@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminProcessManagementActivityDialog.pm - process management activity
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -78,7 +77,7 @@ sub new {
     }
 
     my $DynamicFieldList = $Self->{DynamicFieldObject}->DynamicFieldList(
-        ObjectType => [ 'Ticket', 'Article' ],
+        ObjectType => ['Ticket'],
         ResultType => 'HASH',
     );
 
@@ -154,10 +153,10 @@ sub Run {
 
         if ( IsArrayRefWithData( $GetParam->{Fields} ) ) {
 
-            FIELD:
+            FIELDNAME:
             for my $FieldName ( @{ $GetParam->{Fields} } ) {
-                next FIELD if !$FieldName;
-                next FIELD if !$Self->{AvailableFields}->{$FieldName};
+                next FIELDNAME if !$FieldName;
+                next FIELDNAME if !$Self->{AvailableFields}->{$FieldName};
 
                 # set fields hash
                 $ActivityDialogData->{Config}->{Fields}->{$FieldName} = {};
@@ -406,10 +405,10 @@ sub Run {
 
         if ( IsArrayRefWithData( $GetParam->{Fields} ) ) {
 
-            FIELD:
+            FIELDNAME:
             for my $FieldName ( @{ $GetParam->{Fields} } ) {
-                next FIELD if !$FieldName;
-                next FIELD if !$Self->{AvailableFields}->{$FieldName};
+                next FIELDNAME if !$FieldName;
+                next FIELDNAME if !$Self->{AvailableFields}->{$FieldName};
 
                 # set fields hash
                 $ActivityDialogData->{Config}->{Fields}->{$FieldName} = {};
@@ -853,6 +852,32 @@ sub _ShowEdit {
         Sort          => 'Alphanumeric',
         Translation   => 1,
     );
+
+    my %TimeUnitsSelectionList = (
+        0 => 'Do not show Field',
+        2 => 'Show Field As Mandatory',
+    );
+
+    if ( !$Self->{ConfigObject}->Get('Ticket::Frontend::NeedAccountedTime') ) {
+        $TimeUnitsSelectionList{1} = 'Show Field';
+    }
+
+    # create TimeUnits selection
+    if ( $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime') ) {
+
+        $Param{TimeUnitsSelection} = $Self->{LayoutObject}->BuildSelection(
+            Data          => \%TimeUnitsSelectionList,
+            SelectedValue => 0,
+            Name          => 'TimeUnits',
+            ID            => 'TimeUnits',
+            Translation   => 1,
+        );
+
+        $Self->{LayoutObject}->Block(
+            Name => 'TimeUnitsContainer',
+            Data => \%Param,
+        );
+    }
 
     # extract parameters from config
     $Param{DescriptionShort} = $Param{ActivityDialogData}->{Config}->{DescriptionShort};

@@ -1,6 +1,5 @@
 // --
-// Core.UI.Popup.js - provides functionality to open popup windows
-// Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+// Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -114,7 +113,8 @@ Core.UI.Popup = (function (TargetNS) {
      * @return nothing
      */
     TargetNS.FirePopupEvent = function (Type, Param) {
-        $(window).unbind('beforeunload.Popup').unbind('unload.Popup');
+        $(window).unbind('beforeunload.Popup');
+        Core.App.UnbindWindowUnloadEvent('Popup');
         $(window).trigger('Popup', [Type, Param]);
     };
 
@@ -273,9 +273,22 @@ Core.UI.Popup = (function (TargetNS) {
                 // Get the position of the current screen on browsers which support it (non-IE) and
                 //  use it to open the popup on the same screen
                 PopupFeatures += ',left=' + ((window.screen.left || 0) + PopupProfiles[PopupProfile].Left);
-                PopupFeatures += ',top=' + ((window.screen.top || 0) + PopupProfiles[PopupProfile].Top);
                 PopupFeatures += ',width=' + PopupProfiles[PopupProfile].Width;
-                PopupFeatures += ',height=' + PopupProfiles[PopupProfile].Height;
+
+                // Bug#11205 (http://bugs.otrs.org/show_bug.cgi?id=11205)
+                // On small screens it can happen, that the popup window is higher than the screen height
+                // In this case, reduce the popup height to fit into the screen
+                // We don't have to do that for the width, because the default window width
+                // fits perfectly in screens with the minimum required screen width for OTRS (which is 1024px).
+                if (window.screen.availHeight < PopupProfiles[PopupProfile].Height + PopupProfiles[PopupProfile].Top) {
+                    PopupFeatures += ',height=' + (window.screen.availHeight - PopupProfiles[PopupProfile].Top - 20);
+                    // Adjust top position to have the same distance between top and bottom line.
+                    PopupFeatures += ',top=' + ((window.screen.top || 0) + (PopupProfiles[PopupProfile].Top / 2));
+                }
+                else {
+                    PopupFeatures += ',height=' + PopupProfiles[PopupProfile].Height;
+                    PopupFeatures += ',top=' + ((window.screen.top || 0) + PopupProfiles[PopupProfile].Top);
+                }
 
                 NewWindow = window.open(URL, WindowName, PopupFeatures);
 
@@ -341,9 +354,7 @@ Core.UI.Popup = (function (TargetNS) {
         $(window).bind('beforeunload.Popup', function () {
             return Core.UI.Popup.CheckPopupsOnUnload();
         });
-        $(window).bind('unload.Popup', function () {
-            Core.UI.Popup.ClosePopupsOnUnload();
-        });
+        Core.App.BindWindowUnloadEvent('Popup', Core.UI.Popup.ClosePopupsOnUnload);
         Core.UI.Popup.RegisterPopupEvent();
 
         // if this window is a popup itself, register another function

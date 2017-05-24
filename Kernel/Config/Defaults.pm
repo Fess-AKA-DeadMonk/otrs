@@ -1,6 +1,5 @@
 # --
-# Kernel/Config/Defaults.pm - Default Config file for OTRS kernel
-# Copyright (C) 2001-2013 OTRS AG, http://otrs.org/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -169,12 +168,13 @@ sub LoadDefaults {
         'fi' => 'Suomi',
         'fr' => 'Fran&ccedil;ais',
         'fr_CA' => 'Fran&ccedil;ais (Canada)',
+        'gl' => 'Galego',
         'he' => 'Hebrew (עִבְרִית)',
         'hi' => 'Hindi',
         'hr' => 'Hrvatski',
         'hu' => 'Magyar',
         'it' => 'Italiano',
-        'ja' => 'Japanese (&#x65e5;&#x672c;&#x8a9e)',
+        'ja' => 'Japanese (&#x65e5;&#x672c;&#x8a9e;)',
         'lt' => 'Lietuvių kalba',
         'lv' => 'Latvijas',
         'ms' => 'Malay',
@@ -625,6 +625,9 @@ sub LoadDefaults {
         '200-UID-Check' => {
           'Module' => 'Kernel::Output::HTML::NotificationUIDCheck',
         },
+        '250-AgentSessionLimit' => {
+          'Module' => 'Kernel::Output::HTML::NotificationAgentSessionLimit',
+        },
         '500-OutofOffice-Check' => {
           'Module' => 'Kernel::Output::HTML::NotificationOutofOfficeCheck',
         },
@@ -891,8 +894,8 @@ sub LoadDefaults {
         'Core.JSON.js',
         'Core.JavaScriptEnhancements.js',
         'Core.Config.js',
-        'Core.AJAX.js',
         'Core.App.js',
+        'Core.AJAX.js',
         'Core.UI.js',
         'Core.UI.Accessibility.js',
         'Core.UI.Dialog.js',
@@ -923,8 +926,8 @@ sub LoadDefaults {
         'Core.Config.js',
         'Core.Exception.js',
         'Core.JSON.js',
-        'Core.AJAX.js',
         'Core.App.js',
+        'Core.AJAX.js',
         'Core.UI.js',
         'Core.UI.Accordion.js',
         'Core.UI.Datepicker.js',
@@ -1328,10 +1331,18 @@ via the Preferences button after logging in.
             Table => 'customer_user',
 #            ForeignDB => 0,    # set this to 1 if your table does not have create_time, create_by, change_time and change_by fields
 
-            # CaseSensitive will control if the SQL statements need LOWER()
-            #   function calls to work case insensitively. Setting this to
-            #   1 will improve performance dramatically on large databases.
-            CaseSensitive => 0,
+            # CaseSensitive defines if the data storage of your DBMS is case sensitive and will be
+            # preconfigured within the database driver by default.
+            # If the collation of your data storage differs from the default settings,
+            # you can set the current behavior ( either 1 = CaseSensitive or 0 = CaseINSensitive )
+            # to fit your environment.
+            #
+#            CaseSensitive => 0,
+
+            # SearchCaseSensitive will control if the searches within the data storage are performed
+            # case sensitively (if possible) or not. Change this option to 1, if you want to search case sensitive.
+            # This can improve the performance dramatically on large databases.
+            SearchCaseSensitive => 0,
         },
 
         # customer unique id
@@ -1362,8 +1373,8 @@ via the Preferences button after logging in.
 #        AutoLoginCreationPrefix => 'auto',
 #        # admin can change customer preferences
 #        AdminSetPreferences => 1,
-#        # use customer company support (reference to company, See CustomerCompany settings)
-#        CustomerCompanySupport => 1,
+        # use customer company support (reference to company, See CustomerCompany settings)
+        CustomerCompanySupport => 1,
         # cache time to live in sec. - cache any database queries
         CacheTTL => 60 * 60 * 24,
 #        # just a read only source
@@ -1482,10 +1493,18 @@ via the Preferences button after logging in.
             Table => 'customer_company',
 #            ForeignDB => 0,    # set this to 1 if your table does not have create_time, create_by, change_time and change_by fields
 
-            # CaseSensitive will control if the SQL statements need LOWER()
-            #   function calls to work case insensitively. Setting this to
-            #   1 will improve performance dramatically on large databases.
-            CaseSensitive => 0,
+            # CaseSensitive defines if the data storage of your DBMS is case sensitive and will be
+            # preconfigured within the database driver by default.
+            # If the collation of your data storage differs from the default settings,
+            # you can set the current behavior ( either 1 = CaseSensitive or 0 = CaseINSensitive )
+            # to fit your environment.
+            #
+#            CaseSensitive => 0,
+
+            # SearchCaseSensitive will control if the searches within the data storage are performed
+            # case sensitively (if possible) or not. Change this option to 1, if you want to search case sensitive.
+            # This can improve the performance dramatically on large databases.
+            SearchCaseSensitive => 0,
         },
 
         # company unique id
@@ -1914,7 +1933,7 @@ sub new {
                 $File =~ s/^\///g;
                 $File =~ s/\/\//\//g;
                 $File =~ s/\//::/g;
-                $File =~ s/.pm//g;
+                $File =~ s/\.pm$//g;
                 $File->Load($Self);
             }
             else {

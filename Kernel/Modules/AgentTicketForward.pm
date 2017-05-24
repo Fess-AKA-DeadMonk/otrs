@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketForward.pm - to forward a message
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -377,6 +376,10 @@ sub Form {
         $Data{Body} = "\n---- $ForwardedMessageFrom $Data{From} ---\n\n" . $Data{Body};
         $Data{Body} .= "\n---- $EndForwardedMessage ---\n";
         $Data{Body} = $Data{Signature} . $Data{Body};
+
+        if ( $GetParam{ForwardTemplateID} ) {
+            $Data{Body} = $Data{StdTemplate} . "\n" . $Data{Body};
+        }
     }
 
     # add std. attachments to email
@@ -597,7 +600,8 @@ sub SendEmail {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -778,7 +782,7 @@ sub SendEmail {
                 Address => $Email->address()
             );
             if ($IsLocal) {
-                $Error{ "$Line" . "Invalid" } = 'ServerError';
+                $Error{ "$Line" . 'IsLocalAddress' } = 'ServerError';
             }
         }
     }
@@ -939,7 +943,7 @@ sub SendEmail {
         }
         @AttachmentData = @NewAttachmentData;
 
-        # verify HTML document
+        # verify html document
         $GetParam{Body} = $Self->{LayoutObject}->RichTextDocumentComplete(
             String => $GetParam{Body},
         );
@@ -955,21 +959,8 @@ sub SendEmail {
         }
         $To .= $GetParam{$Key}
     }
-
-    # if there is no ArticleTypeID, use the default value
-    my $ArticleTypeID = $GetParam{ArticleTypeID} // $Self->{TicketObject}->ArticleTypeLookup(
-        ArticleType => $Self->{Config}->{ArticleTypeDefault},
-    );
-
-    # error page
-    if ( !$ArticleTypeID ) {
-        return $Self->{LayoutObject}->ErrorScreen(
-            Comment => 'Can not determine the ArticleType, Please contact the admin.',
-        );
-    }
-
     my $ArticleID = $Self->{TicketObject}->ArticleSend(
-        ArticleTypeID  => $ArticleTypeID,
+        ArticleTypeID  => $Self->{GetParam}->{ArticleTypeID},
         SenderType     => 'agent',
         TicketID       => $Self->{TicketID},
         HistoryType    => 'Forward',
@@ -1141,7 +1132,8 @@ sub AjaxUpdate {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -1159,7 +1151,6 @@ sub AjaxUpdate {
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-        next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
         my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
             DynamicFieldConfig => $DynamicFieldConfig,
@@ -1277,53 +1268,35 @@ sub _Mask {
         PossibleNone => 1,
         %State,
     );
-
-    #  get article type
-    my %ArticleTypeList;
-
-    if ( IsArrayRefWithData( $Self->{Config}->{ArticleTypes} ) ) {
-
-        my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
-        for my $ArticleType (@ArticleTypesPossible) {
-
-            my $ArticleTypeID = $Self->{TicketObject}->ArticleTypeLookup(
-                ArticleType => $ArticleType,
-            );
-
-            $ArticleTypeList{$ArticleTypeID} = $ArticleType;
-        }
-
-        my %Selected;
-        if ( $Self->{GetParam}->{ArticleTypeID} ) {
-            $Selected{SelectedID} = $Self->{GetParam}->{ArticleTypeID};
-        }
-        else {
-            $Selected{SelectedValue} = $Self->{Config}->{ArticleTypeDefault};
-        }
-
+    my %ArticleTypes;
+    my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
+    for (@ArticleTypesPossible) {
+        $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $_ ) } = $_;
+    }
+    if ( $Self->{GetParam}->{ArticleTypeID} ) {
         $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
-            Data => \%ArticleTypeList,
-            Name => 'ArticleTypeID',
-            %Selected,
+            Data       => \%ArticleTypes,
+            Name       => 'ArticleTypeID',
+            SelectedID => $Self->{GetParam}->{ArticleTypeID},
         );
-
-        $Self->{LayoutObject}->Block(
-            Name => 'ArticleType',
-            Data => \%Param,
+    }
+    else {
+        $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+            Data          => \%ArticleTypes,
+            Name          => 'ArticleTypeID',
+            SelectedValue => $Self->{Config}->{ArticleTypeDefault},
         );
     }
 
-    # build customer search auto-complete field
+    # build customer search autocomplete field
     $Self->{LayoutObject}->Block(
         Name => 'CustomerSearchAutoComplete',
     );
 
     # prepare errors!
     if ( $Param{Errors} ) {
-        for my $Error ( sort keys %{ $Param{Errors} } ) {
-            $Param{$Error} = $Self->{LayoutObject}->Ascii2Html(
-                Text => $Param{Errors}->{$Error},
-            );
+        for ( sort keys %{ $Param{Errors} } ) {
+            $Param{$_} = $Self->{LayoutObject}->Ascii2Html( Text => $Param{Errors}->{$_} );
         }
     }
 
@@ -1452,15 +1425,36 @@ sub _Mask {
         );
     }
 
+    if ( $Param{ToIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{ToErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'ToIsLocalAddressServerErrorMsg',
+            Data => \%Param,
+        );
+    }
+
     if ( $Param{CcInvalid} && $Param{Errors} && !$Param{Errors}->{CcErrorType} ) {
         $Self->{LayoutObject}->Block(
             Name => 'CcServerErrorMsg',
         );
     }
 
+    if ( $Param{CcIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{CcErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'CcIsLocalAddressServerErrorMsg',
+            Data => \%Param,
+        );
+    }
+
     if ( $Param{BccInvalid} && $Param{Errors} && !$Param{Errors}->{BccErrorType} ) {
         $Self->{LayoutObject}->Block(
             Name => 'BccServerErrorMsg',
+        );
+    }
+
+    if ( $Param{BccIsLocalAddress} && $Param{Errors} && !$Param{Errors}->{BccErrorType} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'BccIsLocalAddressServerErrorMsg',
+            Data => \%Param,
         );
     }
 

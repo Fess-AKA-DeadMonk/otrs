@@ -1,6 +1,5 @@
 # --
-# Kernel/System/WebUserAgent.pm - a web user agent
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -75,23 +74,29 @@ return the content of requested URL.
 Simple GET request:
 
     my %Response = $WebUserAgentObject->Request(
-        URL => 'http://example.com/somedata.xml',
+        URL                 => 'http://example.com/somedata.xml',
+        SkipSSLVerification => 1, # (optional)
+        NoLog               => 1, # (optional)
     );
 
 Or a POST request; attributes can be a hashref like this:
 
     my %Response = $WebUserAgentObject->Request(
-        URL  => 'http://example.com/someurl',
-        Type => 'POST',
-        Data => { Attribute1 => 'Value', Attribute2 => 'Value2' },
+        URL                 => 'http://example.com/someurl',
+        Type                => 'POST',
+        Data                => { Attribute1 => 'Value', Attribute2 => 'Value2' },
+        SkipSSLVerification => 1, # (optional)
+        NoLog               => 1, # (optional)
     );
 
 alternatively, you can use an arrayref like this:
 
     my %Response = $WebUserAgentObject->Request(
-        URL  => 'http://example.com/someurl',
-        Type => 'POST',
-        Data => [ Attribute => 'Value', Attribute => 'OtherValue' ],
+        URL                 => 'http://example.com/someurl',
+        Type                => 'POST',
+        Data                => [ Attribute => 'Value', Attribute => 'OtherValue' ],
+        SkipSSLVerification => 1, # (optional)
+        NoLog               => 1, # (optional)
     );
 
 returns
@@ -111,6 +116,8 @@ You can even pass some headers
             Authorization => 'Basic xxxx',
             Content_Type  => 'text/json',
         },
+        SkipSSLVerification => 1, # (optional)
+        NoLog               => 1, # (optional)
     );
 
 If you need to set credentials
@@ -125,6 +132,8 @@ If you need to set credentials
             Realm    => 'OTRS Unittests',
             Location => 'ftp.otrs.org:80',
         },
+        SkipSSLVerification => 1, # (optional)
+        NoLog               => 1, # (optional)
     );
 
 =cut
@@ -166,7 +175,11 @@ sub Request {
 
         # In some scenarios like transparent HTTPS proxies, it can be neccessary to turn off
         #   SSL certificate validation.
-        if ( $Kernel::OM->Get('Kernel::Config')->Get('WebUserAgent::DisableSSLVerification') ) {
+        if (
+            $Param{SkipSSLVerification}
+            || $Kernel::OM->Get('Kernel::Config')->Get('WebUserAgent::DisableSSLVerification')
+            )
+        {
             my $Loaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
                 'Net::SSLeay',
                 Silent => 1,
@@ -241,10 +254,14 @@ sub Request {
         }
     }
     if ( !$Response->is_success() ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
-            Priority => 'error',
-            Message  => "Can't perform $Param{Type} on $Param{URL}: " . $Response->status_line(),
-        );
+
+        if ( !$Param{NoLog} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Can't perform $Param{Type} on $Param{URL}: " . $Response->status_line(),
+            );
+        }
+
         return (
             Status => $Response->status_line(),
         );

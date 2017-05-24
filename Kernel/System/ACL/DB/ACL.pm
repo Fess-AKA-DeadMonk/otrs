@@ -1,6 +1,5 @@
 # --
-# Kernel/System/ACL/DB/ACL.pm - ACL DB backend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -1171,8 +1170,8 @@ sub _ACLItemOutput {
     $Output =~ s{\[empty\]}{}xmsg;
 
     my $Name = $Param{Key};
-    $Name =~ s{\"}{\\"}xmsg;
-    my $Key = '$Self->{TicketAcl}->{"' . $Name . '"}';
+    $Name =~ s{\'}{\\'}xmsg;
+    my $Key = '$Self->{TicketAcl}->{\'' . $Name . '\'}';
 
     $Output =~ s{\$VAR1}{$Key}mxs;
 

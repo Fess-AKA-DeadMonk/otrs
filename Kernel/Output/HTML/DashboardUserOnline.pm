@@ -1,6 +1,5 @@
 # --
-# Kernel/Output/HTML/DashboardUserOnline.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -300,7 +299,8 @@ sub Run {
         last USERID if $Count >= ( $Self->{StartHit} + $Self->{PageShown} );
 
         # extract user data
-        my $UserData = $OnlineData{$UserID};
+        my $UserData        = $OnlineData{$UserID};
+        my $AgentEnableChat = 0;
 
         # we also need to check if the receiving agent has chat permissions
         if ( $EnableChat && $Self->{Filter} eq 'Agent' && $Self->{UserID} != $UserData->{UserID} ) {
@@ -312,14 +312,14 @@ sub Run {
             );
 
             my %UserGroupsReverse = reverse %UserGroups;
-            $EnableChat = $UserGroupsReverse{$ChatReceivingAgentsGroup} ? 1 : 0;
+            $AgentEnableChat = $UserGroupsReverse{$ChatReceivingAgentsGroup} ? 1 : 0;
         }
 
         $LayoutObject->Block(
             Name => 'ContentSmallUserOnlineRow',
             Data => {
                 %{$UserData},
-                EnableChat => $EnableChat,
+                AgentEnableChat => $AgentEnableChat,
             },
         );
 

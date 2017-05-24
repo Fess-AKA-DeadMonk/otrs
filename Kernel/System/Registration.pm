@@ -1,6 +1,5 @@
 # --
-# Kernel/System/Registration.pm - All Registration functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -519,6 +518,11 @@ sub Register {
                 Message  => "Registration - Can not add Support Data",
             );
         }
+        else {
+
+            # cleanup for the asynchronous plugins after a successful support data request
+            $Kernel::OM->Get('Kernel::System::SupportDataCollector')->CleanupAsynchronous();
+        }
     }
 
     return 1;
@@ -637,8 +641,12 @@ sub RegistrationUpdateSend {
     # send SupportData if sending is activated
     if ( $SupportDataSending eq 'Yes' ) {
 
+        my $SupportDataCollectorWebTimeout = $ConfigObject->Get('SupportDataCollector::WebUserAgent::Timeout');
+
         my %CollectResult = eval {
-            $Kernel::OM->Get('Kernel::System::SupportDataCollector')->Collect();
+            $Kernel::OM->Get('Kernel::System::SupportDataCollector')->Collect(
+                WebTimeout => $SupportDataCollectorWebTimeout,
+            );
         };
         if ( !$CollectResult{Success} ) {
             my $ErrorMessage = $CollectResult{ErrorMessage} || $@ || 'unknown error';
@@ -920,6 +928,11 @@ sub RegistrationUpdateSend {
                 Priority => 'error',
                 Message  => $Reason,
             );
+        }
+        else {
+
+            # cleanup for the asynchronous plugins after a successful support data request
+            $Kernel::OM->Get('Kernel::System::SupportDataCollector')->CleanupAsynchronous();
         }
     }
 

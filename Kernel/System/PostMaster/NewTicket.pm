@@ -1,6 +1,5 @@
 # --
-# Kernel/System/PostMaster/NewTicket.pm - sub part of PostMaster.pm
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -150,17 +149,20 @@ sub Run {
                 );
             }
 
-            # get customer user object
-            my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+            if ( $GetParam{EmailFrom} ) {
 
-            my %List = $CustomerUserObject->CustomerSearch(
-                PostMasterSearch => lc( $GetParam{EmailFrom} ),
-            );
+                # get customer user object
+                my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
-            for my $UserLogin ( sort keys %List ) {
-                %CustomerData = $CustomerUserObject->CustomerUserDataGet(
-                    User => $UserLogin,
+                my %List = $CustomerUserObject->CustomerSearch(
+                    PostMasterSearch => lc( $GetParam{EmailFrom} ),
                 );
+
+                for my $UserLogin ( sort keys %List ) {
+                    %CustomerData = $CustomerUserObject->CustomerUserDataGet(
+                        User => $UserLogin,
+                    );
+                }
             }
         }
 

@@ -1,6 +1,5 @@
 # --
-# Kernel/System/LinkObject.pm - to link objects
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -1499,9 +1498,6 @@ sub ObjectLookup {
         return;
     }
 
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
     if ( $Param{ObjectID} ) {
 
         # check cache
@@ -1511,6 +1507,9 @@ sub ObjectLookup {
             Key  => $CacheKey,
         );
         return $Cache if $Cache;
+
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # ask the database
         return if !$DBObject->Prepare(
@@ -1557,8 +1556,9 @@ sub ObjectLookup {
         );
         return $Cache if $Cache;
 
-        # get check item object
+        # get needed object
         my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
+        my $DBObject        = $Kernel::OM->Get('Kernel::System::DB');
 
         # investigate the object id
         my $ObjectID;
@@ -1656,9 +1656,6 @@ sub TypeLookup {
         return;
     }
 
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
     if ( $Param{TypeID} ) {
 
         # check cache
@@ -1668,6 +1665,9 @@ sub TypeLookup {
             Key  => $CacheKey,
         );
         return $Cache if $Cache;
+
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # ask the database
         return if !$DBObject->Prepare(
@@ -1718,6 +1718,9 @@ sub TypeLookup {
             Key  => $CacheKey,
         );
         return $Cache if $Cache;
+
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # investigate the type id
         my $TypeID;
@@ -1815,8 +1818,12 @@ sub TypeGet {
     }
 
     # check cache
-    return %{ $Self->{Cache}->{TypeGet}->{TypeID}->{ $Param{TypeID} } }
-        if $Self->{Cache}->{TypeGet}->{TypeID}->{ $Param{TypeID} };
+    my $CacheKey = 'TypeGet::TypeID::' . $Param{TypeID};
+    my $Cache    = $Kernel::OM->Get('Kernel::System::Cache')->Get(
+        Type => $Self->{CacheType},
+        Key  => $CacheKey,
+    );
+    return %{$Cache} if $Cache;
 
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
@@ -1883,8 +1890,13 @@ sub TypeGet {
     # add pointed value
     $Type{Pointed} = $Type{SourceName} ne $Type{TargetName} ? 1 : 0;
 
-    # cache result
-    $Self->{Cache}->{TypeGet}->{TypeID}->{ $Param{TypeID} } = \%Type;
+    # set cache
+    $Kernel::OM->Get('Kernel::System::Cache')->Set(
+        Type  => $Self->{CacheType},
+        TTL   => $Self->{CacheTTL},
+        Key   => $CacheKey,
+        Value => \%Type,
+    );
 
     return %Type;
 }
@@ -2155,9 +2167,6 @@ sub StateLookup {
         return;
     }
 
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
     if ( $Param{StateID} ) {
 
         # check cache
@@ -2167,6 +2176,9 @@ sub StateLookup {
             Key  => $CacheKey,
         );
         return $Cache if $Cache;
+
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # ask the database
         return if !$DBObject->Prepare(
@@ -2212,6 +2224,9 @@ sub StateLookup {
             Key  => $CacheKey,
         );
         return $Cache if $Cache;
+
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # ask the database
         return if !$DBObject->Prepare(

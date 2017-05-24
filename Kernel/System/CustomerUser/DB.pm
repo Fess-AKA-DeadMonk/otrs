@@ -1,6 +1,5 @@
 # --
-# Kernel/System/CustomerUser/DB.pm - some customer user functions
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -99,7 +98,9 @@ sub new {
     # create_by, change_time and change_by fields of OTRS
     $Self->{ForeignDB} = $Self->{CustomerUserMap}->{Params}->{ForeignDB} ? 1 : 0;
 
-    $Self->{CaseSensitive} = $Self->{CustomerUserMap}->{Params}->{CaseSensitive} || 0;
+    # defines if the database search will be performend case sensitive (1) or not (0)
+    $Self->{CaseSensitive} = $Self->{CustomerUserMap}->{Params}->{SearchCaseSensitive}
+        // $Self->{CustomerUserMap}->{Params}->{CaseSensitive} || 0;
 
     return $Self;
 }
@@ -179,11 +180,17 @@ sub CustomerSearch {
     my $Valid = defined $Param{Valid} ? $Param{Valid} : 1;
 
     # check needed stuff
-    if ( !$Param{Search} && !$Param{UserLogin} && !$Param{PostMasterSearch} && !$Param{CustomerID} )
+    if (
+        !$Param{Search}
+        && !$Param{UserLogin}
+        && !$Param{PostMasterSearch}
+        && !$Param{CustomerID}
+        && !$Param{CustomerIDRaw}
+        )
     {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message  => 'Need Search, UserLogin, PostMasterSearch or CustomerID!',
+            Message  => 'Need Search, UserLogin, PostMasterSearch, CustomerIDRaw or CustomerID!',
         );
         return;
     }
@@ -249,14 +256,14 @@ sub CustomerSearch {
                 if ($SQLExt) {
                     $SQLExt .= ' OR ';
                 }
-                my $PostMasterSearch = '%' . $Self->{DBObject}->Quote( $Param{PostMasterSearch}, 'Like' ) . '%';
+                my $PostMasterSearch = $Self->{DBObject}->Quote( $Param{PostMasterSearch} );
                 push @Bind, \$PostMasterSearch;
 
                 if ( $Self->{CaseSensitive} ) {
-                    $SQLExt .= " $Field LIKE ? $LikeEscapeString ";
+                    $SQLExt .= " $Field = ? ";
                 }
                 else {
-                    $SQLExt .= " LOWER($Field) LIKE LOWER(?) $LikeEscapeString ";
+                    $SQLExt .= " LOWER($Field) = LOWER(?) ";
                 }
             }
             $SQL .= $SQLExt;
@@ -298,6 +305,17 @@ sub CustomerSearch {
         }
         else {
             $SQL .= "LOWER($Self->{CustomerID}) LIKE LOWER(?) $LikeEscapeString";
+        }
+    }
+    elsif ( $Param{CustomerIDRaw} ) {
+
+        push @Bind, \$Param{CustomerIDRaw};
+
+        if ( $Self->{CaseSensitive} ) {
+            $SQL .= "$Self->{CustomerID} = ? ";
+        }
+        else {
+            $SQL .= "LOWER($Self->{CustomerID}) = LOWER(?) ";
         }
     }
 
@@ -398,7 +416,7 @@ sub CustomerIDList {
         return @{$Result} if ref $Result eq 'ARRAY';
     }
 
-    my $SQL .= "
+    my $SQL = "
         SELECT DISTINCT($Self->{CustomerID})
         FROM $Self->{CustomerTable}
         WHERE 1 = 1 ";
@@ -1223,6 +1241,10 @@ sub _CustomerUserCacheClear {
     );
     $Self->{CacheObject}->CleanUp(
         Type => $Self->{CacheType} . '_CustomerSearch',
+    );
+
+    $Self->{CacheObject}->CleanUp(
+        Type => 'CustomerGroup',
     );
 
     for my $Function (qw(CustomerUserList)) {

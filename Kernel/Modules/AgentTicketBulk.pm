@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketBulk.pm - to do bulk actions on tickets
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -122,6 +121,80 @@ sub Run {
 
     }
 
+    elsif ( $Self->{Subaction} eq 'AJAXUpdate' ) {
+        my $QueueID = $Self->{ParamObject}->GetParam( Param => 'QueueID' ) || '';
+
+        # Get all users.
+        my %AllGroupsMembers = $Self->{UserObject}->UserList(
+            Type  => 'Long',
+            Valid => 1
+        );
+
+        # Put only possible rw agents to owner list.
+        if ( !$Self->{ConfigObject}->Get('Ticket::ChangeOwnerToEveryone') ) {
+            my %AllGroupsMembersNew;
+            my @QueueIDs;
+
+            if ($QueueID) {
+                push @QueueIDs, $QueueID;
+            }
+            else {
+                my @TicketIDs = grep {$_} $Self->{ParamObject}->GetArray( Param => 'TicketID' );
+                for my $TicketID (@TicketIDs) {
+                    my %Ticket = $Self->{TicketObject}->TicketGet(
+                        TicketID      => $TicketID,
+                        DynamicFields => 0,
+                    );
+                    push @QueueIDs, $Ticket{QueueID};
+                }
+            }
+
+            for my $QueueID (@QueueIDs) {
+                my $GroupID = $Self->{QueueObject}->GetQueueGroupID( QueueID => $QueueID );
+                my %GroupMember = $Self->{GroupObject}->GroupMemberList(
+                    GroupID => $GroupID,
+                    Type    => 'rw',
+                    Result  => 'HASH',
+                );
+                USER_ID:
+                for my $UserID ( sort keys %GroupMember ) {
+                    next USER_ID if !$AllGroupsMembers{$UserID};
+                    $AllGroupsMembersNew{$UserID} = $AllGroupsMembers{$UserID};
+                }
+                %AllGroupsMembers = %AllGroupsMembersNew;
+            }
+        }
+
+        my @JSONData = (
+            {
+                Name         => 'OwnerID',
+                Data         => \%AllGroupsMembers,
+                PossibleNone => 1,
+            }
+        );
+
+        if (
+            $Self->{ConfigObject}->Get('Ticket::Responsible')
+            && $Self->{ConfigObject}->Get("Ticket::Frontend::$Self->{Action}")->{Responsible}
+            )
+        {
+            push @JSONData, {
+                Name         => 'ResponsibleID',
+                Data         => \%AllGroupsMembers,
+                PossibleNone => 1,
+            };
+        }
+
+        my $JSON = $Self->{LayoutObject}->BuildSelectionJSON( [@JSONData] );
+
+        return $Self->{LayoutObject}->Attachment(
+            ContentType => 'application/json; charset=' . $Self->{LayoutObject}->{Charset},
+            Content     => $JSON,
+            Type        => 'inline',
+            NoCache     => 1,
+        );
+    }
+
     # check if bulk feature is enabled
     if ( !$Self->{ConfigObject}->Get('Ticket::Frontend::BulkFeature') ) {
         return $Self->{LayoutObject}->ErrorScreen(
@@ -225,8 +298,7 @@ sub Run {
         # check some stuff
         if (
             $GetParam{Subject}
-            &&
-            $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime')
+            && $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime')
             && $Self->{ConfigObject}->Get('Ticket::Frontend::NeedAccountedTime')
             && $GetParam{TimeUnits} eq ''
             )
@@ -236,8 +308,7 @@ sub Run {
 
         if (
             $GetParam{EmailSubject}
-            &&
-            $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime')
+            && $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime')
             && $Self->{ConfigObject}->Get('Ticket::Frontend::NeedAccountedTime')
             && $GetParam{EmailTimeUnits} eq ''
             )
@@ -322,6 +393,9 @@ sub Run {
     my $Counter       = 1;
     $Param{TicketsWereLocked} = 0;
 
+    my @TicketsWithError;
+    my @TicketsWithLockNotice;
+
     TICKET_ID:
     for my $TicketID (@TicketIDs) {
         my %Ticket = $Self->{TicketObject}->TicketGet(
@@ -338,29 +412,14 @@ sub Run {
         if ( !$Access ) {
 
             # error screen, don't show ticket
-            $Output .= $Self->{LayoutObject}->Notify(
-                Data => "$Ticket{TicketNumber}: "
-                    . $Self->{LayoutObject}->{LanguageObject}->Translate("You don't have write access to this ticket."),
-            );
+            push @TicketsWithError, $Ticket{TicketNumber};
             next TICKET_ID;
         }
 
         # check if it's already locked by somebody else
-        if ( !$Self->{Config}->{RequiredLock} ) {
-            $Output .= $Self->{LayoutObject}->Notify(
-                Data => "$Ticket{TicketNumber}: "
-                    . $Self->{LayoutObject}->{LanguageObject}->Translate("Ticket selected."),
-            );
-        }
-        else {
+        if ( $Self->{Config}->{RequiredLock} ) {
             if ( grep ( { $_ eq $TicketID } @IgnoreLockedTicketIDs ) ) {
-                $Output .= $Self->{LayoutObject}->Notify(
-                    Priority => 'Error',
-                    Data     => "$Ticket{TicketNumber}: "
-                        . $Self->{LayoutObject}->{LanguageObject}->Translate(
-                        "Ticket is locked by another agent and will be ignored!"
-                        ),
-                );
+                push @TicketsWithError, $Ticket{TicketNumber};
                 next TICKET_ID;
             }
             else {
@@ -381,10 +440,8 @@ sub Run {
                 UserID    => $Self->{UserID},
                 NewUserID => $Self->{UserID},
             );
-            $Output .= $Self->{LayoutObject}->Notify(
-                Data => "$Ticket{TicketNumber}: "
-                    . $Self->{LayoutObject}->{LanguageObject}->Translate("Ticket locked."),
-            );
+
+            push @TicketsWithLockNotice, $Ticket{TicketNumber};
         }
 
         # remember selected ticket ids
@@ -404,6 +461,13 @@ sub Run {
                     NewUser   => $GetParam{'Owner'},
                     NewUserID => $GetParam{'OwnerID'},
                 );
+                if ( !$Self->{Config}->{RequiredLock} && $Ticket{StateType} !~ /^close/i ) {
+                    $Self->{TicketObject}->TicketLockSet(
+                        TicketID => $TicketID,
+                        Lock     => 'lock',
+                        UserID   => $Self->{UserID},
+                    );
+                }
             }
 
             # set responsible
@@ -747,6 +811,32 @@ sub Run {
         $Counter++;
     }
 
+    # notify user about actions (errors)
+    if (@TicketsWithError) {
+        my $NotificationError = $Self->{LayoutObject}->{LanguageObject}->Translate(
+            "The following tickets were ignored because they are locked by another agent or you don't have write access to these tickets: %s.",
+            join( ", ", @TicketsWithError ),
+        );
+
+        $Output .= $Self->{LayoutObject}->Notify(
+            Priority => 'Error',
+            Data     => $NotificationError,
+        );
+    }
+
+    # notify user about actions (notices)
+    if (@TicketsWithLockNotice) {
+        my $NotificationNotice = $Self->{LayoutObject}->{LanguageObject}->Translate(
+            "The following tickets were locked: %s.",
+            join( ", ", @TicketsWithLockNotice ),
+        );
+
+        $Output .= $Self->{LayoutObject}->Notify(
+            Priority => 'Notice',
+            Data     => $NotificationNotice,
+        );
+    }
+
     # redirect
     if ($ActionFlag) {
         return $Self->{LayoutObject}->PopupClose(
@@ -964,13 +1054,11 @@ sub _Mask {
             }
         }
         $Param{ResponsibleStrg} = $Self->{LayoutObject}->BuildSelection(
-            Data => {
-                '' => '-',
-                %AllGroupsMembers
-            },
-            Name        => 'ResponsibleID',
-            Translation => 0,
-            SelectedID  => $Param{ResponsibleID},
+            Data         => \%AllGroupsMembers,
+            PossibleNone => 1,
+            Name         => 'ResponsibleID',
+            Translation  => 0,
+            SelectedID   => $Param{ResponsibleID},
         );
         $Self->{LayoutObject}->Block(
             Name => 'Responsible',
@@ -1069,13 +1157,13 @@ sub _Mask {
     $Param{LinkTogetherYesNoOption} = $Self->{LayoutObject}->BuildSelection(
         Data       => $Self->{ConfigObject}->Get('YesNoOptions'),
         Name       => 'LinkTogether',
-        SelectedID => $Param{LinkTogether} || 0,
+        SelectedID => $Param{LinkTogether} // 0,
     );
 
     $Param{UnlockYesNoOption} = $Self->{LayoutObject}->BuildSelection(
         Data       => $Self->{ConfigObject}->Get('YesNoOptions'),
         Name       => 'Unlock',
-        SelectedID => $Param{Unlock} || 1,
+        SelectedID => $Param{Unlock} // 1,
     );
 
     # show spell check

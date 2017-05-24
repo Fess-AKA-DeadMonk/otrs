@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketCompose.pm - to compose and send a message
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -400,7 +399,8 @@ sub Run {
     DYNAMICFIELD:
     for my $DynamicField ( sort keys %DynamicFieldValues ) {
         next DYNAMICFIELD if !$DynamicField;
-        next DYNAMICFIELD if !$DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !defined $DynamicFieldValues{$DynamicField};
+        next DYNAMICFIELD if !length $DynamicFieldValues{$DynamicField};
 
         $DynamicFieldACLParameters{ 'DynamicField_' . $DynamicField } = $DynamicFieldValues{$DynamicField};
     }
@@ -438,6 +438,46 @@ sub Run {
         my %StateData = $Self->{StateObject}->StateGet( ID => $GetParam{StateID} );
 
         my %Error;
+
+        # check some values
+        LINE:
+        for my $Line (qw(To Cc Bcc)) {
+            next LINE if !$GetParam{$Line};
+            for my $Email ( Mail::Address->parse( $GetParam{$Line} ) ) {
+                if ( !$Self->{CheckItemObject}->CheckEmail( Address => $Email->address() ) ) {
+                    $Error{ $Line . 'ErrorType' }
+                        = $Line . $Self->{CheckItemObject}->CheckErrorType() . 'ServerErrorMsg';
+                    $Error{ $Line . 'Invalid' } = 'ServerError';
+                }
+                my $IsLocal = $Self->{SystemAddress}->SystemAddressIsLocalAddress(
+                    Address => $Email->address()
+                );
+                if ($IsLocal) {
+                    $Error{ $Line . 'IsLocalAddress' } = 'ServerError';
+                }
+            }
+        }
+
+        if ( $Error{ToIsLocalAddress} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'ToIsLocalAddressServerErrorMsg',
+                Data => \%GetParam,
+            );
+        }
+
+        if ( $Error{CcIsLocalAddress} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'CcIsLocalAddressServerErrorMsg',
+                Data => \%GetParam,
+            );
+        }
+
+        if ( $Error{BccIsLocalAddress} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'BccIsLocalAddressServerErrorMsg',
+                Data => \%GetParam,
+            );
+        }
 
         # If is an action about attachments
         my $IsUpload = 0;
@@ -776,27 +816,15 @@ sub Run {
             }
             @AttachmentData = @NewAttachmentData;
 
-            # verify HTML document
+            # verify html document
             $GetParam{Body} = $Self->{LayoutObject}->RichTextDocumentComplete(
                 String => $GetParam{Body},
             );
         }
 
-        # if there is no ArticleTypeID, use the default value
-        my $ArticleTypeID = $GetParam{ArticleTypeID} // $Self->{TicketObject}->ArticleTypeLookup(
-            ArticleType => $Self->{Config}->{DefaultArticleType},
-        );
-
-        # error page
-        if ( !$ArticleTypeID ) {
-            return $Self->{LayoutObject}->ErrorScreen(
-                Comment => 'Can not determine the ArticleType, Please contact the admin.',
-            );
-        }
-
         # send email
         my $ArticleID = $Self->{TicketObject}->ArticleSend(
-            ArticleTypeID  => $ArticleTypeID,
+            ArticleTypeID  => $GetParam{ArticleTypeID},
             SenderType     => 'agent',
             TicketID       => $Self->{TicketID},
             HistoryType    => 'SendAnswer',
@@ -966,7 +994,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -1101,6 +1128,11 @@ sub Run {
         $Data{OrigFromName} = $Data{OrigFrom};
         $Data{OrigFromName} =~ s/<.*>|\(.*\)|\"|;|,//g;
         $Data{OrigFromName} =~ s/( $)|(  $)//g;
+
+        # Fallback to OrigFrom if realname part is empty.
+        if ( !$Data{OrigFromName} ) {
+            $Data{OrigFromName} = $Data{OrigFrom};
+        }
 
         # get customer data
         my %Customer;
@@ -1273,7 +1305,7 @@ sub Run {
             # check if customer is in recipient list
             if ( $Customer{UserEmail} && $Data{ToEmail} !~ /^\Q$Customer{UserEmail}\E$/i ) {
 
-                if ( $Data{SenderType} = 'agent' && $DataArticleType !~ m{external} ) {
+                if ( $Data{SenderType} eq 'agent' && $DataArticleType !~ m{external} ) {
                     if ( $Data{To} ) {
                         $Data{To} .= ', ' . $Customer{UserEmail};
                     }
@@ -1616,49 +1648,44 @@ sub _Mask {
     );
 
     #  get article type
-    my %ArticleTypeList;
-
-    if ( $Self->{Config}->{ArticleTypes} ) {
-
-        my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
-        for my $ArticleTypeID (@ArticleTypesPossible) {
-            my $ArticleType = $Self->{TicketObject}->ArticleTypeLookup(
-                ArticleType => $ArticleTypeID,
-            );
-            $ArticleTypeList{$ArticleType} = $ArticleTypeID;
-        }
-
-        my %Selected;
-        if ( $Self->{GetParam}->{ArticleTypeID} ) {
-            $Selected{SelectedID} = $Self->{GetParam}->{ArticleTypeID};
-        }
-        else {
-            $Selected{SelectedValue} = $Self->{Config}->{DefaultArticleType};
-        }
-
-        $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
-            Data => \%ArticleTypeList,
-            Name => 'ArticleTypeID',
-            %Selected,
-        );
-
-        $Self->{LayoutObject}->Block(
-            Name => 'ArticleType',
-            Data => \%Param,
-        );
+    my %ArticleTypes;
+    my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
+    for my $ArticleTypeID (@ArticleTypesPossible) {
+        $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $ArticleTypeID ) } = $ArticleTypeID;
     }
 
-    # build customer search auto-complete field
+    my $DefaultArticleTypeID = $Self->{TicketObject}->ArticleTypeLookup(
+        ArticleType => $Self->{Config}->{DefaultArticleType},
+    );
+
+    my $ArticleTypeIDSelected = $ArticleTypes{ $Param{ArticleTypeID} }
+        ?
+        $Param{ArticleTypeID}
+        :
+        $DefaultArticleTypeID;
+
+    if ( $Param{GetParam}->{ArticleTypeID} ) {
+
+        # set param ArticleType
+        $ArticleTypeIDSelected = $Param{GetParam}->{ArticleTypeID};
+
+    }
+
+    $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+        Data       => \%ArticleTypes,
+        Name       => 'ArticleTypeID',
+        SelectedID => $ArticleTypeIDSelected,
+    );
+
+    # build customer search autocomplete field
     $Self->{LayoutObject}->Block(
         Name => 'CustomerSearchAutoComplete',
     );
 
     # prepare errors!
     if ( $Param{Errors} ) {
-        for my $Error ( sort keys %{ $Param{Errors} } ) {
-            $Param{$Error} = $Self->{LayoutObject}->Ascii2Html(
-                Text => $Param{Errors}->{$Error},
-            );
+        for ( sort keys %{ $Param{Errors} } ) {
+            $Param{$_} = $Self->{LayoutObject}->Ascii2Html( Text => $Param{Errors}->{$_} );
         }
     }
 
@@ -1816,7 +1843,7 @@ sub _Mask {
     }
 
     # set preselected values for To field
-    if ( $Param{To} ne '' && !$CustomerCounter ) {
+    if ( defined $Param{To} && $Param{To} ne '' && !$CustomerCounter ) {
         $Self->{LayoutObject}->Block(
             Name => 'PreFilledTo',
         );

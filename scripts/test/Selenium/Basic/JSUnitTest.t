@@ -1,6 +1,5 @@
 # --
-# JSUnitTest.t - frontend tests that collect the JavaScript unit test results
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -32,15 +31,8 @@ $Selenium->RunTest(
         $Selenium->get("${WebPath}js/test/JSUnitTest.html");
 
         # wait for the javascript tests (including AJAX) to complete
-        WAIT:
-        for ( 1 .. 20 ) {
-
-            if ( eval { $Selenium->find_element( "p.result span.failed", 'css' ); } ) {
-                last WAIT;
-            }
-
-            sleep(0.2);
-        }
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("p.result span.failed").length' );
 
         $Selenium->find_element( "p.result span.failed", 'css' );
         $Selenium->find_element( "p.result span.passed", 'css' );
@@ -71,7 +63,12 @@ $Selenium->RunTest(
                 'Failed JavaScript unit test found (open js/test/JSUnitTest.html in your browser for details)'
             );
         }
+
+        # Generate screenshot on failure
+        if ( $Failed || !$Passed || $Passed != $Total ) {
+            die;
         }
+    }
 );
 
 1;

@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AgentTicketEmail.pm - to compose initial email to customer
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -943,6 +942,12 @@ sub Run {
                         . 'ServerErrorMsg';
                     $Error{ $Parameter . 'Invalid' } = 'ServerError';
                 }
+                my $IsLocal = $Self->{SystemAddress}->SystemAddressIsLocalAddress(
+                    Address => $Email->address()
+                );
+                if ($IsLocal) {
+                    $Error{ $Parameter . 'IsLocalAddress' } = 'ServerError';
+                }
             }
         }
 
@@ -1061,6 +1066,27 @@ sub Run {
         }
 
         if (%Error) {
+
+            if ( $Error{ToIsLocalAddress} ) {
+                $Self->{LayoutObject}->Block(
+                    Name => 'ToIsLocalAddressServerErrorMsg',
+                    Data => \%GetParam,
+                );
+            }
+
+            if ( $Error{CcIsLocalAddress} ) {
+                $Self->{LayoutObject}->Block(
+                    Name => 'CcIsLocalAddressServerErrorMsg',
+                    Data => \%GetParam,
+                );
+            }
+
+            if ( $Error{BccIsLocalAddress} ) {
+                $Self->{LayoutObject}->Block(
+                    Name => 'BccIsLocalAddressServerErrorMsg',
+                    Data => \%GetParam,
+                );
+            }
 
             # get and format default subject and body
             my $Subject = $Self->{LayoutObject}->Output(
@@ -1508,7 +1534,6 @@ sub Run {
         DYNAMICFIELD:
         for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-            next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
@@ -1850,6 +1875,7 @@ sub _GetUsers {
     # workflow
     my $ACL = $Self->{TicketObject}->TicketAcl(
         %Param,
+        Action        => $Self->{Action},
         ReturnType    => 'Ticket',
         ReturnSubType => 'Owner',
         Data          => \%ShownUsers,
@@ -1910,6 +1936,7 @@ sub _GetResponsibles {
     # workflow
     my $ACL = $Self->{TicketObject}->TicketAcl(
         %Param,
+        Action        => $Self->{Action},
         ReturnType    => 'Ticket',
         ReturnSubType => 'Responsible',
         Data          => \%ShownUsers,
@@ -2046,6 +2073,10 @@ sub _GetTos {
                 || '<Realname> <<Email>> - Queue: <Queue>';
             $String =~ s/<Queue>/$QueueData{Name}/g;
             $String =~ s/<QueueComment>/$QueueData{Comment}/g;
+
+            # remove trailing spaces
+            $String =~ s{\s+\z}{} if !$QueueData{Comment};
+
             if ( $Self->{ConfigObject}->Get('Ticket::Frontend::NewQueueSelectionType') ne 'Queue' )
             {
                 my %SystemAddressData = $Self->{SystemAddress}->SystemAddressGet(

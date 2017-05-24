@@ -1,6 +1,5 @@
 # --
-# Kernel/Modules/AdminQueue.pm - to add/update/delete queues
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -676,10 +675,12 @@ sub _Edit {
     );
     my %Calendar = ( '' => '-' );
 
-    for my $Number ( '', 1 .. 50 ) {
-        if ( $Self->{ConfigObject}->Get("TimeVacationDays::Calendar$Number") ) {
-            $Calendar{$Number} = "Calendar $Number - "
-                . $Self->{ConfigObject}->Get( "TimeZone::Calendar" . $Number . "Name" );
+    my $Maximum = $Self->{ConfigObject}->Get("MaximumCalendarNumber") || 50;
+
+    for my $CalendarNumber ( '', 1 .. $Maximum ) {
+        if ( $Self->{ConfigObject}->Get("TimeVacationDays::Calendar$CalendarNumber") ) {
+            $Calendar{$CalendarNumber} = "Calendar $CalendarNumber - "
+                . $Self->{ConfigObject}->Get( "TimeZone::Calendar" . $CalendarNumber . "Name" );
         }
     }
     $Param{CalendarOption} = $Self->{LayoutObject}->BuildSelection(

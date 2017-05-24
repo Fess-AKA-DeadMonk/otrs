@@ -1,6 +1,5 @@
 # --
-# Handler.t - GenericInterface event handler tests
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -22,6 +21,16 @@ my $DebugLogObject    = $Kernel::OM->Get('Kernel::System::GenericInterface::Debu
 my $TaskManagerObject = $Kernel::OM->Get('Kernel::System::Scheduler::TaskManager');
 
 my $RandomID = $HelperObject->GetRandomID();
+
+my $TestTaskList = sub {
+
+    my %IgnoreTaskTypes = (
+        SupportDataCollectorAsynchronous => 1,
+        RegistrationUpdate               => 1,
+    );
+
+    return grep { !$IgnoreTaskTypes{ $_->{Type} } } $TaskManagerObject->TaskList();
+};
 
 my @Tests = (
     {
@@ -382,7 +391,7 @@ for my $Test (@Tests) {
             print "Waiting for Scheduler to execute tasks, $Wait seconds\n";
             sleep 1;
 
-            my @List = $TaskManagerObject->TaskList();
+            my @List = $TestTaskList->();
 
             if ( scalar @List eq 0 ) {
                 $Self->True(

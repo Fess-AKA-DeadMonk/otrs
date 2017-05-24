@@ -1,6 +1,5 @@
 # --
-# Kernel/System/PostMaster.pm - the global PostMaster module for OTRS
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -208,12 +207,53 @@ sub Run {
         return (5);
     }
 
-    # ----------------------
+    #
     # ticket section
-    # ----------------------
+    #
 
     # check if follow up (again, with new GetParam)
     ( $Tn, $TicketID ) = $Self->CheckFollowUp( %{$GetParam} );
+
+    # run all PreCreateFilterModules
+    if ( ref $ConfigObject->Get('PostMaster::PreCreateFilterModule') eq 'HASH' ) {
+
+        my %Jobs = %{ $ConfigObject->Get('PostMaster::PreCreateFilterModule') };
+
+        my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+        my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+        JOB:
+        for my $Job ( sort keys %Jobs ) {
+
+            return if !$MainObject->Require( $Jobs{$Job}->{Module} );
+
+            my $FilterObject = $Jobs{$Job}->{Module}->new(
+                %{$Self},
+            );
+
+            if ( !$FilterObject ) {
+                $LogObject->Log(
+                    Priority => 'error',
+                    Message  => "new() of PreCreateFilterModule $Jobs{$Job}->{Module} not successfully!",
+                );
+                next JOB;
+            }
+
+            # modify params
+            my $Run = $FilterObject->Run(
+                GetParam  => $GetParam,
+                JobConfig => $Jobs{$Job},
+                TicketID  => $TicketID,
+            );
+            if ( !$Run ) {
+                $LogObject->Log(
+                    Priority => 'error',
+                    Message =>
+                        "Execute Run() of PreCreateFilterModule $Jobs{$Job}->{Module} not successfully!",
+                );
+            }
+        }
+    }
 
     # check if it's a follow up ...
     if ( $Tn && $TicketID ) {
@@ -247,7 +287,7 @@ sub Run {
         );
 
         # create a new ticket
-        if ( $FollowUpPossible =~ /new ticket/i && $State{TypeName} =~ /^close/i ) {
+        if ( $FollowUpPossible =~ /new ticket/i && $State{TypeName} =~ /^(removed|close)/i ) {
 
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'info',
@@ -297,7 +337,7 @@ sub Run {
         }
 
         # reject follow up
-        elsif ( $FollowUpPossible =~ /reject/i && $State{TypeName} =~ /^close/i ) {
+        elsif ( $FollowUpPossible =~ /reject/i && $State{TypeName} =~ /^(removed|close)/i ) {
 
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'info',
